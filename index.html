@@ -7,7 +7,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
 <style>
 /* ══════════════════════════════════════════
-   THEME VARIABLES — swap these to change theme
+   THEME VARIABLES
    ══════════════════════════════════════════ */
 :root {
   --bg:        #140f1e;
@@ -28,41 +28,51 @@
 
 * { margin:0; padding:0; box-sizing:border-box; image-rendering:pixelated; }
 
-body {
-  background:var(--bg);
-  font-family:'Press Start 2P', monospace;
-  min-height:100vh;
-  display:flex;
-  flex-direction:column;
-  align-items:center;
-  padding:28px 12px 48px;
-  overflow-x:hidden;
-}
-
 /* CRT scanlines */
 body::after {
   content:''; position:fixed; inset:0; pointer-events:none; z-index:9999;
   background:repeating-linear-gradient(0deg,transparent,transparent 3px,rgba(0,0,0,.10) 3px,rgba(0,0,0,.10) 4px);
 }
 
-/* ── MAIN WRAPPER ── */
-.hub-wrap {
-  width:100%;
-  max-width:860px;
-  transform-origin:top center;
+body {
+  background:var(--bg);
+  font-family:'Press Start 2P', monospace;
+  width:100vw; height:100vh;
+  overflow:hidden;
   display:flex;
-  flex-direction:column;
   align-items:center;
+  justify-content:center;
+}
+
+/* ── SCALE WRAPPER ── */
+#hubWrap {
+  width:1100px; height:620px;
+  transform-origin:center center;
+  display:flex;
+  flex-direction:row;
   gap:0;
 }
 
-/* ── HEADER ── */
-.hub-header {
+/* ── LEFT SIDEBAR ── */
+.hub-left {
+  width:260px;
+  flex-shrink:0;
+  background:var(--bg2);
+  border:3px solid var(--border);
+  box-shadow:4px 4px 0 var(--shadow), inset 0 0 0 1px var(--bg3);
   display:flex;
   flex-direction:column;
   align-items:center;
-  gap:6px;
-  margin-bottom:6px;
+  justify-content:center;
+  gap:12px;
+  padding:24px 20px;
+  position:relative;
+}
+
+/* top accent line on sidebar */
+.hub-left::before {
+  content:''; position:absolute; top:0; left:0; right:0; height:4px;
+  background:linear-gradient(90deg, var(--pink), var(--gold), var(--pink));
 }
 
 #hubChef {
@@ -71,118 +81,107 @@ body::after {
   box-shadow:none !important;
   animation:chefBob .8s steps(2) infinite;
 }
-
 @keyframes chefBob { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-6px)} }
 
 .hub-title {
   color:var(--gold);
-  font-size:1.4rem;
-  letter-spacing:6px;
-  text-shadow:0 0 24px #ffd97d55, 3px 3px var(--shadow);
-  margin-top:8px;
+  font-size:1.0rem;
+  letter-spacing:4px;
+  text-align:center;
+  text-shadow:0 0 20px #ffd97d55, 2px 2px var(--shadow);
+  line-height:1.8;
 }
 .hub-title span { color:var(--pink); }
 
 .hub-sub {
   color:var(--sub);
-  font-size:.54rem;
-  letter-spacing:3px;
+  font-size:.36rem;
+  letter-spacing:2px;
+  text-align:center;
 }
 
-/* decorative divider */
-.hub-divider {
-  width:100%;
-  height:4px;
-  margin:16px 0 20px;
-  background:linear-gradient(90deg,
-    transparent 0%,
-    var(--border) 20%,
-    var(--border-hi) 50%,
-    var(--border) 80%,
-    transparent 100%);
-  position:relative;
+.hub-divider-v {
+  width:80%;
+  height:3px;
+  background:linear-gradient(90deg, transparent, var(--border-hi), transparent);
 }
-.hub-divider::before,
-.hub-divider::after {
-  content:'✦';
+
+.hub-version {
+  color:var(--sub);
+  font-size:.28rem;
+  letter-spacing:1px;
   position:absolute;
-  top:50%;
-  transform:translateY(-50%);
-  color:var(--border-hi);
-  font-size:10px;
-  font-family:sans-serif;
+  bottom:14px;
 }
-.hub-divider::before { left:20%; }
-.hub-divider::after  { right:20%; }
 
-/* ── SECTION LABEL ── */
+/* ── RIGHT CONTENT ── */
+.hub-right {
+  flex:1;
+  display:flex;
+  flex-direction:column;
+  padding:16px 16px 16px 20px;
+  gap:12px;
+  overflow:hidden;
+}
+
 .hub-section-lbl {
   color:var(--sub);
-  font-size:.52rem;
+  font-size:.44rem;
   letter-spacing:3px;
-  align-self:flex-start;
-  margin-bottom:14px;
+  flex-shrink:0;
 }
 
 /* ── GAME GRID ── */
 .game-grid {
+  flex:1;
   display:grid;
   grid-template-columns:1fr 1fr;
-  gap:14px;
-  width:100%;
+  grid-template-rows:1fr 1fr 1fr;
+  gap:10px;
+  overflow:hidden;
 }
 
 .game-card {
   background:var(--bg2);
   border:3px solid var(--border);
-  box-shadow:4px 4px 0 var(--shadow), inset 0 0 0 1px var(--bg3);
-  padding:20px 18px 16px;
+  box-shadow:3px 3px 0 var(--shadow), inset 0 0 0 1px var(--bg3);
+  padding:14px 14px 10px;
   cursor:pointer;
   display:flex;
   flex-direction:column;
-  gap:10px;
+  gap:6px;
   position:relative;
   overflow:hidden;
   transition:transform .08s, filter .08s, box-shadow .08s;
 }
 .game-card:not(.soon):hover {
   transform:translate(-2px,-2px);
-  box-shadow:6px 6px 0 var(--shadow), inset 0 0 0 1px var(--bg3);
-  filter:brightness(1.15);
+  box-shadow:5px 5px 0 var(--shadow);
+  filter:brightness(1.2);
 }
 .game-card:not(.soon):active {
   transform:translate(1px,1px);
-  box-shadow:2px 2px 0 var(--shadow);
+  box-shadow:1px 1px 0 var(--shadow);
 }
-.game-card.soon { cursor:default; }
+.game-card.soon { cursor:default; opacity:.7; }
 
-/* top colour stripe */
 .card-stripe {
   position:absolute; top:0; left:0; right:0; height:4px;
 }
 
-/* corner star decoration */
-.game-card::after {
-  content:'✦';
-  position:absolute; bottom:6px; right:8px;
-  font-family:sans-serif;
-  font-size:8px;
-  color:var(--border);
-  opacity:.5;
-}
-
-.card-icon { font-size:28px; margin-top:2px; }
+.card-icon { font-size:22px; flex-shrink:0; }
 
 .card-name {
-  font-size:.58rem;
+  font-size:.52rem;
   letter-spacing:1px;
-  line-height:2;
+  line-height:1.8;
+  flex-shrink:0;
 }
 
 .card-desc {
-  font-size:.40rem;
+  font-size:.34rem;
   color:var(--sub);
-  line-height:2.2;
+  line-height:2;
   flex:1;
 }
 
@@ -190,45 +189,36 @@ body::after {
   display:flex;
   align-items:center;
   justify-content:space-between;
-  margin-top:6px;
-  padding-top:8px;
+  padding-top:6px;
   border-top:1px solid var(--bg3);
+  flex-shrink:0;
 }
 
-.card-stars { font-size:.38rem; letter-spacing:2px; }
+.card-stars { font-size:.34rem; letter-spacing:1px; }
 
 .card-tag {
   font-family:'Press Start 2P',monospace;
-  font-size:.38rem;
-  padding:6px 10px;
+  font-size:.34rem;
+  padding:5px 9px;
   border:2px solid currentColor;
   background:transparent;
   letter-spacing:1px;
 }
-.tag-play   { color:var(--green); }
-.tag-soon   { color:var(--sub);   border-color:var(--sub); font-size:.32rem; }
-.tag-new    { color:var(--pink);  animation:tagBlink .9s step-end infinite; }
-@keyframes tagBlink{ 0%,100%{opacity:1} 50%{opacity:0} }
+.tag-play { color:var(--green); }
+.tag-soon { color:var(--sub); border-color:var(--sub); font-size:.28rem; }
+.tag-new  { color:var(--pink); animation:tagBlink .9s step-end infinite; }
+@keyframes tagBlink { 0%,100%{opacity:1} 50%{opacity:0} }
 
-/* wide card spans full row */
-.game-card.wide { grid-column:1 / -1; flex-direction:row; align-items:center; gap:18px; }
-.game-card.wide .card-icon { font-size:36px; flex-shrink:0; }
-.game-card.wide .card-desc { font-size:.40rem; }
-.game-card.wide::after { display:none; }
-
-/* ── FOOTER ── */
-.hub-footer {
-  margin-top:32px;
-  text-align:center;
-  color:var(--sub);
-  font-size:.40rem;
-  letter-spacing:2px;
-  line-height:3;
+/* Rush Order spans full bottom row */
+.game-card.wide {
+  grid-column:1 / -1;
+  flex-direction:row;
+  align-items:center;
+  gap:16px;
 }
-.hub-footer a {
-  color:var(--border-hi);
-  text-decoration:none;
-}
+.game-card.wide .card-icon { font-size:30px; }
+.game-card.wide .card-body { flex:1; display:flex; flex-direction:column; gap:6px; }
+.game-card.wide .card-desc { font-size:.35rem; }
 
 /* ── ROTATE OVERLAY ── */
 #rotateMsg {
@@ -246,192 +236,140 @@ body::after {
 .rotate-phone {
   font-size:52px;
   animation:rotatePhone 2s steps(2) infinite;
-  display:block;
 }
 @keyframes rotatePhone {
-  0%,40%  { transform:rotate(0deg);   }
-  60%,100%{ transform:rotate(90deg);  }
+  0%,40%  { transform:rotate(0deg);  }
+  60%,100%{ transform:rotate(90deg); }
 }
 .rotate-text {
   color:var(--gold);
-  font-size:.46rem;
+  font-size:.50rem;
   letter-spacing:2px;
   text-align:center;
   line-height:2.4;
-  text-shadow:0 0 16px #ffd97d55;
 }
-.rotate-sub {
-  color:var(--sub);
-  font-size:.30rem;
-  letter-spacing:2px;
-}
+.rotate-sub { color:var(--sub); font-size:.32rem; letter-spacing:2px; }
 </style>
 </head>
 <body>
 
-<div class="hub-wrap" id="hubWrap">
+<div id="hubWrap">
 
-  <!-- HEADER -->
-  <div class="hub-header">
+  <!-- LEFT SIDEBAR -->
+  <div class="hub-left">
     <canvas id="hubChef"></canvas>
-    <div class="hub-title">TINY&nbsp;<span>KITCHEN</span></div>
-    <div class="hub-sub">★ &nbsp; PIXEL GAME ARCADE &nbsp; ★</div>
+    <div class="hub-title">TINY<br><span>KITCHEN</span></div>
+    <div class="hub-divider-v"></div>
+    <div class="hub-sub">★ PIXEL ARCADE ★</div>
+    <div class="hub-version">v0.2</div>
   </div>
 
-  <div class="hub-divider"></div>
-  <div class="hub-section-lbl">▶ SELECT A GAME</div>
+  <!-- RIGHT: GAME SELECT -->
+  <div class="hub-right">
+    <div class="hub-section-lbl">▶ SELECT A GAME</div>
 
-  <!-- GAME GRID -->
-  <div class="game-grid">
+    <div class="game-grid">
 
-    <!-- 1. Ingredient Match (LIVE) -->
-    <div class="game-card" onclick="location.href='kitchen_scene.html'">
-      <div class="card-stripe" style="background:var(--gold);"></div>
-      <div class="card-icon">🥗</div>
-      <div class="card-name" style="color:var(--gold);">INGREDIENT<br>MATCH</div>
-      <div class="card-desc">Read emoji clues and tap the right ingredients before time runs out!</div>
-      <div class="card-footer">
-        <span class="card-stars" style="color:var(--gold);">★★★</span>
-        <span class="card-tag tag-play tag-new">▶ PLAY</span>
+      <!-- 1. Ingredient Match -->
+      <div class="game-card" onclick="location.href='kitchen_scene.html'">
+        <div class="card-stripe" style="background:var(--gold);"></div>
+        <div class="card-icon">🥗</div>
+        <div class="card-name" style="color:var(--gold);">INGREDIENT MATCH</div>
+        <div class="card-desc">Read emoji clues and tap the right ingredients before time runs out!</div>
+        <div class="card-footer">
+          <span class="card-stars" style="color:var(--gold);">★★★</span>
+          <span class="card-tag tag-play tag-new">▶ PLAY</span>
+        </div>
       </div>
-    </div>
 
-    <!-- 2. Kitchen Memory -->
-    <div class="game-card soon">
-      <div class="card-stripe" style="background:var(--blue);"></div>
-      <div class="card-icon">🃏</div>
-      <div class="card-name" style="color:var(--blue);">KITCHEN<br>MEMORY</div>
-      <div class="card-desc">Flip and match pairs of food cards. Remember fast, win faster!</div>
-      <div class="card-footer">
-        <span class="card-stars" style="color:var(--blue);">★★☆</span>
-        <span class="card-tag tag-soon">SOON</span>
-      </div>
-    </div>
-
-    <!-- 3. Chop Rush -->
-    <div class="game-card soon">
-      <div class="card-stripe" style="background:var(--orange);"></div>
-      <div class="card-icon">🔪</div>
-      <div class="card-name" style="color:var(--orange);">CHOP<br>RUSH</div>
-      <div class="card-desc">Ingredients fly across screen — tap only the ones your recipe needs!</div>
-      <div class="card-footer">
-        <span class="card-stars" style="color:var(--orange);">★★★</span>
-        <span class="card-tag tag-soon">SOON</span>
-      </div>
-    </div>
-
-    <!-- 4. Plating Challenge -->
-    <div class="game-card soon">
-      <div class="card-stripe" style="background:var(--green);"></div>
-      <div class="card-icon">🍽️</div>
-      <div class="card-name" style="color:var(--green);">PLATING<br>CHALLENGE</div>
-      <div class="card-desc">Tap ingredients in the correct order to plate each dish perfectly!</div>
-      <div class="card-footer">
-        <span class="card-stars" style="color:var(--green);">★★☆</span>
-        <span class="card-tag tag-soon">SOON</span>
-      </div>
-    </div>
-
-    <!-- 5. Rush Order (wide) -->
-    <div class="game-card soon wide">
-      <div class="card-stripe" style="background:var(--pink);"></div>
-      <div class="card-icon">📋</div>
-      <div style="flex:1; display:flex; flex-direction:column; gap:6px;">
-        <div class="card-name" style="color:var(--pink);">RUSH ORDER</div>
-        <div class="card-desc">Customers keep piling in — assign the right dish to each order before they rage quit!</div>
-        <div class="card-footer" style="border-top:1px solid var(--bg3); padding-top:6px; margin-top:2px;">
-          <span class="card-stars" style="color:var(--pink);">★★★★</span>
+      <!-- 2. Kitchen Memory -->
+      <div class="game-card soon">
+        <div class="card-stripe" style="background:var(--blue);"></div>
+        <div class="card-icon">🃏</div>
+        <div class="card-name" style="color:var(--blue);">KITCHEN MEMORY</div>
+        <div class="card-desc">Flip and match pairs of food cards. Remember fast, win faster!</div>
+        <div class="card-footer">
+          <span class="card-stars" style="color:var(--blue);">★★☆</span>
           <span class="card-tag tag-soon">SOON</span>
         </div>
       </div>
+
+      <!-- 3. Chop Rush -->
+      <div class="game-card soon">
+        <div class="card-stripe" style="background:var(--orange);"></div>
+        <div class="card-icon">🔪</div>
+        <div class="card-name" style="color:var(--orange);">CHOP RUSH</div>
+        <div class="card-desc">Ingredients fly across screen — tap only the ones your recipe needs!</div>
+        <div class="card-footer">
+          <span class="card-stars" style="color:var(--orange);">★★★</span>
+          <span class="card-tag tag-soon">SOON</span>
+        </div>
+      </div>
+
+      <!-- 4. Plating Challenge -->
+      <div class="game-card soon">
+        <div class="card-stripe" style="background:var(--green);"></div>
+        <div class="card-icon">🍽️</div>
+        <div class="card-name" style="color:var(--green);">PLATING CHALLENGE</div>
+        <div class="card-desc">Tap ingredients in the correct order to plate each dish perfectly!</div>
+        <div class="card-footer">
+          <span class="card-stars" style="color:var(--green);">★★☆</span>
+          <span class="card-tag tag-soon">SOON</span>
+        </div>
+      </div>
+
+      <!-- 5. Rush Order (wide, bottom row) -->
+      <div class="game-card soon wide">
+        <div class="card-stripe" style="background:var(--pink);"></div>
+        <div class="card-icon">📋</div>
+        <div class="card-body">
+          <div class="card-name" style="color:var(--pink);">RUSH ORDER</div>
+          <div class="card-desc">Customers keep piling in — assign the right dish to each order before they rage quit!</div>
+          <div class="card-footer" style="border-top:1px solid var(--bg3);">
+            <span class="card-stars" style="color:var(--pink);">★★★★</span>
+            <span class="card-tag tag-soon">SOON</span>
+          </div>
+        </div>
+      </div>
+
     </div>
-
-  </div>
-
-  <div class="hub-footer">
-    TINY KITCHEN &nbsp;·&nbsp; v0.2<br>
-    MORE GAMES COMING SOON ✦
   </div>
 
 </div>
 
+<!-- ROTATE OVERLAY -->
+<div id="rotateMsg">
+  <span class="rotate-phone">📱</span>
+  <div class="rotate-text">ROTATE YOUR<br>DEVICE</div>
+  <div class="rotate-sub">LANDSCAPE MODE ONLY</div>
+</div>
+
 <script>
 // ══════════════════════════════════════════
-//  PIXEL CHEF (cute chibi style, scale ×4)
+//  PIXEL CHEF (cute chibi, scale ×4)
 // ══════════════════════════════════════════
-(function drawHubChef(){
-  const c = document.getElementById('hubChef');
+(function(){
+  const c=document.getElementById('hubChef');
   const S=4, CW=22, CH=28;
   c.width=CW*S; c.height=CH*S;
   const ctx=c.getContext('2d');
   ctx.imageSmoothingEnabled=false;
-
-  const W='#ffffff', SK='#f5c49a', DK='#3a2010', BK='#1a0800',
-        PK='#ff8fb0', GD='#ffd97d', LG='#e8e0d0', PU='#c87eb8';
-
-  function r(x,y,col,w=1,h=1){
-    ctx.fillStyle=col; ctx.fillRect(x*S,y*S,(w||1)*S,(h||1)*S);
-  }
-
-  // ── HAT ──
-  r(8,0, W,6,1);
-  r(7,1, W,8,1);
-  r(6,2, W,10,1);
-  r(5,3, LG,12,2); // brim
-
-  // ── HEAD ──
-  r(5,5, SK,12,6);
-  // ear
-  r(4,6,  SK,1,3);
-  r(17,6, SK,1,3);
-
-  // cute big eyes
-  r(7,6,  BK,3,3);
-  r(13,6, BK,3,3);
-  // eye whites / shine
-  r(7,6,  W,1,1);
-  r(13,6, W,1,1);
-  // iris
-  r(8,7,  PU,1,1);
-  r(14,7, PU,1,1);
-
-  // blush ♥
-  r(6,9,  PK,2,1);
-  r(14,9, PK,2,1);
-
-  // smile
-  r(8,10,  DK,1,1);
-  r(9,11,  DK,3,1);
-  r(12,10, DK,1,1);
-
-  // ── BODY ──
-  r(6,11, W,10,7);
-  r(5,11, LG,1,7); // left edge
-  r(16,11,LG,1,7); // right edge
-
-  // apron centre stripe
-  r(10,12, LG,2,5);
-
-  // buttons
-  r(9,13,  DK,2,1);
-  r(9,15,  DK,2,1);
-
-  // ── ARMS ──
-  r(3,12, SK,2,4);
-  r(17,12,SK,2,4);
-
-  // hands — left holds spoon, right holds heart
-  r(3,16, GD,2,2);  // spoon/ladle (gold)
-  r(17,16,PK,2,2);  // heart (pink)
-
-  // ── LEGS ──
-  r(7,18,  DK,3,4);
-  r(12,18, DK,3,4);
-
-  // ── FEET ──
-  r(6,22,  BK,4,2);
-  r(12,22, BK,4,2);
-
+  const W='#ffffff',SK='#f5c49a',DK='#3a2010',BK='#1a0800',
+        PK='#ff8fb0',GD='#ffd97d',LG='#e8e0d0',PU='#c87eb8';
+  function r(x,y,col,w=1,h=1){ ctx.fillStyle=col; ctx.fillRect(x*S,y*S,w*S,h*S); }
+  r(8,0,W,6,1); r(7,1,W,8,1); r(6,2,W,10,1); r(5,3,LG,12,2);
+  r(5,5,SK,12,6); r(4,6,SK,1,3); r(17,6,SK,1,3);
+  r(7,6,BK,3,3); r(13,6,BK,3,3);
+  r(7,6,W,1,1); r(13,6,W,1,1);
+  r(8,7,PU,1,1); r(14,7,PU,1,1);
+  r(6,9,PK,2,1); r(14,9,PK,2,1);
+  r(8,10,DK,1,1); r(9,11,DK,3,1); r(12,10,DK,1,1);
+  r(6,11,W,10,7); r(5,11,LG,1,7); r(16,11,LG,1,7);
+  r(10,12,LG,2,5); r(9,13,DK,2,1); r(9,15,DK,2,1);
+  r(3,12,SK,2,4); r(17,12,SK,2,4);
+  r(3,16,GD,2,2); r(17,16,PK,2,2);
+  r(7,18,DK,3,4); r(12,18,DK,3,4);
+  r(6,22,BK,4,2); r(12,22,BK,4,2);
 })();
 
 // ══════════════════════════════════════════
@@ -440,21 +378,14 @@ body::after {
 function scaleHub(){
   const wrap = document.getElementById('hubWrap');
   if(!wrap) return;
-  const vw = window.innerWidth;
-  const MAX_W = 860;
-  const scale = Math.min(1, (vw - 24) / MAX_W);
+  const W=1100, H=620;
+  const scaleX = window.innerWidth  / W;
+  const scaleY = window.innerHeight / H;
+  const scale  = Math.min(scaleX, scaleY, 1);
   wrap.style.transform = `scale(${scale})`;
-  wrap.style.marginBottom = `${MAX_W * 1.6 * (scale - 1)}px`;
 }
 document.addEventListener('DOMContentLoaded', scaleHub);
 window.addEventListener('resize', scaleHub);
 </script>
-<!-- ROTATE OVERLAY -->
-<div id="rotateMsg">
-  <span class="rotate-phone">📱</span>
-  <div class="rotate-text">ROTATE YOUR<br>DEVICE</div>
-  <div class="rotate-sub">LANDSCAPE MODE ONLY</div>
-</div>
-
 </body>
 </html>
