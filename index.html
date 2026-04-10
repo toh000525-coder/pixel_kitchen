@@ -94,8 +94,8 @@ body {
 .hub-title span { color:var(--pink); }
 
 .hub-sub {
-  color:var(--sub);
-  font-size:.36rem;
+  color:var(--pink);
+  font-size:.46rem;
   letter-spacing:2px;
   text-align:center;
 }
@@ -222,6 +222,20 @@ body {
 .tag-soon { color:var(--sub); border-color:var(--sub); font-size:.28rem; }
 .tag-new  { color:var(--pink); animation:tagBlink .9s step-end infinite; }
 @keyframes tagBlink { 0%,100%{opacity:1} 50%{opacity:0} }
+
+/* Shop card */
+.shop-card {
+  position:relative;
+  display:flex;
+  align-items:center;
+  gap:14px;
+  background:var(--bg2);
+  border:3px solid var(--border);
+  padding:12px 14px;
+  margin:0 0 6px;
+  overflow:hidden;
+}
+.shop-card.soon { cursor:default; opacity:.75; }
 
 /* Rush Order spans full bottom row */
 .game-card.wide {
@@ -424,17 +438,36 @@ body {
         <div class="card-tag tag-soon" style="margin-top:6px;">COMING SOON</div>
       </div>
 
-      <!-- 5. Plate Perfect (wide, bottom row) -->
-      <div class="game-card soon wide">
+      <!-- 5. Plate Perfect -->
+      <div class="game-card soon">
         <div class="card-stripe" style="background:var(--pink);"></div>
         <div class="card-icon">🍽️</div>
-        <div class="card-body">
-          <div class="card-name" style="color:var(--pink);">PLATE PERFECT</div>
-          <div class="card-tag tag-soon" style="margin-top:6px;">COMING SOON</div>
-        </div>
+        <div class="card-name" style="color:var(--pink);">PLATE PERFECT</div>
+        <div class="card-tag tag-soon" style="margin-top:6px;">COMING SOON</div>
+      </div>
+
+      <!-- 6. Kitchen Chaos -->
+      <div class="game-card soon">
+        <div class="card-stripe" style="background:var(--red);"></div>
+        <div class="card-icon">🍳</div>
+        <div class="card-name" style="color:var(--red);">KITCHEN CHAOS</div>
+        <div class="card-tag tag-soon" style="margin-top:6px;">COMING SOON</div>
       </div>
 
     </div>
+
+    <!-- SHOP -->
+    <div class="hub-section-lbl" style="margin-top:10px;">▶ SHOP</div>
+    <div class="shop-card soon">
+      <div class="card-stripe" style="background:var(--gold);"></div>
+      <div style="font-size:28px;">🪙</div>
+      <div>
+        <div class="card-name" style="color:var(--gold);font-size:.52rem;">PIXEL SHOP</div>
+        <div style="font-size:.32rem;color:var(--sub);margin-top:4px;">Spend coins on themes, decorations & more</div>
+      </div>
+      <div class="card-tag tag-soon" style="margin-left:auto;flex-shrink:0;">COMING SOON</div>
+    </div>
+
   </div>
 
 </div>
