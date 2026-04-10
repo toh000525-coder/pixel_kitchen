@@ -111,8 +111,22 @@ body {
   font-size:.28rem;
   letter-spacing:1px;
   position:absolute;
-  bottom:14px;
+  bottom:36px;
 }
+#hubMute {
+  font-family:'Press Start 2P',monospace;
+  font-size:.30rem;
+  background:var(--bg3);
+  color:var(--sub);
+  border:2px solid var(--border);
+  padding:5px 9px;
+  cursor:pointer;
+  position:absolute;
+  bottom:12px;
+  transition:filter .12s;
+  letter-spacing:1px;
+}
+#hubMute:hover { filter:brightness(1.5); color:var(--gold); border-color:var(--gold); }
 
 /* ── RIGHT CONTENT ── */
 .hub-right {
@@ -220,6 +234,87 @@ body {
 .game-card.wide .card-body { flex:1; display:flex; flex-direction:column; gap:6px; }
 .game-card.wide .card-desc { font-size:.35rem; }
 
+/* ══════════════════════════════════════════
+   SPLASH INTRO
+   ══════════════════════════════════════════ */
+#hubSplash {
+  position:fixed; inset:0; z-index:10000;
+  background:var(--bg);
+  display:flex; flex-direction:column;
+  align-items:center; justify-content:center;
+  gap:14px; overflow:hidden; cursor:pointer;
+}
+#hubSplash.hide {
+  animation:splashOut .5s steps(8) forwards;
+  pointer-events:none;
+}
+@keyframes splashOut {
+  0%   { opacity:1; transform:scale(1); }
+  60%  { opacity:1; transform:scale(1.04); }
+  100% { opacity:0; transform:scale(1.08); }
+}
+/* scanlines inside splash */
+#hubSplash::after {
+  content:''; position:absolute; inset:0; pointer-events:none; z-index:1;
+  background:repeating-linear-gradient(0deg,transparent,transparent 3px,rgba(0,0,0,.12) 3px,rgba(0,0,0,.12) 4px);
+}
+/* corner accents */
+.sp-corner {
+  position:absolute; width:22px; height:22px;
+  border:4px solid var(--gold);
+}
+.sp-corner.tl { top:14px;    left:14px;    border-right:none;  border-bottom:none; }
+.sp-corner.tr { top:14px;    right:14px;   border-left:none;   border-bottom:none; }
+.sp-corner.bl { bottom:14px; left:14px;    border-right:none;  border-top:none; }
+.sp-corner.br { bottom:14px; right:14px;   border-left:none;   border-top:none; }
+/* top / bottom accent bars */
+.sp-bar {
+  position:absolute; left:0; right:0; height:5px;
+  background:linear-gradient(90deg, transparent 0%, var(--pink) 20%, var(--gold) 50%, var(--pink) 80%, transparent 100%);
+}
+.sp-bar.top { top:0; }
+.sp-bar.bot { bottom:0; }
+/* pixel stars */
+.sp-star {
+  position:absolute;
+  animation:spStarTwinkle linear infinite;
+}
+@keyframes spStarTwinkle { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.1;transform:scale(.3)} }
+/* main content */
+.sp-content {
+  display:flex; flex-direction:column; align-items:center; gap:14px;
+  z-index:2;
+  animation:spContentIn .5s steps(8) .1s both;
+}
+@keyframes spContentIn { from{transform:translateY(18px);opacity:0} to{transform:translateY(0);opacity:1} }
+/* chef */
+#spChef {
+  display:block;
+  animation:spChefBob .7s steps(2) infinite;
+  filter:drop-shadow(0 0 10px var(--pink));
+}
+@keyframes spChefBob { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-9px)} }
+/* title */
+.sp-title {
+  color:var(--gold); font-size:2.0rem; letter-spacing:12px;
+  text-align:center; line-height:1.7;
+  text-shadow:0 0 40px #ffd97d55, 4px 4px var(--shadow);
+}
+.sp-title span { color:var(--pink); }
+/* food row */
+.sp-foods { display:flex; gap:16px; font-size:24px; animation:spFadeIn .4s steps(4) .6s both; }
+@keyframes spFadeIn { from{opacity:0} to{opacity:1} }
+/* subtitle */
+.sp-tagline { color:var(--sub); font-size:.40rem; letter-spacing:5px; animation:spFadeIn .4s steps(4) .8s both; }
+/* press start */
+.sp-press {
+  color:var(--gold); font-size:.52rem; letter-spacing:5px;
+  text-shadow:0 0 14px #ffd97d88;
+  animation:spBlink .85s step-end 1.2s infinite both;
+}
+@keyframes spBlink { 0%,100%{opacity:1} 50%{opacity:0} }
+.sp-version { position:absolute; bottom:20px; color:var(--sub); font-size:.26rem; letter-spacing:2px; z-index:2; }
+
 /* ── ROTATE OVERLAY ── */
 #rotateMsg {
   display:none;
@@ -253,6 +348,28 @@ body {
 </head>
 <body>
 
+<!-- ═════════════════════════════════════════
+     SPLASH INTRO (click or press any key)
+     ═════════════════════════════════════════ -->
+<div id="hubSplash">
+  <div class="sp-corner tl"></div>
+  <div class="sp-corner tr"></div>
+  <div class="sp-corner bl"></div>
+  <div class="sp-corner br"></div>
+  <div class="sp-bar top"></div>
+  <div class="sp-bar bot"></div>
+
+  <div class="sp-content">
+    <canvas id="spChef"></canvas>
+    <div class="sp-title">TINY<br><span>KITCHEN</span></div>
+    <div class="sp-foods">🍜 &nbsp;🍰 &nbsp;🍓 &nbsp;🧁 &nbsp;🍳</div>
+    <div class="sp-tagline">★ &nbsp;PIXEL ARCADE &nbsp;★</div>
+    <div class="sp-press">▶ &nbsp;PRESS START &nbsp;◀</div>
+  </div>
+
+  <div class="sp-version">v0.2</div>
+</div>
+
 <div id="hubWrap">
 
   <!-- LEFT SIDEBAR -->
@@ -262,6 +379,7 @@ body {
     <div class="hub-divider-v"></div>
     <div class="hub-sub">★ PIXEL ARCADE ★</div>
     <div class="hub-version">v0.2</div>
+    <button id="hubMute" onclick="toggleHubMute()">♪ ON</button>
   </div>
 
   <!-- RIGHT: GAME SELECT -->
@@ -274,7 +392,7 @@ body {
       <div class="game-card" onclick="location.href='kitchen_scene.html'">
         <div class="card-stripe" style="background:var(--gold);"></div>
         <div class="card-icon">🥗</div>
-        <div class="card-name" style="color:var(--gold);">INGREDIENT MATCH</div>
+        <div class="card-name" style="color:var(--gold);">DISH DETECTIVE</div>
         <div class="card-desc">Read emoji clues and tap the right ingredients before time runs out!</div>
         <div class="card-footer">
           <span class="card-stars" style="color:var(--gold);">★★★</span>
@@ -282,53 +400,37 @@ body {
         </div>
       </div>
 
-      <!-- 2. Kitchen Memory -->
+      <!-- 2. Pantry Peek -->
       <div class="game-card soon">
         <div class="card-stripe" style="background:var(--blue);"></div>
         <div class="card-icon">🃏</div>
-        <div class="card-name" style="color:var(--blue);">KITCHEN MEMORY</div>
-        <div class="card-desc">Flip and match pairs of food cards. Remember fast, win faster!</div>
-        <div class="card-footer">
-          <span class="card-stars" style="color:var(--blue);">★★☆</span>
-          <span class="card-tag tag-soon">SOON</span>
-        </div>
+        <div class="card-name" style="color:var(--blue);">PANTRY PEEK</div>
+        <div class="card-tag tag-soon" style="margin-top:6px;">COMING SOON</div>
       </div>
 
-      <!-- 3. Chop Rush -->
+      <!-- 3. Chop Chop -->
       <div class="game-card soon">
         <div class="card-stripe" style="background:var(--orange);"></div>
         <div class="card-icon">🔪</div>
-        <div class="card-name" style="color:var(--orange);">CHOP RUSH</div>
-        <div class="card-desc">Ingredients fly across screen — tap only the ones your recipe needs!</div>
-        <div class="card-footer">
-          <span class="card-stars" style="color:var(--orange);">★★★</span>
-          <span class="card-tag tag-soon">SOON</span>
-        </div>
+        <div class="card-name" style="color:var(--orange);">CHOP CHOP!</div>
+        <div class="card-tag tag-soon" style="margin-top:6px;">COMING SOON</div>
       </div>
 
-      <!-- 4. Plating Challenge -->
+      <!-- 4. Recipe Rush -->
       <div class="game-card soon">
         <div class="card-stripe" style="background:var(--green);"></div>
-        <div class="card-icon">🍽️</div>
-        <div class="card-name" style="color:var(--green);">PLATING CHALLENGE</div>
-        <div class="card-desc">Tap ingredients in the correct order to plate each dish perfectly!</div>
-        <div class="card-footer">
-          <span class="card-stars" style="color:var(--green);">★★☆</span>
-          <span class="card-tag tag-soon">SOON</span>
-        </div>
+        <div class="card-icon">📋</div>
+        <div class="card-name" style="color:var(--green);">RECIPE RUSH</div>
+        <div class="card-tag tag-soon" style="margin-top:6px;">COMING SOON</div>
       </div>
 
-      <!-- 5. Rush Order (wide, bottom row) -->
+      <!-- 5. Plate Perfect (wide, bottom row) -->
       <div class="game-card soon wide">
         <div class="card-stripe" style="background:var(--pink);"></div>
-        <div class="card-icon">📋</div>
+        <div class="card-icon">🍽️</div>
         <div class="card-body">
-          <div class="card-name" style="color:var(--pink);">RUSH ORDER</div>
-          <div class="card-desc">Customers keep piling in — assign the right dish to each order before they rage quit!</div>
-          <div class="card-footer" style="border-top:1px solid var(--bg3);">
-            <span class="card-stars" style="color:var(--pink);">★★★★</span>
-            <span class="card-tag tag-soon">SOON</span>
-          </div>
+          <div class="card-name" style="color:var(--pink);">PLATE PERFECT</div>
+          <div class="card-tag tag-soon" style="margin-top:6px;">COMING SOON</div>
         </div>
       </div>
 
@@ -405,11 +507,167 @@ function scaleHub(){
   const W=1100, H=620;
   const scaleX = window.innerWidth  / W;
   const scaleY = window.innerHeight / H;
-  const scale  = Math.min(scaleX, scaleY, 1);
+  const scale  = Math.min(scaleX, scaleY);
   wrap.style.transform = `scale(${scale})`;
 }
 document.addEventListener('DOMContentLoaded', scaleHub);
 window.addEventListener('resize', scaleHub);
+
+// ══════════════════════════════════════════
+//  SPLASH SCREEN
+// ══════════════════════════════════════════
+(function(){
+  const sp = document.getElementById('hubSplash');
+
+  // — pixel stars scattered in background —
+  const cols = ['#ffd97d','#ff8fb0','#c87eb8','#ffe8f5','#7ab8ff'];
+  for(let i=0;i<55;i++){
+    const s = document.createElement('div');
+    s.className = 'sp-star';
+    const sz = Math.random()<0.6 ? 2 : 4;
+    s.style.cssText =
+      `width:${sz}px;height:${sz}px;border-radius:0;`+
+      `top:${Math.random()*100}%;left:${Math.random()*100}%;`+
+      `background:${cols[Math.floor(Math.random()*cols.length)]};`+
+      `animation-duration:${1+Math.random()*2.5}s;animation-delay:${Math.random()*2}s;`;
+    sp.appendChild(s);
+  }
+
+  // — animated pixel chef (S=5, bigger than sidebar S=4) —
+  const c = document.getElementById('spChef');
+  const S=5, CW=30, CH=44;
+  c.width=CW*S; c.height=CH*S;
+  const ctx = c.getContext('2d');
+  ctx.imageSmoothingEnabled = false;
+  const _W='#ffffff',LG='#d8d0c0',SK='#f0c090',DK='#3a2010',BK='#2a1800',PK='#ff8fb0';
+  function r(x,y,col,w,h){ ctx.fillStyle=col; ctx.fillRect(x*S,y*S,w*S,h*S); }
+  function rA(x,y,col,a,w,h){ ctx.globalAlpha=a; ctx.fillStyle=col; ctx.fillRect(x*S,y*S,w*S,h*S); ctx.globalAlpha=1; }
+  let tick=0;
+  function drawChef(){
+    ctx.clearRect(0,0,c.width,c.height);
+    const cx=7,cy=1;
+    // hat
+    r(cx+3,cy,_W,10,1); r(cx+2,cy+1,_W,12,6);
+    r(cx+1,cy+7,_W,14,2); r(cx+1,cy+9,LG,14,1);
+    // head
+    r(cx+3,cy+10,SK,10,9); r(cx+2,cy+11,SK,12,7);
+    // eyes + brows
+    r(cx+5,cy+13,BK,2,2); r(cx+9,cy+13,BK,2,2);
+    r(cx+6,cy+13,_W,1,1); r(cx+10,cy+13,_W,1,1);
+    r(cx+5,cy+12,DK,3,1); r(cx+9,cy+12,DK,3,1);
+    // moustache + smile
+    r(cx+5,cy+16,DK,6,1); r(cx+4,cy+15,DK,3,1); r(cx+9,cy+15,DK,3,1);
+    r(cx+5,cy+17,DK,1,1); r(cx+10,cy+17,DK,1,1); r(cx+6,cy+18,DK,4,1);
+    // cheeks
+    rA(cx+3,cy+15,PK,.55,3,2); rA(cx+10,cy+15,PK,.55,3,2);
+    // body + buttons + apron
+    r(cx+1,cy+19,_W,14,16);
+    r(cx+6,cy+22,DK,2,2); r(cx+6,cy+26,DK,2,2); r(cx+6,cy+30,DK,2,2);
+    r(cx+3,cy+27,LG,6,6); r(cx+4,cy+28,_W,4,4);
+    // left arm bobs
+    const sw=tick%6<3?0:1;
+    r(cx-3,cy+22+sw,_W,4,4); r(cx-3,cy+26+sw,SK,3,3);
+    r(cx-5,cy+27,DK,3,3); r(cx-6,cy+30,LG,5,3);
+    // right arm waves up/down
+    const wy=tick%8<4?cy+18:cy+21;
+    r(cx+15,wy,_W,4,4); r(cx+15,wy+4,SK,3,3);
+    tick++;
+  }
+  drawChef();
+  setInterval(drawChef, 125);
+
+  // — dismiss on click or keypress —
+  function dismiss(){
+    sp.classList.add('hide');
+    setTimeout(()=>{ if(sp.parentNode) sp.parentNode.removeChild(sp); }, 500);
+  }
+  sp.addEventListener('click', dismiss, {once:true});
+  document.addEventListener('keydown', dismiss, {once:true});
+})();
+
+// ══════════════════════════════════════════
+//  HUB BACKGROUND MUSIC
+//  Marimba-style: sine + fast decay = organic, not electronic
+// ══════════════════════════════════════════
+const HAC=window.AudioContext||window.webkitAudioContext;
+let hActx=null,hGain=null,hPlaying=false,hTimeout=null,hBar=0,hMuted=false;
+
+const HF={
+  C3:130.81,D3:146.83,E3:164.81,F3:174.61,G3:196.00,A3:220.00,
+  C5:523.25,D5:587.33,E5:659.25,F5:698.46,G5:783.99,A5:880.00,B5:987.77,C6:1046.50
+};
+
+function initHubAudio(){
+  if(hActx) return;
+  hActx=new HAC();
+  hGain=hActx.createGain();
+  hGain.gain.value=0.65;
+  hGain.connect(hActx.destination);
+  startHubMusic();
+}
+
+// Short sine decay = marimba/xylophone feel
+function hNote(freq,t,dur,gain){
+  const o=hActx.createOscillator();
+  const g=hActx.createGain();
+  o.connect(g); g.connect(hGain);
+  o.type='sine'; o.frequency.value=freq;
+  g.gain.setValueAtTime(0,t);
+  g.gain.linearRampToValueAtTime(gain,t+0.002);
+  g.gain.exponentialRampToValueAtTime(0.001,t+0.002+dur);
+  o.start(t); o.stop(t+0.002+dur+0.01);
+}
+
+const HBPM=132, HK=60/HBPM/2; // 8th note
+
+// Cheerful 4-bar loop in C major
+const HMEL=[
+  [HF.C5,HF.E5,HF.G5,HF.C6, HF.B5,HF.G5,HF.E5,HF.C5], // bar 0: bright C arpeggio up+down
+  [HF.D5,HF.F5,HF.A5,HF.F5, HF.E5,HF.G5,HF.A5,HF.G5], // bar 1: Dm color, lift
+  [HF.E5,HF.G5,HF.C6,HF.G5, HF.F5,HF.E5,HF.D5,HF.C5], // bar 2: climb to C6 then descend
+  [HF.D5,HF.G5,HF.F5,HF.E5, HF.C5,HF.E5,HF.G5,0     ], // bar 3: resolve to C
+];
+const HBAS=[
+  [HF.C3,0,HF.G3,0, HF.C3,0,HF.E3,0],
+  [HF.F3,0,HF.C3,0, HF.F3,0,HF.G3,0],
+  [HF.C3,0,HF.G3,0, HF.A3,0,HF.F3,0],
+  [HF.G3,0,HF.D3,0, HF.C3,0,HF.C3,0],
+];
+
+function scheduleHubBar(t){
+  if(!hActx||!hPlaying) return;
+  const bar=hBar%4;
+  for(let i=0;i<8;i++){
+    const st=t+i*HK;
+    if(HMEL[bar][i]) hNote(HMEL[bar][i], st, HK*0.68, 0.12); // melody: marimba
+    if(HBAS[bar][i]) hNote(HBAS[bar][i], st, HK*0.55, 0.08); // bass: plucked
+    if(i%2===0)      hNote(680,           st, 0.007,   0.038);// woodblock tick
+  }
+  hBar++;
+  const barDur=8*HK;
+  hTimeout=setTimeout(()=>scheduleHubBar(t+barDur),(barDur-0.3)*1000);
+}
+
+function startHubMusic(){
+  if(!hActx||hPlaying) return;
+  hPlaying=true; hBar=0;
+  scheduleHubBar(hActx.currentTime+0.2);
+}
+
+function toggleHubMute(){
+  hMuted=!hMuted;
+  if(hGain) hGain.gain.value=hMuted?0:0.65;
+  document.getElementById('hubMute').textContent=hMuted?'♪ OFF':'♪ ON';
+}
+
+// AudioContext requires user gesture — start on first click/keypress
+function _hubStart(){
+  initHubAudio();
+  document.removeEventListener('click',_hubStart);
+  document.removeEventListener('keydown',_hubStart);
+}
+document.addEventListener('click',_hubStart);
+document.addEventListener('keydown',_hubStart);
 </script>
 </body>
 </html>

@@ -9,46 +9,51 @@
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-database-compat.js"></script>
 <style>
 * { margin:0; padding:0; box-sizing:border-box; image-rendering:pixelated; }
-body { background:#0a0500; display:flex; flex-direction:column; align-items:center; padding:20px 10px 40px; min-height:100vh; font-family:'Press Start 2P',monospace; overflow-x:hidden; }
+body { background:radial-gradient(ellipse at 50% 30%, #3a1e0a 0%, #1c0d04 100%); font-family:'Press Start 2P',monospace; width:100vw; height:100vh; overflow:hidden; }
 h1 { color:#f5c842; font-size:1rem; letter-spacing:3px; margin-bottom:12px; text-shadow:2px 2px #8b3a00,0 0 20px #f5a700; }
 .layout { display:flex; gap:16px; align-items:flex-start; }
-#gameWrap { transform-origin:top center; }
+#gameWrap {
+  position:fixed;
+  top:50%; left:50%;
+  transform-origin:center center;
+  /* JS sets: translate(-50%,-50%) scale(X) */
+}
 canvas { display:block; image-rendering:pixelated; image-rendering:crisp-edges; border:4px solid #8b5e2a; box-shadow:4px 4px 0 #5a2d0c, 0 8px 40px #000; }
 
 /* ── GAME PANEL ── */
-.game-panel { width:280px; background:#0a0500; border:4px solid #8b5e2a; box-shadow:4px 4px 0 #5a2d0c; display:flex; flex-direction:column; height:480px; overflow:hidden; }
+.game-panel { width:280px; background:#1e0e04; border:4px solid #8b5e2a; box-shadow:4px 4px 0 #5a2d0c; display:flex; flex-direction:column; height:480px; overflow:hidden; }
 .gpane { display:none; flex-direction:column; flex:1; overflow:hidden; }
 .gpane.active { display:flex; }
 
 /* TITLE PANE */
-.gp-header { background:#6b2a00; padding:12px 14px; text-align:center; border-bottom:4px solid #5a2d0c; }
-.gp-logo { font-size:34px; display:block; margin-bottom:5px; }
-.gp-title { color:#f5c842; font-size:0.7rem; letter-spacing:2px; line-height:1.9; text-shadow:2px 2px #8b3a00; }
-.gp-sub { color:#c8904a; font-size:0.42rem; margin-top:6px; line-height:1.8; }
-.diff-label { color:#664420; font-size:0.38rem; margin:10px 12px 6px; }
-.diff-grid { display:flex; flex-direction:column; gap:8px; padding:0 12px 12px; flex:1; justify-content:center; }
-.d-btn { padding:11px 12px; border:3px solid; background:#0a0500; cursor:pointer; font-family:'Press Start 2P',monospace; text-align:left; transition:filter .12s; display:flex; align-items:center; gap:10px; }
+.gp-header { background:#6b2a00; padding:8px 14px; text-align:center; border-bottom:4px solid #5a2d0c; }
+.gp-logo { font-size:30px; display:block; margin-bottom:2px; }
+.gp-title { color:#f5c842; font-size:0.7rem; letter-spacing:2px; line-height:1.6; text-shadow:2px 2px #8b3a00; }
+.gp-sub { color:#c8904a; font-size:0.42rem; margin-top:4px; line-height:1.5; }
+.diff-label { color:#c8904a; font-size:0.42rem; margin:6px 12px 4px; }
+.diff-grid { display:flex; flex-direction:column; gap:5px; padding:0 12px 6px; }
+.d-btn { padding:8px 12px; border:3px solid; background:#1e0e04; cursor:pointer; font-family:'Press Start 2P',monospace; text-align:left; transition:filter .12s; display:flex; align-items:center; gap:10px; }
 .d-btn:hover { filter:brightness(1.35); }
 .d-icon { font-size:24px; flex-shrink:0; }
 .d-texts { display:flex; flex-direction:column; gap:4px; }
 .d-name { font-size:0.6rem; color:inherit; }
-.d-info { font-size:0.38rem; color:#888; }
+.d-info { font-size:0.42rem; color:#aaa; }
 .d-apprenti { border-color:#50c840; color:#50c840; }
 .d-cuisinier { border-color:#f5c842; color:#f5c842; }
 .d-chef      { border-color:#e05050; color:#e05050; }
 
 /* GAME PANE */
-.game-hud { display:flex; justify-content:space-around; background:#1a0800; border-bottom:3px solid #3a1a00; padding:8px 6px; }
+.game-hud { display:flex; justify-content:space-around; background:#2c1608; border-bottom:3px solid #4a2808; padding:8px 6px; }
 .hud-item { text-align:center; }
 .hud-val { color:#f5c842; font-size:0.85rem; display:block; }
 .hud-val.danger { color:#e05050; }
 .hud-lbl { color:#664420; font-size:0.34rem; margin-top:3px; }
-.timer-bar-wrap { height:7px; background:#0a0500; border-bottom:2px solid #3a1a00; }
+.timer-bar-wrap { height:7px; background:#1e0e04; border-bottom:2px solid #4a2808; }
 .timer-bar-fill { height:100%; background:#50c840; width:100%; transition:width .18s linear, background .4s; }
 .timer-bar-fill.warn { background:#f5c842; }
 .timer-bar-fill.crit { background:#e05050; }
 
-.dish-card { background:#1a0800; border:3px solid #5a2d0c; margin:7px 8px 4px; padding:8px 10px; text-align:center; position:relative; flex-shrink:0; }
+.dish-card { background:#2c1608; border:3px solid #5a2d0c; margin:7px 8px 4px; padding:8px 10px; text-align:center; position:relative; flex-shrink:0; }
 .dish-card.golden { border-color:#f5c842; box-shadow:0 0 12px #f5c84244; }
 .golden-tag { color:#f5c842; font-size:0.33rem; position:absolute; top:5px; right:7px; letter-spacing:1px; }
 .dish-emoji { font-size:30px; display:block; margin-bottom:3px; }
@@ -58,7 +63,7 @@ canvas { display:block; image-rendering:pixelated; image-rendering:crisp-edges; 
 .combo-tag { color:#f08030; font-size:0.40rem; min-height:16px; margin-top:2px; }
 
 .ingr-grid { display:grid; grid-template-columns:1fr 1fr; gap:5px; padding:4px 8px; align-content:start; overflow-y:auto; flex:1; }
-.ingr-tile { background:#1a0800; border:2px solid #3a1a00; padding:10px 5px; cursor:pointer; text-align:center; transition:border-color .1s, background .1s; display:flex; align-items:center; justify-content:center; }
+.ingr-tile { background:#2c1608; border:2px solid #4a2808; padding:10px 5px; cursor:pointer; text-align:center; transition:border-color .1s, background .1s; display:flex; align-items:center; justify-content:center; }
 .ingr-tile:hover:not(.locked) { border-color:#8b5e2a; background:#2a1200; }
 .ingr-tile.selected { border-color:#50c840; background:#051a05; }
 .ingr-tile.wrong    { border-color:#e05050; background:#1a0000; animation:tileShake .3s; }
@@ -78,41 +83,42 @@ canvas { display:block; image-rendering:pixelated; image-rendering:crisp-edges; 
 .result-score { color:#f5c842; font-size:1.5rem; }
 .result-stats { color:#c8904a; font-size:0.38rem; line-height:2.4; }
 .name-row { display:flex; gap:6px; margin-top:4px; width:100%; }
-.name-input { flex:1; background:#0a0500; border:2px solid #8b5e2a; color:#f0d090; font-family:'Press Start 2P',monospace; font-size:0.38rem; padding:7px 8px; min-width:0; }
+.name-input { flex:1; background:#1e0e04; border:2px solid #8b5e2a; color:#f0d090; font-family:'Press Start 2P',monospace; font-size:0.38rem; padding:7px 8px; min-width:0; }
 .name-input::placeholder { color:#443010; }
-.btn-submit { padding:7px 10px; background:#50c840; border:2px solid #30a820; color:#0a0500; font-family:'Press Start 2P',monospace; font-size:0.38rem; cursor:pointer; white-space:nowrap; }
+.btn-submit { padding:7px 10px; background:#50c840; border:2px solid #30a820; color:#1e0e04; font-family:'Press Start 2P',monospace; font-size:0.38rem; cursor:pointer; white-space:nowrap; }
 .btn-submit:hover { background:#70e850; }
 .btn-submit:disabled { background:#334433; border-color:#334433; color:#556655; cursor:not-allowed; }
-.btn-play-again { padding:9px 16px; background:#c8680a; border:2px solid #f5a020; color:#0a0500; font-family:'Press Start 2P',monospace; font-size:0.46rem; cursor:pointer; letter-spacing:1px; }
+.btn-play-again { padding:9px 16px; background:#c8680a; border:2px solid #f5a020; color:#1e0e04; font-family:'Press Start 2P',monospace; font-size:0.46rem; cursor:pointer; letter-spacing:1px; }
 .btn-play-again:hover { background:#f5a020; }
-.btn-leader { padding:9px 16px; background:#0a0500; border:2px solid #f5c842; color:#f5c842; font-family:'Press Start 2P',monospace; font-size:0.46rem; cursor:pointer; }
-.btn-leader:hover { background:#1a0800; }
+.btn-leader { padding:9px 16px; background:#1e0e04; border:2px solid #f5c842; color:#f5c842; font-family:'Press Start 2P',monospace; font-size:0.46rem; cursor:pointer; }
+.btn-leader:hover { background:#2c1608; }
 
 /* LEADERBOARD PANE */
-.leader-header { background:#6b2a00; padding:10px 14px; text-align:center; border-bottom:4px solid #5a2d0c; flex-shrink:0; }
-.leader-title { color:#f5c842; font-size:0.62rem; letter-spacing:2px; }
-.leader-list { flex:1; overflow-y:auto; padding:8px; display:flex; flex-direction:column; gap:4px; }
-.leader-row { display:flex; align-items:center; gap:6px; background:#1a0800; border:2px solid #3a1a00; padding:6px 8px; }
+.leader-header { background:#6b2a00; padding:12px 14px; text-align:center; border-bottom:4px solid #5a2d0c; flex-shrink:0; }
+.leader-title { color:#f5c842; font-size:0.80rem; letter-spacing:2px; }
+.leader-title span { font-size:2.2rem; display:block; margin-bottom:6px; }
+.leader-list { flex:1; overflow-y:auto; padding:8px; display:flex; flex-direction:column; gap:6px; min-height:0; }
+.leader-row { display:flex; align-items:center; gap:8px; background:#2c1608; border:2px solid #4a2808; padding:8px 10px; }
 .leader-row.me { border-color:#f5c842; background:#1a1000; }
-.leader-rank { color:#664420; font-size:0.34rem; width:18px; flex-shrink:0; text-align:center; }
-.leader-rank.gold   { color:#f5c842; }
-.leader-rank.silver { color:#c0c0c0; }
+.leader-rank { color:#664420; font-size:0.46rem; width:34px; flex-shrink:0; text-align:center; }
+.leader-rank.gold   { color:#f5c842; text-shadow:0 0 6px #f5c84288; }
+.leader-rank.silver { color:#d0d0d0; }
 .leader-rank.bronze { color:#cd7f32; }
-.leader-name { color:#f0d090; font-size:0.36rem; flex:1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
-.leader-score { color:#f5c842; font-size:0.40rem; flex-shrink:0; }
-.leader-diff { font-size:0.28rem; flex-shrink:0; padding:2px 4px; border:1px solid; }
+.leader-name { color:#f0d090; font-size:0.46rem; flex:1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.leader-score { color:#f5c842; font-size:0.50rem; flex-shrink:0; }
+.leader-diff { font-size:0.36rem; flex-shrink:0; padding:3px 6px; border:1px solid; }
 .leader-diff.apprenti { color:#50c840; border-color:#50c840; }
 .leader-diff.cuisinier { color:#f5c842; border-color:#f5c842; }
 .leader-diff.chef { color:#e05050; border-color:#e05050; }
 .leader-empty { color:#664420; font-size:0.38rem; text-align:center; margin-top:20px; line-height:2; }
-.btn-back { margin:8px; padding:9px; background:#0a0500; border:2px solid #8b5e2a; color:#c8904a; font-family:'Press Start 2P',monospace; font-size:0.42rem; cursor:pointer; flex-shrink:0; }
+.btn-back { margin:8px; padding:9px; background:#1e0e04; border:2px solid #8b5e2a; color:#c8904a; font-family:'Press Start 2P',monospace; font-size:0.42rem; cursor:pointer; flex-shrink:0; }
 .btn-back:hover { border-color:#f5c842; color:#f5c842; }
 
 /* ── ROTATE OVERLAY ── */
 #rotateMsg {
   display:none;
   position:fixed; inset:0; z-index:99999;
-  background:#0a0500;
+  background:#1e0e04;
   flex-direction:column;
   align-items:center;
   justify-content:center;
@@ -140,195 +146,50 @@ canvas { display:block; image-rendering:pixelated; image-rendering:crisp-edges; 
 }
 .rotate-sub { color:#664420; font-size:.30rem; letter-spacing:2px; }
 
-/* ── NAME MODAL ── */
-#nameModal {
-  position:fixed; inset:0; background:rgba(0,0,0,.88); z-index:8888;
-  display:none; align-items:center; justify-content:center;
+/* ── CELEBRATION OVERLAY ── */
+#celebrate {
+  position:fixed; inset:0; z-index:9500;
+  background:rgba(5,2,10,.92);
+  display:none; flex-direction:column; align-items:center; justify-content:center;
+  gap:20px; overflow:hidden;
 }
-#nameModal.show { display:flex; }
-.nm-box {
-  background:#060508;
-  border:4px solid #c8a840;
-  box-shadow:0 0 0 1px #4a3810, 8px 8px 0 #0e0900, 0 0 40px #c8a84030, inset 0 0 0 2px #1a1500;
-  padding:28px 32px; display:flex; flex-direction:column; align-items:center; gap:16px;
-  min-width:340px;
+#celebrate.show { display:flex; }
+.cel-title {
+  color:#ffd97d; font-size:1.0rem; letter-spacing:4px;
+  text-shadow:0 0 30px #ffd97d88, 3px 3px #1e0e04;
+  animation:celPop .4s steps(8) forwards;
 }
-.nm-title { color:#e8c850; font-size:.70rem; letter-spacing:3px; text-shadow:0 0 16px #c8a84088; }
-.nm-sub { color:#4a3810; font-size:.38rem; letter-spacing:1px; text-align:center; line-height:2; }
-.nm-input {
-  width:100%; background:#0a0800; border:2px solid #c8a840;
-  color:#f0d090; font-family:'Press Start 2P',monospace;
-  font-size:.52rem; padding:11px 12px; text-align:center; letter-spacing:2px;
-  outline:none;
+@keyframes celPop { from{transform:scale(0);opacity:0} to{transform:scale(1);opacity:1} }
+.cel-box { display:flex; flex-direction:column; align-items:center; gap:12px; z-index:1; }
+.cel-score-lbl { color:#9a7a40; font-size:.40rem; letter-spacing:2px; text-align:center; }
+.cel-score-val  { color:#f5c842; font-size:2.2rem; display:block; text-align:center; text-shadow:0 0 20px #f5c84266; }
+.cel-msg { color:#d0a0b0; font-size:.38rem; letter-spacing:2px; text-align:center; line-height:2; }
+.cel-btn {
+  font-family:'Press Start 2P',monospace; font-size:.44rem; letter-spacing:2px;
+  padding:12px 28px; background:#1a0f00; border:3px solid #ffd97d; color:#ffd97d;
+  cursor:pointer; margin-top:8px;
+  box-shadow:3px 3px 0 #1e0e04, 0 0 16px #ffd97d44;
+  transition:transform .08s, box-shadow .08s;
 }
-.nm-input::placeholder { color:#2a2000; }
-.nm-input:focus { border-color:#e8c850; box-shadow:0 0 10px #c8a84050; }
-.nm-btn {
-  width:100%; padding:13px;
-  border:3px solid #c8a840;
-  box-shadow:inset 0 0 0 1px #2a2200, 0 0 16px #c8a84044;
-  background:#060508; color:#e8c850;
-  font-family:'Press Start 2P',monospace; font-size:.48rem; letter-spacing:2px;
-  cursor:pointer; text-shadow:0 0 14px #c8a84080;
+.cel-btn:hover { transform:translate(-2px,-2px); box-shadow:5px 5px 0 #1e0e04; }
+.cel-btn:active { transform:translate(1px,1px); box-shadow:1px 1px 0 #1e0e04; }
+.confetti-piece { position:absolute; border-radius:1px; animation:confettiFall linear forwards; }
+@keyframes confettiFall {
+  0%  { transform:translateY(-20px) rotate(0deg); opacity:1; }
+  100%{ transform:translateY(110vh) rotate(720deg); opacity:0; }
 }
-.nm-btn:hover { background:#1a1400; }
-@keyframes nmShake { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-7px)} 75%{transform:translateX(7px)} }
-.nm-shake { animation:nmShake .3s; }
-
-/* ── SPLASH SCREEN ── */
-#splash {
-  position:fixed; inset:0; background:#000; z-index:9999;
-  display:flex; align-items:center; justify-content:center;
-  cursor:pointer; transition:opacity .7s ease; overflow:hidden;
-}
-#splash.hide { opacity:0; pointer-events:none; }
-#splash::after {
-  content:''; position:absolute; inset:0; pointer-events:none;
-  background:repeating-linear-gradient(0deg,transparent,transparent 3px,rgba(0,0,0,.15) 3px,rgba(0,0,0,.15) 4px);
-}
-
-/* outer layout — same dimensions and gap as .layout */
-.sp-layout {
-  display:flex; gap:16px; align-items:stretch;
-  opacity:0; animation:panelIn .3s steps(6) .1s forwards;
-}
-@keyframes panelIn{ from{opacity:0;transform:translateY(12px)} to{opacity:1;transform:translateY(0)} }
-
-/* left — same footprint as the canvas (620×480 + 4px border) */
-.sp-scene {
-  flex:0 0 620px; height:480px;
-  background:#060508;
-  border:4px solid #c8a840;
-  box-shadow:0 0 0 1px #4a3810, 8px 8px 0 #0e0900, 0 0 40px #c8a84018, inset 0 0 0 2px #1a1500;
-  display:flex; flex-direction:column; align-items:center; justify-content:center;
-  gap:12px;
-}
-.sp-logo {
-  image-rendering:pixelated; image-rendering:crisp-edges;
-  display:block;
-  border:none !important; box-shadow:none !important;
-  opacity:0; animation:spPop .2s steps(4) .45s forwards;
-}
-@keyframes spPop{ from{opacity:0;transform:scale(.5)} to{opacity:1;transform:scale(1)} }
-.sp-scene-title {
-  color:#f5c842; font-size:.90rem; letter-spacing:4px;
-  text-shadow:3px 3px #8b3a00, 0 0 30px #f5a70066;
-  overflow:hidden; white-space:nowrap; max-width:0;
-  animation:spType 1s steps(14,end) .7s forwards;
-}
-@keyframes spType{ from{max-width:0} to{max-width:400px} }
-.sp-scene-sub {
-  color:#c8904a; font-size:.38rem; letter-spacing:2px;
-  opacity:0; animation:spFI .3s ease 1.85s forwards;
-}
-
-/* right — same footprint as .game-panel (280×480 + 4px border) */
-.sp-panel {
-  width:280px; height:480px;
-  background:#060508;
-  border:4px solid #c8a840;
-  box-shadow:0 0 0 1px #4a3810, 8px 8px 0 #0e0900, 0 0 40px #c8a84018, inset 0 0 0 2px #1a1500;
-  display:flex; flex-direction:column;
-}
-.sp-head {
-  background:linear-gradient(180deg,#1c1600 0%,#0e0b00 100%);
-  border-bottom:3px solid #c8a840;
-  box-shadow:0 3px 0 #2a2000;
-  padding:14px; text-align:center; flex-shrink:0;
-}
-.sp-head-lbl { color:#e8c850; font-size:.62rem; letter-spacing:3px; text-shadow:0 0 16px #c8a84088, 2px 2px #1a1000; }
-.sp-head-sub { color:#806030; font-size:.46rem; margin-top:8px; line-height:2.2; }
-.sp-body {
-  padding:12px 14px 14px; display:flex; flex-direction:column;
-  gap:0; flex:1; justify-content:space-between;
-}
-.sp-section-lbl { color:#4a3810; font-size:.42rem; margin-bottom:8px; letter-spacing:3px; }
-.sp-row {
-  display:flex; align-items:flex-start; gap:10px;
-  padding:10px 0; border-top:1px solid #1e1600;
-  opacity:0;
-}
-.sp-row:nth-child(1){ animation:spFI .3s ease 1.6s forwards; }
-.sp-row:nth-child(2){ animation:spFI .3s ease 1.85s forwards; }
-.sp-row:nth-child(3){ animation:spFI .3s ease 2.1s forwards; }
-.sp-row-num { color:#e8c850; font-size:.58rem; flex-shrink:0; width:24px; text-shadow:0 0 8px #c8a84060; }
-.sp-row-txt { color:#806030; font-size:.46rem; line-height:2.2; }
-.sp-press {
-  display:block; width:100%; padding:13px;
-  border:3px solid #c8a840;
-  box-shadow:inset 0 0 0 1px #2a2200, 0 0 16px #c8a84044;
-  background:#060508;
-  color:#e8c850; font-family:'Press Start 2P',monospace;
-  font-size:.44rem; letter-spacing:2px; text-align:center;
-  cursor:pointer; flex-shrink:0;
-  text-shadow:0 0 14px #c8a84080;
-  opacity:0;
-  animation:spFI .1s ease 2.4s forwards, spBlink .85s step-end 2.4s infinite;
-}
-@keyframes spFI   { from{opacity:0} to{opacity:1} }
-@keyframes spBlink{ 0%,100%{opacity:1} 50%{opacity:0} }
+/* inline name error shake */
+@keyframes nameShake { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-6px)} 75%{transform:translateX(6px)} }
+.name-error { animation:nameShake .3s; border-color:#e05050 !important; }
 </style>
 </head>
 <body>
-
-<!-- SPLASH SCREEN -->
-<div id="splash" onclick="dismissSplash()">
-  <div id="spScaleWrap" style="transform-origin:center center;">
-  <div class="sp-layout">
-
-    <!-- LEFT: scene — same size as the canvas -->
-    <div class="sp-scene">
-      <canvas id="splashChef" class="sp-logo"></canvas>
-      <div class="sp-scene-title">PIXEL KITCHEN</div>
-      <div class="sp-scene-sub">A CULINARY CHALLENGE</div>
-    </div>
-
-    <!-- RIGHT: info panel — same size as .game-panel -->
-    <div class="sp-panel">
-      <div class="sp-head">
-        <div class="sp-head-lbl">HOW TO PLAY</div>
-        <div class="sp-head-sub">Match ingredients to<br>complete each dish!</div>
-      </div>
-      <div class="sp-body">
-        <div>
-          <div class="sp-section-lbl">▶ RULES</div>
-          <div class="sp-row">
-            <span class="sp-row-num">①</span>
-            <span class="sp-row-txt">Read the emoji clues<br>on the dish card</span>
-          </div>
-          <div class="sp-row">
-            <span class="sp-row-num">②</span>
-            <span class="sp-row-txt">Tap matching ingredient<br>names in the grid</span>
-          </div>
-          <div class="sp-row">
-            <span class="sp-row-num">③</span>
-            <span class="sp-row-txt">Complete 10 dishes<br>before time runs out!</span>
-          </div>
-        </div>
-        <div class="sp-press">▶ PRESS ANY KEY</div>
-      </div>
-    </div>
-
-  </div>
-  </div><!-- /spScaleWrap -->
-</div>
 
 <!-- ROTATE OVERLAY -->
 <div id="rotateMsg">
   <span class="rotate-phone">📱</span>
   <div class="rotate-text">ROTATE YOUR<br>DEVICE</div>
   <div class="rotate-sub">LANDSCAPE MODE ONLY</div>
-</div>
-
-<!-- NAME MODAL -->
-<div id="nameModal">
-  <div class="nm-box">
-    <div class="nm-title">ENTER YOUR NAME</div>
-    <div class="nm-sub">A name is required<br>to join the leaderboard!</div>
-    <input class="nm-input" id="nmInput" maxlength="12" placeholder="YOUR NAME..."
-      onkeydown="if(event.key==='Enter')confirmName()" />
-    <button class="nm-btn" onclick="confirmName()">▶ START COOKING</button>
-  </div>
 </div>
 
 <div id="gameWrap">
@@ -341,14 +202,22 @@ canvas { display:block; image-rendering:pixelated; image-rendering:crisp-edges; 
     <div class="gpane active" id="paneTitle">
       <div class="gp-header">
         <span class="gp-logo">👨‍🍳</span>
-        <div class="gp-title">INGREDIENT<br>CHALLENGE</div>
+        <div class="gp-title">DISH<br>DETECTIVE</div>
         <div class="gp-sub">Match the recipe before time runs out!</div>
       </div>
-      <div style="padding:8px 12px 0;">
-        <div class="diff-label" style="margin:0 0 5px;">▶ YOUR NAME</div>
-        <input class="name-input" id="nameInput" maxlength="12" placeholder="ENTER NAME..." style="width:100%;margin-bottom:4px;" />
+      <div style="padding:2px 12px 0;">
+        <div class="diff-label" style="margin:0 0 3px;">▶ HOW TO PLAY</div>
+        <div style="font-size:.36rem;color:#c09070;line-height:1.8;padding:0 2px;">
+          ① Read the emoji clues on the dish card<br>
+          ② Tap matching ingredients in the grid<br>
+          ③ Complete 10 dishes before time runs out!
+        </div>
       </div>
-      <button class="btn-back" style="margin:4px 12px 0;width:calc(100% - 24px);" onclick="showLeader()">🏆 LEADERBOARD</button>
+      <div style="padding:2px 12px 0;">
+        <div class="diff-label" style="margin:0 0 3px;">▶ YOUR NAME</div>
+        <input class="name-input" id="nameInput" maxlength="12" placeholder="ENTER NAME..." style="width:100%;margin-bottom:2px;" />
+        <div id="nameErr" style="font-size:.36rem;color:#ff7070;min-height:.9rem;"></div>
+      </div>
       <div class="diff-label">▶ SELECT DIFFICULTY</div>
       <div class="diff-grid">
         <button class="d-btn d-apprenti" onclick="startGame('apprenti')">
@@ -363,6 +232,10 @@ canvas { display:block; image-rendering:pixelated; image-rendering:crisp-edges; 
           <span class="d-icon">🎩</span>
           <span class="d-texts"><span class="d-name">CHEF</span><span class="d-info">60s · 10 tiles</span></span>
         </button>
+      </div>
+      <div style="display:flex;gap:6px;padding:4px 12px 6px;">
+        <button class="btn-back" style="flex:1;" onclick="location.href='index.html'">◀ HUB</button>
+        <button class="btn-back" style="flex:1;" onclick="showLeader()">🏆 RANKS</button>
       </div>
     </div>
 
@@ -396,17 +269,18 @@ canvas { display:block; image-rendering:pixelated; image-rendering:crisp-edges; 
         <div class="result-score" id="resScore">0</div>
         <div class="result-stats" id="resStats"></div>
         <div id="saveStatus" style="font-size:0.36rem;color:#50c840;min-height:1rem;"></div>
-        <div style="display:flex;gap:6px;width:100%;">
+        <div style="display:flex;gap:6px;width:100%;margin-bottom:4px;">
           <button class="btn-play-again" style="flex:1;" onclick="showTitle()">▶ PLAY AGAIN</button>
           <button class="btn-leader" style="flex:1;" onclick="showLeader()">🏆 RANKS</button>
         </div>
+        <button class="btn-back" style="width:100%;" onclick="location.href='index.html'">◀ BACK TO HUB</button>
       </div>
     </div>
 
     <!-- LEADERBOARD PANE -->
     <div class="gpane" id="paneLeader">
       <div class="leader-header">
-        <div class="leader-title">🏆 LEADERBOARD</div>
+        <div class="leader-title"><span>🏆</span>LEADERBOARD</div>
       </div>
       <div class="leader-list" id="leaderList">
         <div class="leader-empty">Loading...</div>
@@ -417,7 +291,19 @@ canvas { display:block; image-rendering:pixelated; image-rendering:crisp-edges; 
   </div>
 </div>
 </div><!-- /gameWrap -->
-<button id="muteBtn" onclick="toggleMute()" style="position:fixed;bottom:14px;right:14px;font-family:'Press Start 2P',monospace;font-size:0.45rem;padding:7px 11px;background:#0a0500;border:2px solid #8b5e2a;color:#f5c842;cursor:pointer;z-index:999;box-shadow:2px 2px 0 #5a2d0c;">🔊</button>
+
+<!-- CELEBRATION OVERLAY -->
+<div id="celebrate">
+  <div class="cel-box">
+    <div class="cel-title" id="celTitle">WELL DONE!</div>
+    <div class="cel-score-lbl">FINAL SCORE</div>
+    <div class="cel-score-val" id="celScore">0</div>
+    <div class="cel-msg" id="celMsg">You're a true chef! 🍽️</div>
+    <button class="cel-btn" id="celBtn">▶ SEE RESULTS</button>
+  </div>
+</div>
+
+<button id="muteBtn" onclick="toggleMute()" style="position:fixed;bottom:14px;right:14px;font-family:'Press Start 2P',monospace;font-size:0.75rem;padding:12px 16px;background:#1e0e04;border:3px solid #8b5e2a;color:#f5c842;cursor:pointer;z-index:999;box-shadow:3px 3px 0 #5a2d0c;">🔊</button>
 
 <script>
 // ══════════════════════════════════════════════
@@ -427,21 +313,10 @@ const GAME_W = 932; // 620+8borders + 16gap + 280+8borders
 const GAME_H = 530; // 488 canvas+borders + 42 title
 
 function scaleGame(){
-  const vw = window.innerWidth;
-  const vh = window.innerHeight;
-  // Scale game wrap
   const wrap = document.getElementById('gameWrap');
-  if(wrap){
-    const scale = Math.min(1, (vw - 16) / GAME_W, (vh - 16) / GAME_H);
-    wrap.style.transform = `scale(${scale})`;
-    wrap.style.marginBottom = `${GAME_H * (scale - 1)}px`;
-  }
-  // Scale splash via wrapper (avoids conflicting with sp-layout animation)
-  const spWrap = document.getElementById('spScaleWrap');
-  if(spWrap){
-    const scale = Math.min(1, (vw - 16) / GAME_W, (vh - 16) / (GAME_H - 42));
-    spWrap.style.transform = `scale(${scale})`;
-  }
+  if(!wrap) return;
+  const scale = Math.min((window.innerWidth - 16) / GAME_W, (window.innerHeight - 16) / GAME_H);
+  wrap.style.transform = `translate(-50%,-50%) scale(${scale})`;
 }
 
 document.addEventListener('DOMContentLoaded', scaleGame);
@@ -572,8 +447,15 @@ function drawClock(){
     const ey=Math.round(cy-Math.cos(angle)*len);
     bLine(cx,cy,ex,ey,col);
   };
-  hand((m/60+s/3600)*2*Math.PI, 5, DG);
-  hand((h/12+m/720)*2*Math.PI,  3, BK);
+  if(clockSpinT>tick){
+    // hands spin wildly!
+    const sp=tick*1.3;
+    hand(sp,       5, DG);
+    hand(sp*0.55,  3, BK);
+  } else {
+    hand((m/60+s/3600)*2*Math.PI, 5, DG);
+    hand((h/12+m/720)*2*Math.PI,  3, BK);
+  }
   r(cx,cy,BK,1,1);
 }
 function bLine(x0,y0,x1,y1,c){
@@ -609,7 +491,9 @@ function drawShelf(hideJarIdx){
   r(22,20,WD,100,2); r(22,22,DWD,100,1); // shelf plank
   JARS.forEach((j,i)=>{
     if(i===hideJarIdx) return;
-    drawJar(j.x, 12, j.c);
+    const sf=Math.max(0,jarShakeEndT-tick);
+    const jox=(sf>0&&i===jarShakeIdx)?Math.round(Math.sin(sf*2.8)*3):0;
+    drawJar(j.x+jox, 12, j.c);
   });
 }
 function drawJar(x,y,c){
@@ -657,29 +541,32 @@ function drawFlames(tick, intense){
 // ══════════════════════════════════════════════
 function drawPot(tick, boiling){
   const lidOff = boiling?(tick%2?-2:0):(tick%4?0:-1);
+  // lid pop animation: shoots up then falls back
+  const ldAge = lidPopT>=0 ? tick-lidPopT : 999;
+  const lidPopOff = ldAge<16 ? Math.min(0,-14+Math.floor(ldAge*1.0)) : 0;
   // shadow
-  r(56,56,DPT,40,14);
+  r(61,57,DPT,28,12);
   // body
-  r(58,55,PT,36,14);
-  r(58,55,MG,36,1); // rim
-  // handles
-  r(51,59,PT,7,5); r(92,59,PT,7,5);
-  r(52,60,DPT,5,3); r(93,60,DPT,5,3);
+  r(63,56,PT,26,12);
+  r(63,56,MG,26,1); // rim
+  // handles (smaller)
+  r(57,60,PT,6,4); r(89,60,PT,6,4);
+  r(58,61,DPT,4,2); r(90,61,DPT,4,2);
   // liquid
-  const lqH=boiling?7:4;
-  r(59,55+14-lqH, boiling?'#ff5030':LQ, 34,lqH);
+  const lqH=boiling?6:3;
+  r(64,56+12-lqH, boiling?'#ff5030':LQ, 24,lqH);
   if(boiling && tick%2===0){
-    r(65,55+14-lqH-1,W,2,1);
-    r(73,55+14-lqH-1,W,2,1);
-    r(81,55+14-lqH-1,W,2,1);
+    r(67,56+12-lqH-1,W,2,1);
+    r(74,56+12-lqH-1,W,2,1);
+    r(80,56+12-lqH-1,W,2,1);
   }
-  // lid
-  const ly=50+lidOff;
-  r(56,ly+2,DPT,42,5);
-  r(58,ly,  LG, 38,5);
-  r(58,ly,  W,  38,1);
-  r(73,ly-3,MG,  8,3);
-  r(74,ly-5,LG,  6,2);
+  // lid (with pop offset — do not touch lidOff/lidPopOff logic)
+  const ly=50+lidOff+lidPopOff;
+  r(60,ly+2,DPT,32,5);
+  r(62,ly,  LG, 28,5);
+  r(62,ly,  W,  28,1);
+  r(74,ly-3,MG,  6,3);
+  r(75,ly-5,LG,  4,2);
 }
 
 // ══════════════════════════════════════════════
@@ -734,11 +621,31 @@ function drawBoard(tick, chopMode, vegsOn){
 //  RECIPE BOOK  (x=143–153, y=63–77)
 // ══════════════════════════════════════════════
 function drawBook(){
-  r(143,63,'#800000',8,14);
-  r(151,63,RD,5,14);
-  r(151,64,'#ff9090',3,1);
-  r(156,64,W,3,12);
-  r(157,66,MG,1,1); r(157,68,MG,1,1); r(157,70,MG,1,1); r(157,72,MG,1,1);
+  if(bookFallT<=0){ _drawBookNormal(0,0); return; }
+  const rem=bookFallT-tick;           // 20→0 as animation plays out
+  const phase=(20-rem)/20;            // 0→1 progress
+  if(rem<=0){ _drawBookNormal(0,0); return; } // snap back when done
+  if(phase<0.18){
+    // wobble in place
+    const wx=phase%0.1<0.05?2:-2;
+    _drawBookNormal(Math.round(wx),0);
+  } else if(phase<0.55){
+    // slide off right + drop
+    const p=(phase-0.18)/0.37;
+    _drawBookNormal(Math.round(p*16), Math.round(p*10));
+  } else {
+    // lying flat on counter
+    r(136,71,'#800000',16,4); r(136,73,RD,16,3);
+    r(137,72,W,14,2);
+    r(138,73,MG,1,1); r(141,73,MG,1,1); r(144,73,MG,1,1); r(147,73,MG,1,1);
+  }
+}
+function _drawBookNormal(ox,oy){
+  r(143+ox,63+oy,'#800000',8,14);
+  r(151+ox,63+oy,RD,5,14);
+  r(151+ox,64+oy,'#ff9090',3,1);
+  r(156+ox,64+oy,W,3,12);
+  r(157+ox,66+oy,MG,1,1); r(157+ox,68+oy,MG,1,1); r(157+ox,70+oy,MG,1,1); r(157+ox,72+oy,MG,1,1);
 }
 
 // ══════════════════════════════════════════════
@@ -821,7 +728,9 @@ function drawHangingUtensils(tick){
     {x:113,type:'ladle'},
   ];
   items.forEach((it,i)=>{
-    const sway=Math.sin(tick*.04+i*1.2)*1.2;
+    const wild=utenSwingT>tick;
+    const amp=wild?7:1.2, freq=wild?0.55:0.04;
+    const sway=Math.sin(tick*freq+(wild?tick*0.9:0)+i*1.2)*amp;
     const bx=Math.round(it.x+sway);
     // hook
     r(bx+1,22,DK,2,1); r(bx+2,23,DK,1,2);
@@ -919,29 +828,46 @@ function drawStars(tick){
 function drawCat(tick){
   const blink=tick%48<2;
   const tail=Math.round(Math.sin(tick*.08)*2);
-  // tail
-  r(37+tail,67,DG,2,5); r(36+tail,72,DG,3,2); r(34+tail,73,DG,3,1);
-  // body
-  r(39,66,DG,9,7); r(38,67,DG,11,5);
-  // head
-  r(40,61,DG,8,6); r(39,62,DG,10,4);
-  // ears
-  r(40,59,DG,2,3); r(46,59,DG,2,3);
-  r(41,60,MG,1,2); r(47,60,MG,1,2);
-  // eyes
-  if(blink){
-    r(42,63,DG,2,1); r(46,63,DG,2,1);
+
+  // Stretch / yawn animation
+  const sf=Math.max(0,catStretchT-tick);         // frames remaining 16→0
+  const sAmt=sf>10?Math.min(4,sf-10):0;          // body stretches up 0-4px
+  const yawning=sf>4&&sf<=12;                     // yawn in the middle
+
+  // tail (body rises, tail anchors to paws)
+  r(37+tail,67-sAmt,DG,2,5+sAmt); r(36+tail,72,DG,3,2); r(34+tail,73,DG,3,1);
+  // body elongates upward
+  r(39,66-sAmt,DG,9,7+sAmt); r(38,67-sAmt,DG,11,5+sAmt);
+  // head floats up
+  const hy=61-sAmt*2;
+  r(40,hy,DG,8,6); r(39,hy+1,DG,10,4);
+  // ears: flatten sideways when stretched
+  if(sAmt>0){
+    r(39,hy-1,DG,4,2); r(45,hy-1,DG,4,2);  // flattened ears
   } else {
-    r(42,63,YL,2,2); r(46,63,YL,2,2);
-    r(43,64,BK,1,1); r(47,64,BK,1,1);
+    r(40,59,DG,2,3); r(46,59,DG,2,3);
+    r(41,60,MG,1,2); r(47,60,MG,1,2);
+  }
+  // eyes: squint/close while yawning
+  const ey=hy+2;
+  if(blink||yawning){
+    r(42,ey,DG,2,1); r(46,ey,DG,2,1);  // eyes closed/squinting
+  } else {
+    r(42,ey,YL,2,2); r(46,ey,YL,2,2);
+    r(43,ey+1,BK,1,1); r(47,ey+1,BK,1,1);
   }
   // nose & mouth
-  r(44,65,RD,1,1);
-  r(43,66,DG,1,1); r(45,66,DG,1,1);
+  const my=hy+4;
+  r(44,my,RD,1,1);
+  if(yawning){
+    r(41,my+1,DG,8,4); r(42,my+2,RD,6,3);  // wide open yawn mouth!
+  } else {
+    r(43,my+1,DG,1,1); r(45,my+1,DG,1,1);
+  }
   // whiskers
-  r(35,64,MG,6,1); r(35,65,MG,5,1);
-  r(48,64,MG,6,1); r(49,65,MG,5,1);
-  // paws
+  r(35,ey,MG,6,1); r(35,ey+1,MG,5,1);
+  r(48,ey,MG,6,1); r(49,ey+1,MG,5,1);
+  // paws (always stay at bottom)
   r(39,72,DG,4,2); r(44,72,DG,4,2);
 }
 
@@ -1079,12 +1005,37 @@ function drawSparkles(){
   });
 }
 
+
+// Draw pixel-art overlays for egg animations
+function drawEggOverlay(){
+  // Utensils: musical notes fly up when banging
+  if(utenSwingT>tick){
+    const a=(utenSwingT-tick)/18, fy=17-Math.floor((18-(utenSwingT-tick))*0.4);
+    rA(90,fy,'#c87eb8',a,2,2); rA(92,fy-1,'#c87eb8',a,1,3);
+    rA(102,fy-1,'#c87eb8',a,2,2); rA(104,fy-2,'#c87eb8',a,1,3);
+    rA(114,fy,'#c87eb8',a,2,2); rA(116,fy-1,'#c87eb8',a,1,3);
+  }
+}
+
 // ══════════════════════════════════════════════
 //  STATE
 // ══════════════════════════════════════════════
 let tick=0, cookMode='idle', boiling=false, intense=false,
     vegsOn=true, plateOn=false, foodOn=false, bannerOn=false,
     stageText='', speechText='BON APPETIT!', cooking=false;
+
+// ── EASTER EGG STATE ──
+let catStretchT=-999, bookFallT=-999, lidPopT=-999, jarShakeEndT=-999, jarShakeIdx=0;
+let clockSpinT=-999, utenSwingT=-999, eggSpeechTimer=null;
+
+const C_EGG={
+  cat:   ["Nyaa~ ✨","Feed me!","I AM the chef!","Purrr...","*HISS*","Meow!"],
+  clock: ["Tick tock!","Time flies~","No time to waste!","It's cooking time!","5 o'clock!"],
+  jar:   ["Secret spice! 🌿","Don't touch!","My precious herbs~","TOP SECRET!","Shake shake~"],
+  uten:  ["CLANG CLANG! 🍳","My precious pans~","Making music!","Don't touch my pans!","*CRASH*"],
+  book:  ["Secret recipe! 📖","Don't peek!","Page 404: dish not found","Grandma's recipe~"],
+  pot:   ["It's bubbling!","BOILING HOT! 🔥","My specialty~","Mmm, smells good!","Careful!"],
+};
 
 // ══════════════════════════════════════════════
 //  MAIN DRAW LOOP  (8 FPS retro)
@@ -1113,6 +1064,7 @@ function draw(){
   drawSpice();
   if(bannerOn) drawServeBanner();
   drawSparkles();
+  drawEggOverlay();
   drawSpeech(speechText);
   drawStageLabel(stageText);
   tick++;
@@ -1257,32 +1209,20 @@ function showTitle(){
 }
 
 // ── START ──
-let _pendingDiff=null;
-
 function startGame(diff){
-  const name=document.getElementById('nameInput').value.trim();
+  const nameInp=document.getElementById('nameInput');
+  const name=nameInp.value.trim();
   if(!name){
-    _pendingDiff=diff;
-    document.getElementById('nameModal').classList.add('show');
-    setTimeout(()=>document.getElementById('nmInput').focus(),50);
+    const errEl=document.getElementById('nameErr');
+    errEl.textContent='⚠ Please enter your name first!';
+    nameInp.classList.add('name-error');
+    nameInp.focus();
+    setTimeout(()=>{ nameInp.classList.remove('name-error'); errEl.textContent=''; },1200);
     return;
   }
   _doStartGame(diff);
 }
 
-function confirmName(){
-  const inp=document.getElementById('nmInput');
-  const name=inp.value.trim();
-  if(!name){
-    inp.classList.remove('nm-shake');
-    void inp.offsetWidth;
-    inp.classList.add('nm-shake');
-    return;
-  }
-  document.getElementById('nameInput').value=name;
-  document.getElementById('nameModal').classList.remove('show');
-  _doStartGame(_pendingDiff);
-}
 
 function _doStartGame(diff){
   initAudio();
@@ -1427,19 +1367,52 @@ function endGame(){
   gState='over'; clearInterval(gTimerInt);
   intense=false; boiling=false;
   const pct=gCorrect/10;
-  let icon,title;
-  if(pct>=0.9){icon='🏆';title='EXECUTIVE CHEF!';}
-  else if(pct>=0.7){icon='🥇';title='TRÈS BIEN!';}
-  else if(pct>=0.5){icon='🥈';title='PAS MAL!';}
-  else             {icon='🍳';title='KEEP COOKING!';}
+  let icon,title,msg;
+  if(pct>=0.9){icon='🏆';title='EXECUTIVE CHEF!';msg='Flawless! You\'re a culinary legend! 👑';}
+  else if(pct>=0.7){icon='🥇';title='TRÈS BIEN!';msg='Excellent work, chef! 🍽️';}
+  else if(pct>=0.5){icon='🥈';title='PAS MAL!';msg='Not bad! Keep practising! 🍳';}
+  else             {icon='🍳';title='KEEP COOKING!';msg='You\'ll do better next time! 💪';}
+  // fill result pane (shown after celebration)
   document.getElementById('resIcon').textContent=icon;
   document.getElementById('resTitle').textContent=title;
   document.getElementById('resScore').textContent=gScore;
   document.getElementById('resStats').innerHTML=
     `${gCorrect} / 10 dishes correct<br>Best combo: ×${gBestCombo}<br>${gDiff.toUpperCase()} mode`;
   speechText='MERCI!';
-  showPane('paneResult');
-  spawnSparkles();
+  // show celebration overlay first
+  showCelebration(icon, title, gScore, msg);
+}
+
+function showCelebration(icon, title, score, msg){
+  const cel=document.getElementById('celebrate');
+  document.getElementById('celTitle').textContent=icon+' '+title;
+  document.getElementById('celScore').textContent=score;
+  document.getElementById('celMsg').textContent=msg;
+  cel.classList.add('show');
+  spawnConfetti();
+  const btn=document.getElementById('celBtn');
+  btn.onclick=function(){
+    cel.classList.remove('show');
+    showPane('paneResult');
+    spawnSparkles();
+  };
+}
+
+function spawnConfetti(){
+  const cel=document.getElementById('celebrate');
+  const colors=['#ffd97d','#ff8fb0','#7edd8a','#7ab8ff','#ff9b6a','#c87eb8','#ffffff'];
+  for(let i=0;i<60;i++){
+    const p=document.createElement('div');
+    p.className='confetti-piece';
+    p.style.left=Math.random()*100+'vw';
+    p.style.width=(4+Math.random()*6)+'px';
+    p.style.height=(4+Math.random()*6)+'px';
+    p.style.background=colors[Math.floor(Math.random()*colors.length)];
+    p.style.animationDuration=(1.5+Math.random()*2)+'s';
+    p.style.animationDelay=(Math.random()*1)+'s';
+    cel.appendChild(p);
+    setTimeout(()=>p.remove(), 4000);
+  }
 }
 
 // ── DUMMY STUBS (referenced by old canvas code still present) ──
@@ -1503,6 +1476,16 @@ function toggleMute(){
   document.getElementById('muteBtn').textContent=muted?'🔇':'🔊';
 }
 
+// 钢片琴：基频 + 高泛音叠加 → 明亮的"叮"声
+function glockNote(freq,t,gain,dur=0.18){
+  beep(freq,       t, dur,      gain,       'sine',0.001, dur*0.88); // 基频
+  beep(freq*2.756, t, dur*0.50, gain*0.32,  'sine',0.001, dur*0.42); // 金属泛音
+}
+// 木琴：正弦 + 快速衰减 → 温暖木质敲击声
+function xyloNote(freq,t,dur,gain){
+  beep(freq, t, dur*0.55, gain, 'sine',0.001,0.09);
+}
+
 function beep(freq,start,dur,vol=0.1,type='triangle',atk=0.01,rel=0.1){
   if(!actx) return;
   const osc=actx.createOscillator(),g=actx.createGain();
@@ -1515,37 +1498,54 @@ function beep(freq,start,dur,vol=0.1,type='triangle',atk=0.01,rel=0.1){
   osc.start(start); osc.stop(start+dur+0.02);
 }
 
-// Note table
+// Note table (including accidentals for Turkish March)
 const KF={
-  C3:130.81,F3:174.61,G3:196.00,A3:220.00,
-  D4:293.66,E4:329.63,F4:349.23,G4:392.00,A4:440.00,B4:493.88,
-  C5:523.25,D5:587.33,E5:659.25,G5:783.99,A5:880.00
+  C3:130.81, E3:164.81, F3:174.61, G3:196.00, A3:220.00,
+  D4:293.66,  E4:329.63,  F4:349.23,  G4:392.00,
+  Ab4:415.30, A4:440.00, Bb4:466.16, B4:493.88,
+  C5:523.25, D5:587.33, Eb5:622.25, E5:659.25, F5:698.46, G5:783.99, A5:880.00, B5:987.77, C6:1046.50
 };
 
-// ── BACKGROUND MUSIC: lo-fi kitchen, BPM 78 ──
-const K4=60/78, K8=K4/2;
-const KMEL=[KF.C5,KF.E5,KF.G5,KF.A5, KF.G5,KF.E5,KF.D5,KF.C5];
-const KBAS=[KF.C3,0,    KF.G3,0,     KF.A3,0,    KF.F3,0    ];
-const KMID=[KF.E4,KF.G4,KF.B4,0,     KF.A4,KF.F4,KF.D4,KF.E4];
+// ── BACKGROUND MUSIC: 8-bit style, BPM 144, 8th-note grid ──
+const K4=60/144/2;
 
+// C major, 4-bar loop
+const KMEL=[
+  [KF.C5, KF.E5, KF.G5, KF.C6,  KF.B5, KF.A5, KF.G5, KF.E5], // bar 0: 上行再下行
+  [KF.F5, KF.A5, KF.C6, KF.A5,  KF.G5, KF.F5, KF.E5, KF.D5], // bar 1: F色
+  [KF.E5, KF.G5, KF.A5, KF.G5,  KF.F5, KF.E5, KF.D5, KF.C5], // bar 2: 下行阶梯
+  [KF.D5, KF.F5, KF.G5, KF.A5,  KF.G5, KF.E5, KF.C5, 0     ], // bar 3: 收尾
+];
+const KBAS=[
+  [KF.C3, 0, KF.G3, 0, KF.C3, 0, KF.G3, 0],
+  [KF.F3, 0, KF.C3, 0, KF.G3, 0, KF.G3, 0],
+  [KF.C3, 0, KF.E3, 0, KF.F3, 0, KF.G3, 0],
+  [KF.G3, 0, KF.G3, 0, KF.C3, 0, KF.C3, 0],
+];
+
+let bgBar=0;
 function scheduleBGBar(t){
   if(!actx||!bgPlaying) return;
+  const bar=bgBar%4;
+  const mel=KMEL[bar], bas=KBAS[bar];
   for(let i=0;i<8;i++){
     const st=t+i*K4;
-    if(KMEL[i]) beep(KMEL[i],st,K4*0.80,0.09,'triangle',0.02,0.14);
-    if(KBAS[i]) beep(KBAS[i],st,K4*0.70,0.11,'sine',    0.02,0.12);
-    if(KMID[i]) beep(KMID[i],st,K8*0.80,0.06,'triangle',0.01,0.08);
+    if(mel[i]) beep(mel[i], st, K4*0.55, 0.07, 'square',   0.004, 0.03); // 方波旋律
+    if(bas[i]) beep(bas[i], st, K4*0.60, 0.07, 'triangle', 0.004, 0.05); // 三角波低音
+    if(i===0||i===4) beep(75,  st, 0.055, 0.11, 'sine',   0.002, 0.045); // 8-bit kick
+    if(i===2||i===6) beep(220, st, 0.025, 0.05, 'square', 0.002, 0.02);  // 8-bit snare
   }
+  bgBar++;
   const barDur=8*K4;
-  bgTimeout=setTimeout(()=>scheduleBGBar(actx.currentTime+0.05),(barDur-0.12)*1000);
+  bgTimeout=setTimeout(()=>scheduleBGBar(t+barDur),(barDur-0.3)*1000);
 }
 
 function startBGMusic(){
   if(!actx||bgPlaying) return;
-  bgPlaying=true; scheduleBGBar(actx.currentTime+0.2);
+  bgPlaying=true; bgBar=0; scheduleBGBar(actx.currentTime+0.2);
 }
 function stopBGMusic(){
-  bgPlaying=false;
+  bgPlaying=false; bgBar=0;
   if(bgTimeout){clearTimeout(bgTimeout);bgTimeout=null;}
 }
 
@@ -1567,75 +1567,90 @@ function sfxDishComplete(golden=false){
   seq.forEach((f,i)=>beep(f,t+i*0.08,0.10,golden?0.22:0.18,'square',0.005,0.06));
 }
 
-// ── SPLASH CHEF PIXEL ART ──
-(function initSplashChef(){
-  const c=document.getElementById('splashChef');
-  if(!c) return;
-  const S=6, CW=30, CH=44;
-  c.width=CW*S; c.height=CH*S;
-  const ctx=c.getContext('2d');
-  ctx.imageSmoothingEnabled=false;
-
-  const _W='#ffffff',LG='#d8d0c0',SK='#f0c090',DK='#3a2010',BK='#1a0800',MG='#d04040';
-  function r(x,y,col,w,h){ ctx.fillStyle=col; ctx.fillRect(x*S,y*S,w*S,h*S); }
-  function rA(x,y,col,a,w,h){ ctx.globalAlpha=a; ctx.fillStyle=col; ctx.fillRect(x*S,y*S,w*S,h*S); ctx.globalAlpha=1; }
-
-  let tick=0;
-  function frame(){
-    ctx.clearRect(0,0,c.width,c.height);
-    const cx=7, cy=1;
-    // hat
-    r(cx+3,cy,   _W,10,1);
-    r(cx+2,cy+1, _W,12,6);
-    r(cx+1,cy+7, _W,14,2);
-    r(cx+1,cy+9, LG,14,1);
-    // head
-    r(cx+3,cy+10,SK,10,9);
-    r(cx+2,cy+11,SK,12,7);
-    // eyes
-    r(cx+5,cy+13,BK,2,2); r(cx+9,cy+13,BK,2,2);
-    r(cx+6,cy+13,_W,1,1); r(cx+10,cy+13,_W,1,1);
-    // brows
-    r(cx+5,cy+12,DK,3,1); r(cx+9,cy+12,DK,3,1);
-    // moustache
-    r(cx+5,cy+16,DK,6,1);
-    r(cx+4,cy+15,DK,3,1); r(cx+9,cy+15,DK,3,1);
-    // smile
-    r(cx+5,cy+17,DK,1,1); r(cx+10,cy+17,DK,1,1);
-    r(cx+6,cy+18,DK,4,1);
-    // cheeks
-    rA(cx+3,cy+15,'#dd8070',.35,3,2);
-    rA(cx+10,cy+15,'#dd8070',.35,3,2);
-    // body
-    r(cx+1,cy+19,_W,14,16);
-    r(cx+6,cy+22,DK,2,2);
-    r(cx+6,cy+26,DK,2,2);
-    r(cx+6,cy+30,DK,2,2);
-    // apron
-    r(cx+3,cy+27,LG,6,6); r(cx+4,cy+28,_W,4,4);
-    // arms — idle wave
-    const sw=tick%6<3?0:1;
-    r(cx-3,cy+22+sw,_W,4,4); r(cx-3,cy+26+sw,SK,3,3);
-    r(cx-5,cy+27,MG,3,3); r(cx-6,cy+30,LG,5,3);
-    // right arm raised/waving
-    const wy=tick%8<4?cy+18:cy+20;
-    r(cx+15,wy,_W,4,4); r(cx+15,wy+4,SK,3,3);
-    tick++;
-  }
-  frame();
-  setInterval(frame, 125); // 8fps
-})();
-
-// ── SPLASH ──
-function dismissSplash(){
-  const sp=document.getElementById('splash');
-  if(!sp||sp.classList.contains('hide')) return;
-  initAudio();
-  sp.classList.add('hide');
-  setTimeout(()=>sp.remove(), 750);
-}
-document.addEventListener('keydown', dismissSplash, {once:true});
 document.addEventListener('click',function onFirstClick(){initAudio();},{once:true});
+
+// ══════════════════════════════════════════════
+//  EASTER EGG — INTERACTIVE KITCHEN OBJECTS
+// ══════════════════════════════════════════════
+
+// Sound effects for each object
+function sfxEggCat(){
+  if(!actx)return; const t=actx.currentTime;
+  beep(440,t,0.08,0.14,'sine',0.01,0.07);
+  beep(554,t+0.11,0.12,0.11,'sine',0.01,0.08);
+  beep(523,t+0.25,0.18,0.09,'sine',0.01,0.12);
+}
+function sfxEggClock(){
+  if(!actx)return; const t=actx.currentTime;
+  for(let i=0;i<6;i++) beep(i%2===0?880:660,t+i*0.14,0.07,0.08,'square',0.005,0.06);
+}
+function sfxEggClink(){
+  if(!actx)return; const t=actx.currentTime;
+  beep(1047,t,0.04,0.18,'triangle',0.005,0.12);
+  beep(1319,t+0.05,0.06,0.12,'triangle',0.005,0.10);
+  beep(1568,t+0.11,0.1,0.08,'triangle',0.005,0.15);
+}
+function sfxEggClang(){
+  if(!actx)return; const t=actx.currentTime;
+  beep(220,t,0.04,0.28,'square',0.005,0.18);
+  beep(277,t+0.04,0.04,0.22,'square',0.005,0.14);
+  beep(185,t+0.11,0.06,0.16,'square',0.005,0.22);
+}
+function sfxEggPage(){
+  if(!actx)return; const t=actx.currentTime;
+  for(let i=0;i<8;i++) beep(600+i*80,t+i*0.03,0.03,0.06,'triangle',0.005,0.025);
+}
+function sfxEggBubble(){
+  if(!actx)return; const t=actx.currentTime;
+  for(let i=0;i<4;i++) beep(200+i*35,t+i*0.09,0.07,0.10,'sine',0.01,0.06);
+}
+
+// Hit detection — returns {key, lx, ly} or null (all in logical units)
+function getEggHit(lx,ly){
+  if(lx>=34&&lx<=52&&ly>=58&&ly<=74) return {key:'cat',   lx:43, ly:64};
+  if(lx>=126&&lx<=146&&ly>=20&&ly<=38) return {key:'clock',  lx:136,ly:29};
+  if(lx>=22&&lx<=78&&ly>=10&&ly<=22) return {key:'jar',   lx:Math.round(lx),ly:16};
+  if(lx>=86&&lx<=122&&ly>=20&&ly<=36) return {key:'uten',  lx:104,ly:28};
+  if(lx>=140&&lx<=155&&ly>=62&&ly<=78) return {key:'book', lx:148,ly:70};
+  if(lx>=54&&lx<=96&&ly>=48&&ly<=70) return {key:'pot',   lx:75, ly:58};
+  return null;
+}
+
+// Canvas click → easter egg
+canvas.addEventListener('click', function(e){
+  initAudio();
+  const rect=canvas.getBoundingClientRect();
+  const lx=(e.clientX-rect.left)*(canvas.width/rect.width)/S;
+  const ly=(e.clientY-rect.top)*(canvas.height/rect.height)/S;
+  const hit=getEggHit(lx,ly);
+  if(!hit) return;
+
+  // Speech bubble
+  speechText=rnd(C_EGG[hit.key]);
+
+  // Sound + burst
+  ({cat:sfxEggCat, clock:sfxEggClock, jar:sfxEggClink,
+    uten:sfxEggClang, book:sfxEggPage, pot:sfxEggBubble})[hit.key]?.();
+
+  // Per-object animation
+  if(hit.key==='cat')  { catStretchT=tick+16; }
+  if(hit.key==='clock'){ clockSpinT=tick+22; }
+  if(hit.key==='uten') { utenSwingT=tick+18; }
+  if(hit.key==='book') { bookFallT=tick+20; }
+  if(hit.key==='pot')  { lidPopT=tick; boiling=true; setTimeout(()=>{if(gState!=='playing')boiling=false;},2000); }
+  if(hit.key==='jar')  { jarShakeEndT=tick+14; jarShakeIdx=Math.floor(Math.random()*5); }
+
+  // Reset speech to idle after 3s
+  clearTimeout(eggSpeechTimer);
+  eggSpeechTimer=setTimeout(()=>{ speechText=rnd(C_IDLE); },3000);
+});
+
+// Touch support for mobile
+canvas.addEventListener('touchstart',function(e){
+  e.preventDefault();
+  const t=e.touches[0];
+  canvas.dispatchEvent(new MouseEvent('click',{clientX:t.clientX,clientY:t.clientY}));
+},{passive:false});
 
 // ══════════════════════════════════════════════
 //  FIREBASE LEADERBOARD
@@ -1686,7 +1701,7 @@ function showLeader(){
     list.innerHTML='';
     rows.forEach((r,i)=>{
       const rankClass=i===0?'gold':i===1?'silver':i===2?'bronze':'';
-      const rankSymbol=i===0?'🥇':i===1?'🥈':i===2?'🥉':`#${i+1}`;
+      const rankSymbol=i===0?'1ST':i===1?'2ND':i===2?'3RD':`#${i+1}`;
       const div=document.createElement('div');
       div.className='leader-row';
       div.innerHTML=`
