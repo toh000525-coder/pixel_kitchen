@@ -107,6 +107,41 @@ canvas { display:block; image-rendering:pixelated; image-rendering:crisp-edges; 
 .btn-back { margin:8px; padding:9px; background:#0a0500; border:2px solid #8b5e2a; color:#c8904a; font-family:'Press Start 2P',monospace; font-size:0.42rem; cursor:pointer; flex-shrink:0; }
 .btn-back:hover { border-color:#f5c842; color:#f5c842; }
 
+/* ── NAME MODAL ── */
+#nameModal {
+  position:fixed; inset:0; background:rgba(0,0,0,.88); z-index:8888;
+  display:none; align-items:center; justify-content:center;
+}
+#nameModal.show { display:flex; }
+.nm-box {
+  background:#060508;
+  border:4px solid #c8a840;
+  box-shadow:0 0 0 1px #4a3810, 8px 8px 0 #0e0900, 0 0 40px #c8a84030, inset 0 0 0 2px #1a1500;
+  padding:28px 32px; display:flex; flex-direction:column; align-items:center; gap:16px;
+  min-width:340px;
+}
+.nm-title { color:#e8c850; font-size:.70rem; letter-spacing:3px; text-shadow:0 0 16px #c8a84088; }
+.nm-sub { color:#4a3810; font-size:.38rem; letter-spacing:1px; text-align:center; line-height:2; }
+.nm-input {
+  width:100%; background:#0a0800; border:2px solid #c8a840;
+  color:#f0d090; font-family:'Press Start 2P',monospace;
+  font-size:.52rem; padding:11px 12px; text-align:center; letter-spacing:2px;
+  outline:none;
+}
+.nm-input::placeholder { color:#2a2000; }
+.nm-input:focus { border-color:#e8c850; box-shadow:0 0 10px #c8a84050; }
+.nm-btn {
+  width:100%; padding:13px;
+  border:3px solid #c8a840;
+  box-shadow:inset 0 0 0 1px #2a2200, 0 0 16px #c8a84044;
+  background:#060508; color:#e8c850;
+  font-family:'Press Start 2P',monospace; font-size:.48rem; letter-spacing:2px;
+  cursor:pointer; text-shadow:0 0 14px #c8a84080;
+}
+.nm-btn:hover { background:#1a1400; }
+@keyframes nmShake { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-7px)} 75%{transform:translateX(7px)} }
+.nm-shake { animation:nmShake .3s; }
+
 /* ── SPLASH SCREEN ── */
 #splash {
   position:fixed; inset:0; background:#000; z-index:9999;
@@ -129,9 +164,9 @@ canvas { display:block; image-rendering:pixelated; image-rendering:crisp-edges; 
 /* left — same footprint as the canvas (620×480 + 4px border) */
 .sp-scene {
   flex:0 0 620px; height:480px;
-  background:#0a0500;
-  border:4px solid #8b5e2a;
-  box-shadow:4px 4px 0 #5a2d0c;
+  background:#060508;
+  border:4px solid #c8a840;
+  box-shadow:0 0 0 1px #4a3810, 8px 8px 0 #0e0900, 0 0 40px #c8a84018, inset 0 0 0 2px #1a1500;
   display:flex; flex-direction:column; align-items:center; justify-content:center;
   gap:12px;
 }
@@ -157,38 +192,43 @@ canvas { display:block; image-rendering:pixelated; image-rendering:crisp-edges; 
 /* right — same footprint as .game-panel (280×480 + 4px border) */
 .sp-panel {
   width:280px; height:480px;
-  background:#0a0500;
-  border:4px solid #8b5e2a;
-  box-shadow:4px 4px 0 #5a2d0c;
+  background:#060508;
+  border:4px solid #c8a840;
+  box-shadow:0 0 0 1px #4a3810, 8px 8px 0 #0e0900, 0 0 40px #c8a84018, inset 0 0 0 2px #1a1500;
   display:flex; flex-direction:column;
 }
 .sp-head {
-  background:#6b2a00; border-bottom:4px solid #5a2d0c;
+  background:linear-gradient(180deg,#1c1600 0%,#0e0b00 100%);
+  border-bottom:3px solid #c8a840;
+  box-shadow:0 3px 0 #2a2000;
   padding:14px; text-align:center; flex-shrink:0;
 }
-.sp-head-lbl { color:#f5c842; font-size:.62rem; letter-spacing:2px; text-shadow:2px 2px #8b3a00; }
-.sp-head-sub { color:#c8904a; font-size:.40rem; margin-top:8px; line-height:2; }
+.sp-head-lbl { color:#e8c850; font-size:.62rem; letter-spacing:3px; text-shadow:0 0 16px #c8a84088, 2px 2px #1a1000; }
+.sp-head-sub { color:#806030; font-size:.46rem; margin-top:8px; line-height:2.2; }
 .sp-body {
   padding:12px 14px 14px; display:flex; flex-direction:column;
   gap:0; flex:1; justify-content:space-between;
 }
-.sp-section-lbl { color:#664420; font-size:.38rem; margin-bottom:8px; }
+.sp-section-lbl { color:#4a3810; font-size:.42rem; margin-bottom:8px; letter-spacing:3px; }
 .sp-row {
   display:flex; align-items:flex-start; gap:10px;
-  padding:10px 0; border-top:2px solid #1a0800;
+  padding:10px 0; border-top:1px solid #1e1600;
   opacity:0;
 }
 .sp-row:nth-child(1){ animation:spFI .3s ease 1.6s forwards; }
 .sp-row:nth-child(2){ animation:spFI .3s ease 1.85s forwards; }
 .sp-row:nth-child(3){ animation:spFI .3s ease 2.1s forwards; }
-.sp-row-num { color:#f5c842; font-size:.50rem; flex-shrink:0; width:20px; }
-.sp-row-txt { color:#c8904a; font-size:.38rem; line-height:2.2; }
+.sp-row-num { color:#e8c850; font-size:.58rem; flex-shrink:0; width:24px; text-shadow:0 0 8px #c8a84060; }
+.sp-row-txt { color:#806030; font-size:.46rem; line-height:2.2; }
 .sp-press {
   display:block; width:100%; padding:13px;
-  border:3px solid #f5c842; background:#0a0500;
-  color:#f5c842; font-family:'Press Start 2P',monospace;
+  border:3px solid #c8a840;
+  box-shadow:inset 0 0 0 1px #2a2200, 0 0 16px #c8a84044;
+  background:#060508;
+  color:#e8c850; font-family:'Press Start 2P',monospace;
   font-size:.44rem; letter-spacing:2px; text-align:center;
   cursor:pointer; flex-shrink:0;
+  text-shadow:0 0 14px #c8a84080;
   opacity:0;
   animation:spFI .1s ease 2.4s forwards, spBlink .85s step-end 2.4s infinite;
 }
@@ -235,6 +275,17 @@ canvas { display:block; image-rendering:pixelated; image-rendering:crisp-edges; 
       </div>
     </div>
 
+  </div>
+</div>
+
+<!-- NAME MODAL -->
+<div id="nameModal">
+  <div class="nm-box">
+    <div class="nm-title">ENTER YOUR NAME</div>
+    <div class="nm-sub">A name is required<br>to join the leaderboard!</div>
+    <input class="nm-input" id="nmInput" maxlength="12" placeholder="YOUR NAME..."
+      onkeydown="if(event.key==='Enter')confirmName()" />
+    <button class="nm-btn" onclick="confirmName()">▶ START COOKING</button>
   </div>
 </div>
 
@@ -1135,7 +1186,34 @@ function showTitle(){
 }
 
 // ── START ──
+let _pendingDiff=null;
+
 function startGame(diff){
+  const name=document.getElementById('nameInput').value.trim();
+  if(!name){
+    _pendingDiff=diff;
+    document.getElementById('nameModal').classList.add('show');
+    setTimeout(()=>document.getElementById('nmInput').focus(),50);
+    return;
+  }
+  _doStartGame(diff);
+}
+
+function confirmName(){
+  const inp=document.getElementById('nmInput');
+  const name=inp.value.trim();
+  if(!name){
+    inp.classList.remove('nm-shake');
+    void inp.offsetWidth;
+    inp.classList.add('nm-shake');
+    return;
+  }
+  document.getElementById('nameInput').value=name;
+  document.getElementById('nameModal').classList.remove('show');
+  _doStartGame(_pendingDiff);
+}
+
+function _doStartGame(diff){
   initAudio();
   gDiff=diff; gState='playing';
   const cfg=DIFF_CFG[diff];
