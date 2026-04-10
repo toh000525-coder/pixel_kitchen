@@ -221,8 +221,7 @@ body {
 }
 .tag-play { color:var(--green); }
 .tag-soon { color:var(--sub); border-color:var(--sub); font-size:.28rem; }
-.tag-new  { color:var(--pink); animation:tagBlink .9s step-end infinite; }
-@keyframes tagBlink { 0%,100%{opacity:1} 50%{opacity:0} }
+.tag-new  { color:var(--pink); }
 
 /* Shop card */
 .shop-card {
@@ -330,6 +329,43 @@ body {
 @keyframes spBlink { 0%,100%{opacity:1} 50%{opacity:0} }
 .sp-version { position:absolute; bottom:20px; color:var(--gold); font-size:.40rem; letter-spacing:2px; z-index:2; text-shadow:0 0 8px #ffd97d66; }
 
+/* ── NAME MODAL ── */
+#nameModal {
+  display:none; position:fixed; inset:0;
+  background:#0a050099; z-index:800;
+  align-items:center; justify-content:center;
+}
+#nameModal.visible { display:flex; }
+.nm-box {
+  background:#1e0e04; border:4px solid #8b5e2a;
+  box-shadow:4px 4px 0 #5a2d0c; padding:28px 24px;
+  display:flex; flex-direction:column; gap:14px;
+  align-items:center; min-width:290px; max-width:360px;
+}
+.nm-title { color:#f5c842; font-size:.65rem; letter-spacing:2px; text-shadow:2px 2px #8b3a00; }
+.nm-sub   { color:#c8904a; font-size:.32rem; text-align:center; line-height:2; }
+.nm-input {
+  background:#2c1608; border:2px solid #8b5e2a; color:#f0d090;
+  font-family:'Press Start 2P',monospace; font-size:.40rem;
+  padding:10px 12px; outline:none; width:100%; text-align:center;
+}
+.nm-input:focus { border-color:#f5c842; }
+.nm-err { color:#ff7070; font-size:.30rem; min-height:.8rem; text-align:center; }
+.nm-btn {
+  font-family:'Press Start 2P',monospace; font-size:.42rem;
+  background:#1e0e04; border:3px solid #50c840; color:#50c840;
+  padding:10px 20px; cursor:pointer; width:100%;
+}
+.nm-btn:hover { filter:brightness(1.3); }
+/* player name in sidebar */
+.hub-player { color:#f0d090; font-size:.32rem; line-height:2; }
+.hub-change {
+  font-family:'Press Start 2P',monospace; font-size:.26rem;
+  background:none; border:1px solid #664420; color:#664420;
+  padding:3px 6px; cursor:pointer; margin-top:2px;
+}
+.hub-change:hover { border-color:#c8904a; color:#c8904a; }
+
 /* ── ROTATE OVERLAY ── */
 #rotateMsg {
   display:none;
@@ -385,6 +421,18 @@ body {
   <div class="sp-version">v0.2</div>
 </div>
 
+<!-- NAME MODAL -->
+<div id="nameModal">
+  <div class="nm-box">
+    <div class="nm-title">WHO ARE YOU?</div>
+    <div class="nm-sub">Enter your name to join the kitchen!<br>You only need to do this once.</div>
+    <input id="hubNameInput" class="nm-input" maxlength="12" placeholder="YOUR NAME..."
+      onkeydown="if(event.key==='Enter') confirmHubName()">
+    <div id="hubNameErr" class="nm-err"></div>
+    <button class="nm-btn" onclick="confirmHubName()">▶ ENTER KITCHEN</button>
+  </div>
+</div>
+
 <div id="hubWrap">
 
   <!-- LEFT SIDEBAR -->
@@ -394,6 +442,8 @@ body {
     <div class="hub-divider-v"></div>
     <div class="hub-sub">★ PIXEL ARCADE ★</div>
     <div class="hub-version">v0.2</div>
+    <div class="hub-player" id="hubPlayerName"></div>
+    <button class="hub-change" id="hubChangeName" onclick="showNameModal()" style="display:none;">✎ CHANGE NAME</button>
     <button id="hubMute" onclick="toggleHubMute()">♪ ON</button>
   </div>
 
@@ -411,16 +461,19 @@ body {
         <div class="card-desc">Read emoji clues and tap the right ingredients before time runs out!</div>
         <div class="card-footer">
           <span class="card-stars" style="color:var(--gold);">★★★</span>
-          <span class="card-tag tag-play tag-new">▶ PLAY</span>
         </div>
       </div>
 
       <!-- 2. Pantry Peek -->
-      <div class="game-card soon">
+      <div class="game-card" onclick="location.href='pantry_peek.html'">
         <div class="card-stripe" style="background:var(--blue);"></div>
         <div class="card-icon">🃏</div>
         <div class="card-name" style="color:var(--blue);">PANTRY PEEK</div>
-        <div class="card-tag tag-soon" style="margin-top:6px;">COMING SOON</div>
+        <div class="card-desc">Flip cards and match all food pairs before the timer runs out!</div>
+        <div class="card-footer">
+          <span class="card-stars" style="color:var(--blue);">★★☆</span>
+          <span class="card-tag tag-new">★ NEW</span>
+        </div>
       </div>
 
       <!-- 3. Chop Chop -->
@@ -553,9 +606,10 @@ window.addEventListener('resize', scaleHub);
 (function(){
   const sp = document.getElementById('hubSplash');
 
-  // 从游戏页面回来 → 直接跳过 splash
+  // 从游戏页面回来 → 直接跳过 splash（名字已存好）
   if(new URLSearchParams(location.search).get('from')==='game'){
     if(sp && sp.parentNode) sp.parentNode.removeChild(sp);
+    updateHubPlayerName();
     return;
   }
 
@@ -619,11 +673,46 @@ window.addEventListener('resize', scaleHub);
   // — dismiss on click or keypress —
   function dismiss(){
     sp.classList.add('hide');
-    setTimeout(()=>{ if(sp.parentNode) sp.parentNode.removeChild(sp); }, 500);
+    setTimeout(()=>{
+      if(sp.parentNode) sp.parentNode.removeChild(sp);
+      if(localStorage.getItem('pkName')){ updateHubPlayerName(); }
+      else { showNameModal(); }
+    }, 500);
   }
   sp.addEventListener('click', dismiss, {once:true});
   document.addEventListener('keydown', dismiss, {once:true});
 })();
+
+// ══════════════════════════════════════════
+//  NAME MODAL
+// ══════════════════════════════════════════
+function showNameModal(){
+  const saved = localStorage.getItem('pkName');
+  const inp = document.getElementById('hubNameInput');
+  inp.value = saved || '';
+  document.getElementById('hubNameErr').textContent = '';
+  document.getElementById('nameModal').classList.add('visible');
+  setTimeout(()=> inp.focus(), 120);
+}
+function confirmHubName(){
+  const inp = document.getElementById('hubNameInput');
+  const name = inp.value.trim().toUpperCase().slice(0,12);
+  if(!name){
+    document.getElementById('hubNameErr').textContent = '⚠ Name cannot be empty!';
+    inp.style.borderColor='#e05050';
+    setTimeout(()=>{ document.getElementById('hubNameErr').textContent=''; inp.style.borderColor='#8b5e2a'; },1500);
+    return;
+  }
+  localStorage.setItem('pkName', name);
+  document.getElementById('nameModal').classList.remove('visible');
+  updateHubPlayerName();
+}
+function updateHubPlayerName(){
+  const name = localStorage.getItem('pkName');
+  if(!name) return;
+  document.getElementById('hubPlayerName').textContent = '▶ ' + name;
+  document.getElementById('hubChangeName').style.display = '';
+}
 
 // ══════════════════════════════════════════
 //  HUB BACKGROUND MUSIC

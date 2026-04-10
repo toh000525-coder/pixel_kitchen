@@ -213,11 +213,6 @@ canvas { display:block; image-rendering:pixelated; image-rendering:crisp-edges; 
           ③ Complete 10 dishes before time runs out!
         </div>
       </div>
-      <div style="padding:2px 12px 0;">
-        <div class="diff-label" style="margin:0 0 3px;">▶ YOUR NAME</div>
-        <input class="name-input" id="nameInput" maxlength="12" placeholder="ENTER NAME..." style="width:100%;margin-bottom:2px;" />
-        <div id="nameErr" style="font-size:.36rem;color:#ff7070;min-height:.9rem;"></div>
-      </div>
       <div class="diff-label">▶ SELECT DIFFICULTY</div>
       <div class="diff-grid">
         <button class="d-btn d-apprenti" onclick="startGame('apprenti')">
@@ -1210,16 +1205,7 @@ function showTitle(){
 
 // ── START ──
 function startGame(diff){
-  const nameInp=document.getElementById('nameInput');
-  const name=nameInp.value.trim();
-  if(!name){
-    const errEl=document.getElementById('nameErr');
-    errEl.textContent='⚠ Please enter your name first!';
-    nameInp.classList.add('name-error');
-    nameInp.focus();
-    setTimeout(()=>{ nameInp.classList.remove('name-error'); errEl.textContent=''; },1200);
-    return;
-  }
+  if(!localStorage.getItem('pkName')){ location.href='index.html'; return; }
   _doStartGame(diff);
 }
 
@@ -1506,21 +1492,20 @@ const KF={
   C5:523.25, D5:587.33, Eb5:622.25, E5:659.25, F5:698.46, G5:783.99, A5:880.00, B5:987.77, C6:1046.50
 };
 
-// ── BACKGROUND MUSIC: 8-bit style, BPM 144, 8th-note grid ──
+// ── BACKGROUND MUSIC: "Culinary Noir" — A minor, BPM 144 ──
 const K4=60/144/2;
 
-// C major, 4-bar loop
 const KMEL=[
-  [KF.C5, KF.E5, KF.G5, KF.C6,  KF.B5, KF.A5, KF.G5, KF.E5], // bar 0: 上行再下行
-  [KF.F5, KF.A5, KF.C6, KF.A5,  KF.G5, KF.F5, KF.E5, KF.D5], // bar 1: F色
-  [KF.E5, KF.G5, KF.A5, KF.G5,  KF.F5, KF.E5, KF.D5, KF.C5], // bar 2: 下行阶梯
-  [KF.D5, KF.F5, KF.G5, KF.A5,  KF.G5, KF.E5, KF.C5, 0     ], // bar 3: 收尾
+  [KF.A5, KF.G5, KF.E5, KF.D5,  KF.C5, KF.D5, KF.E5, KF.G5], // bar 0: detective motif
+  [KF.A5, KF.G5, KF.F5, KF.E5,  KF.D5, KF.E5, KF.F5, KF.G5], // bar 1: searching
+  [KF.Bb4,KF.C5, KF.D5, KF.E5,  KF.G5, KF.F5, KF.E5, KF.D5], // bar 2: chromatic twist
+  [KF.C5, KF.D5, KF.E5, KF.G5,  KF.A5, KF.G5, KF.E5, 0     ], // bar 3: resolve
 ];
 const KBAS=[
-  [KF.C3, 0, KF.G3, 0, KF.C3, 0, KF.G3, 0],
-  [KF.F3, 0, KF.C3, 0, KF.G3, 0, KF.G3, 0],
-  [KF.C3, 0, KF.E3, 0, KF.F3, 0, KF.G3, 0],
-  [KF.G3, 0, KF.G3, 0, KF.C3, 0, KF.C3, 0],
+  [KF.A3, 0, KF.E3, 0, KF.A3, 0, KF.G3, 0],
+  [KF.F3, 0, KF.C3, 0, KF.G3, 0, KF.E3, 0],
+  [KF.F3, 0, KF.G3, 0, KF.A3, 0, KF.E3, 0],
+  [KF.C3, 0, KF.G3, 0, KF.A3, 0, KF.A3, 0],
 ];
 
 let bgBar=0;
@@ -1716,18 +1701,13 @@ function showLeader(){
   }, ()=>{ list.innerHTML='<div class="leader-empty">Failed to load.<br>Check connection.</div>'; });
 }
 
-// Hook into endGame — auto-submit if name was entered
+// Hook into endGame — auto-submit score with localStorage name
 const _origEndGame = endGame;
 endGame = function(){
   _origEndGame();
-  const name = document.getElementById('nameInput').value.trim();
+  const name = localStorage.getItem('pkName') || '';
   document.getElementById('saveStatus').textContent='';
-  if(name){
-    submitScore(name, gScore, gDiff, gCorrect);
-  } else {
-    document.getElementById('saveStatus').style.color='#664420';
-    document.getElementById('saveStatus').textContent='Enter a name to save your score';
-  }
+  if(name && gScore>0){ submitScore(name, gScore, gDiff, gCorrect); }
 };
 </script>
 </body>
