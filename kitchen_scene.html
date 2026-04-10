@@ -159,7 +159,6 @@ canvas { display:block; image-rendering:pixelated; image-rendering:crisp-edges; 
 .sp-layout {
   display:flex; gap:16px; align-items:stretch;
   opacity:0; animation:panelIn .3s steps(6) .1s forwards;
-  transform-origin:center center;
 }
 @keyframes panelIn{ from{opacity:0;transform:translateY(12px)} to{opacity:1;transform:translateY(0)} }
 
@@ -242,6 +241,7 @@ canvas { display:block; image-rendering:pixelated; image-rendering:crisp-edges; 
 
 <!-- SPLASH SCREEN -->
 <div id="splash" onclick="dismissSplash()">
+  <div id="spScaleWrap" style="transform-origin:center center;">
   <div class="sp-layout">
 
     <!-- LEFT: scene — same size as the canvas -->
@@ -278,6 +278,7 @@ canvas { display:block; image-rendering:pixelated; image-rendering:crisp-edges; 
     </div>
 
   </div>
+  </div><!-- /spScaleWrap -->
 </div>
 
 <!-- NAME MODAL -->
@@ -387,20 +388,24 @@ const GAME_W = 932; // 620+8borders + 16gap + 280+8borders
 const GAME_H = 530; // 488 canvas+borders + 42 title
 
 function scaleGame(){
-  const wrap = document.getElementById('gameWrap');
-  if(!wrap) return;
   const vw = window.innerWidth;
   const vh = window.innerHeight;
-  const scale = Math.min(1, (vw - 16) / GAME_W, (vh - 16) / GAME_H);
-  wrap.style.transform = `scale(${scale})`;
-  // Compensate layout height so body doesn't leave gap
-  wrap.style.marginBottom = `${GAME_H * (scale - 1)}px`;
-  // Scale splash inner layout too
-  const sp = document.querySelector('.sp-layout');
-  if(sp) sp.style.transform = `scale(${scale})`;
+  // Scale game wrap
+  const wrap = document.getElementById('gameWrap');
+  if(wrap){
+    const scale = Math.min(1, (vw - 16) / GAME_W, (vh - 16) / GAME_H);
+    wrap.style.transform = `scale(${scale})`;
+    wrap.style.marginBottom = `${GAME_H * (scale - 1)}px`;
+  }
+  // Scale splash via wrapper (avoids conflicting with sp-layout animation)
+  const spWrap = document.getElementById('spScaleWrap');
+  if(spWrap){
+    const scale = Math.min(1, (vw - 16) / GAME_W, (vh - 16) / (GAME_H - 42));
+    spWrap.style.transform = `scale(${scale})`;
+  }
 }
 
-window.addEventListener('load', scaleGame);
+document.addEventListener('DOMContentLoaded', scaleGame);
 window.addEventListener('resize', scaleGame);
 
 // ══════════════════════════════════════════════
