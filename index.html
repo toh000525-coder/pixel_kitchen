@@ -107,11 +107,12 @@ body {
 }
 
 .hub-version {
-  color:var(--sub);
-  font-size:.28rem;
-  letter-spacing:1px;
+  color:var(--gold);
+  font-size:.40rem;
+  letter-spacing:2px;
   position:absolute;
   bottom:36px;
+  text-shadow:0 0 8px #ffd97d66;
 }
 #hubMute {
   font-family:'Press Start 2P',monospace;
@@ -327,7 +328,7 @@ body {
   animation:spBlink .85s step-end 1.2s infinite both;
 }
 @keyframes spBlink { 0%,100%{opacity:1} 50%{opacity:0} }
-.sp-version { position:absolute; bottom:20px; color:var(--sub); font-size:.26rem; letter-spacing:2px; z-index:2; }
+.sp-version { position:absolute; bottom:20px; color:var(--gold); font-size:.40rem; letter-spacing:2px; z-index:2; text-shadow:0 0 8px #ffd97d66; }
 
 /* ── ROTATE OVERLAY ── */
 #rotateMsg {
@@ -551,6 +552,12 @@ window.addEventListener('resize', scaleHub);
 // ══════════════════════════════════════════
 (function(){
   const sp = document.getElementById('hubSplash');
+
+  // 从游戏页面回来 → 直接跳过 splash
+  if(new URLSearchParams(location.search).get('from')==='game'){
+    if(sp && sp.parentNode) sp.parentNode.removeChild(sp);
+    return;
+  }
 
   // — pixel stars scattered in background —
   const cols = ['#ffd97d','#ff8fb0','#c87eb8','#ffe8f5','#7ab8ff'];
