@@ -1668,10 +1668,11 @@ const db = firebase.database();
 const LB_REF = db.ref('leaderboard');
 
 let lastScore=0, lastDiff='', lastCorrect=0;
-let _lbListener=null;
+let _lbListener=null, _lbQuery=null;
 
 function detachLeaderListener(){
-  if(_lbListener){ LB_REF.off('value', _lbListener); _lbListener=null; }
+  if(_lbQuery && _lbListener){ _lbQuery.off('value', _lbListener); }
+  _lbQuery=null; _lbListener=null;
 }
 
 function submitScore(name, score, diff, correct){
@@ -1693,7 +1694,8 @@ function showLeader(){
   const list=document.getElementById('leaderList');
   list.innerHTML='<div class="leader-empty">Loading...</div>';
   detachLeaderListener();
-  _lbListener = LB_REF.orderByChild('score').limitToLast(10).on('value', snap=>{
+  _lbQuery = LB_REF.orderByChild('score').limitToLast(10);
+  _lbListener = _lbQuery.on('value', snap=>{
     const rows=[];
     snap.forEach(c=>rows.push(c.val()));
     rows.sort((a,b)=>b.score-a.score);
