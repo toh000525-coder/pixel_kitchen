@@ -1,0 +1,1568 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=900, initial-scale=1.0, minimum-scale=0.3">
+<title>Pixel Kitchen</title>
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-database-compat.js"></script>
+<style>
+* { margin:0; padding:0; box-sizing:border-box; image-rendering:pixelated; }
+body { background:#0a0500; display:flex; flex-direction:column; align-items:center; padding:20px 10px 40px; min-height:100vh; font-family:'Press Start 2P',monospace; }
+h1 { color:#f5c842; font-size:1rem; letter-spacing:3px; margin-bottom:12px; text-shadow:2px 2px #8b3a00,0 0 20px #f5a700; }
+.layout { display:flex; gap:16px; align-items:flex-start; }
+canvas { display:block; image-rendering:pixelated; image-rendering:crisp-edges; border:4px solid #8b5e2a; box-shadow:4px 4px 0 #5a2d0c, 0 8px 40px #000; }
+
+/* ── GAME PANEL ── */
+.game-panel { width:280px; background:#0a0500; border:4px solid #8b5e2a; box-shadow:4px 4px 0 #5a2d0c; display:flex; flex-direction:column; height:480px; overflow:hidden; }
+.gpane { display:none; flex-direction:column; flex:1; overflow:hidden; }
+.gpane.active { display:flex; }
+
+/* TITLE PANE */
+.gp-header { background:#6b2a00; padding:12px 14px; text-align:center; border-bottom:4px solid #5a2d0c; }
+.gp-logo { font-size:34px; display:block; margin-bottom:5px; }
+.gp-title { color:#f5c842; font-size:0.7rem; letter-spacing:2px; line-height:1.9; text-shadow:2px 2px #8b3a00; }
+.gp-sub { color:#c8904a; font-size:0.42rem; margin-top:6px; line-height:1.8; }
+.diff-label { color:#664420; font-size:0.38rem; margin:10px 12px 6px; }
+.diff-grid { display:flex; flex-direction:column; gap:8px; padding:0 12px 12px; flex:1; justify-content:center; }
+.d-btn { padding:11px 12px; border:3px solid; background:#0a0500; cursor:pointer; font-family:'Press Start 2P',monospace; text-align:left; transition:filter .12s; display:flex; align-items:center; gap:10px; }
+.d-btn:hover { filter:brightness(1.35); }
+.d-icon { font-size:24px; flex-shrink:0; }
+.d-texts { display:flex; flex-direction:column; gap:4px; }
+.d-name { font-size:0.6rem; color:inherit; }
+.d-info { font-size:0.38rem; color:#888; }
+.d-apprenti { border-color:#50c840; color:#50c840; }
+.d-cuisinier { border-color:#f5c842; color:#f5c842; }
+.d-chef      { border-color:#e05050; color:#e05050; }
+
+/* GAME PANE */
+.game-hud { display:flex; justify-content:space-around; background:#1a0800; border-bottom:3px solid #3a1a00; padding:8px 6px; }
+.hud-item { text-align:center; }
+.hud-val { color:#f5c842; font-size:0.85rem; display:block; }
+.hud-val.danger { color:#e05050; }
+.hud-lbl { color:#664420; font-size:0.34rem; margin-top:3px; }
+.timer-bar-wrap { height:7px; background:#0a0500; border-bottom:2px solid #3a1a00; }
+.timer-bar-fill { height:100%; background:#50c840; width:100%; transition:width .18s linear, background .4s; }
+.timer-bar-fill.warn { background:#f5c842; }
+.timer-bar-fill.crit { background:#e05050; }
+
+.dish-card { background:#1a0800; border:3px solid #5a2d0c; margin:7px 8px 4px; padding:8px 10px; text-align:center; position:relative; flex-shrink:0; }
+.dish-card.golden { border-color:#f5c842; box-shadow:0 0 12px #f5c84244; }
+.golden-tag { color:#f5c842; font-size:0.33rem; position:absolute; top:5px; right:7px; letter-spacing:1px; }
+.dish-emoji { font-size:30px; display:block; margin-bottom:3px; }
+.dish-name { color:#f5c842; font-size:0.62rem; margin-bottom:4px; letter-spacing:1px; }
+.dish-hint { color:#664420; font-size:0.30rem; letter-spacing:1px; margin-bottom:3px; }
+.dish-recipe { font-size:22px; letter-spacing:5px; line-height:1.2; margin-bottom:2px; }
+.combo-tag { color:#f08030; font-size:0.40rem; min-height:16px; margin-top:2px; }
+
+.ingr-grid { display:grid; grid-template-columns:1fr 1fr; gap:5px; padding:4px 8px; align-content:start; overflow-y:auto; flex:1; }
+.ingr-tile { background:#1a0800; border:2px solid #3a1a00; padding:10px 5px; cursor:pointer; text-align:center; transition:border-color .1s, background .1s; display:flex; align-items:center; justify-content:center; }
+.ingr-tile:hover:not(.locked) { border-color:#8b5e2a; background:#2a1200; }
+.ingr-tile.selected { border-color:#50c840; background:#051a05; }
+.ingr-tile.wrong    { border-color:#e05050; background:#1a0000; animation:tileShake .3s; }
+.ingr-tile.locked   { cursor:not-allowed; }
+.ingr-label { color:#f0d090; font-size:0.48rem; line-height:1.4; }
+@keyframes tileShake { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-5px)} 75%{transform:translateX(5px)} }
+
+.ingr-feedback { padding:5px 8px 6px; font-size:0.40rem; min-height:1.5rem; text-align:center; color:#664420; flex-shrink:0; }
+.ingr-feedback.good { color:#50c840; }
+.ingr-feedback.bad  { color:#e05050; }
+
+/* RESULT PANE */
+.result-wrap { display:flex; flex-direction:column; align-items:center; justify-content:center; flex:1; padding:14px; text-align:center; gap:8px; overflow-y:auto; }
+.result-icon  { font-size:52px; }
+.result-title { color:#f5c842; font-size:0.75rem; letter-spacing:2px; text-shadow:2px 2px #8b3a00; }
+.result-score-lbl { color:#664420; font-size:0.40rem; margin-top:4px; }
+.result-score { color:#f5c842; font-size:1.5rem; }
+.result-stats { color:#c8904a; font-size:0.38rem; line-height:2.4; }
+.name-row { display:flex; gap:6px; margin-top:4px; width:100%; }
+.name-input { flex:1; background:#0a0500; border:2px solid #8b5e2a; color:#f0d090; font-family:'Press Start 2P',monospace; font-size:0.38rem; padding:7px 8px; min-width:0; }
+.name-input::placeholder { color:#443010; }
+.btn-submit { padding:7px 10px; background:#50c840; border:2px solid #30a820; color:#0a0500; font-family:'Press Start 2P',monospace; font-size:0.38rem; cursor:pointer; white-space:nowrap; }
+.btn-submit:hover { background:#70e850; }
+.btn-submit:disabled { background:#334433; border-color:#334433; color:#556655; cursor:not-allowed; }
+.btn-play-again { padding:9px 16px; background:#c8680a; border:2px solid #f5a020; color:#0a0500; font-family:'Press Start 2P',monospace; font-size:0.46rem; cursor:pointer; letter-spacing:1px; }
+.btn-play-again:hover { background:#f5a020; }
+.btn-leader { padding:9px 16px; background:#0a0500; border:2px solid #f5c842; color:#f5c842; font-family:'Press Start 2P',monospace; font-size:0.46rem; cursor:pointer; }
+.btn-leader:hover { background:#1a0800; }
+
+/* LEADERBOARD PANE */
+.leader-header { background:#6b2a00; padding:10px 14px; text-align:center; border-bottom:4px solid #5a2d0c; flex-shrink:0; }
+.leader-title { color:#f5c842; font-size:0.62rem; letter-spacing:2px; }
+.leader-list { flex:1; overflow-y:auto; padding:8px; display:flex; flex-direction:column; gap:4px; }
+.leader-row { display:flex; align-items:center; gap:6px; background:#1a0800; border:2px solid #3a1a00; padding:6px 8px; }
+.leader-row.me { border-color:#f5c842; background:#1a1000; }
+.leader-rank { color:#664420; font-size:0.34rem; width:18px; flex-shrink:0; text-align:center; }
+.leader-rank.gold   { color:#f5c842; }
+.leader-rank.silver { color:#c0c0c0; }
+.leader-rank.bronze { color:#cd7f32; }
+.leader-name { color:#f0d090; font-size:0.36rem; flex:1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.leader-score { color:#f5c842; font-size:0.40rem; flex-shrink:0; }
+.leader-diff { font-size:0.28rem; flex-shrink:0; padding:2px 4px; border:1px solid; }
+.leader-diff.apprenti { color:#50c840; border-color:#50c840; }
+.leader-diff.cuisinier { color:#f5c842; border-color:#f5c842; }
+.leader-diff.chef { color:#e05050; border-color:#e05050; }
+.leader-empty { color:#664420; font-size:0.38rem; text-align:center; margin-top:20px; line-height:2; }
+.btn-back { margin:8px; padding:9px; background:#0a0500; border:2px solid #8b5e2a; color:#c8904a; font-family:'Press Start 2P',monospace; font-size:0.42rem; cursor:pointer; flex-shrink:0; }
+.btn-back:hover { border-color:#f5c842; color:#f5c842; }
+
+/* ── SPLASH SCREEN ── */
+#splash {
+  position:fixed; inset:0; background:#000; z-index:9999;
+  display:flex; align-items:center; justify-content:center;
+  cursor:pointer; transition:opacity .7s ease; overflow:hidden;
+}
+#splash.hide { opacity:0; pointer-events:none; }
+#splash::after {
+  content:''; position:absolute; inset:0; pointer-events:none;
+  background:repeating-linear-gradient(0deg,transparent,transparent 3px,rgba(0,0,0,.15) 3px,rgba(0,0,0,.15) 4px);
+}
+
+/* outer layout — same dimensions and gap as .layout */
+.sp-layout {
+  display:flex; gap:16px; align-items:stretch;
+  opacity:0; animation:panelIn .3s steps(6) .1s forwards;
+}
+@keyframes panelIn{ from{opacity:0;transform:translateY(12px)} to{opacity:1;transform:translateY(0)} }
+
+/* left — same footprint as the canvas (620×480 + 4px border) */
+.sp-scene {
+  flex:0 0 620px; height:480px;
+  background:#0a0500;
+  border:4px solid #8b5e2a;
+  box-shadow:4px 4px 0 #5a2d0c;
+  display:flex; flex-direction:column; align-items:center; justify-content:center;
+  gap:12px;
+}
+.sp-logo {
+  image-rendering:pixelated; image-rendering:crisp-edges;
+  display:block;
+  border:none !important; box-shadow:none !important;
+  opacity:0; animation:spPop .2s steps(4) .45s forwards;
+}
+@keyframes spPop{ from{opacity:0;transform:scale(.5)} to{opacity:1;transform:scale(1)} }
+.sp-scene-title {
+  color:#f5c842; font-size:.90rem; letter-spacing:4px;
+  text-shadow:3px 3px #8b3a00, 0 0 30px #f5a70066;
+  overflow:hidden; white-space:nowrap; max-width:0;
+  animation:spType 1s steps(14,end) .7s forwards;
+}
+@keyframes spType{ from{max-width:0} to{max-width:400px} }
+.sp-scene-sub {
+  color:#c8904a; font-size:.38rem; letter-spacing:2px;
+  opacity:0; animation:spFI .3s ease 1.85s forwards;
+}
+
+/* right — same footprint as .game-panel (280×480 + 4px border) */
+.sp-panel {
+  width:280px; height:480px;
+  background:#0a0500;
+  border:4px solid #8b5e2a;
+  box-shadow:4px 4px 0 #5a2d0c;
+  display:flex; flex-direction:column;
+}
+.sp-head {
+  background:#6b2a00; border-bottom:4px solid #5a2d0c;
+  padding:14px; text-align:center; flex-shrink:0;
+}
+.sp-head-lbl { color:#f5c842; font-size:.62rem; letter-spacing:2px; text-shadow:2px 2px #8b3a00; }
+.sp-head-sub { color:#c8904a; font-size:.40rem; margin-top:8px; line-height:2; }
+.sp-body {
+  padding:12px 14px 14px; display:flex; flex-direction:column;
+  gap:0; flex:1; justify-content:space-between;
+}
+.sp-section-lbl { color:#664420; font-size:.38rem; margin-bottom:8px; }
+.sp-row {
+  display:flex; align-items:flex-start; gap:10px;
+  padding:10px 0; border-top:2px solid #1a0800;
+  opacity:0;
+}
+.sp-row:nth-child(1){ animation:spFI .3s ease 1.6s forwards; }
+.sp-row:nth-child(2){ animation:spFI .3s ease 1.85s forwards; }
+.sp-row:nth-child(3){ animation:spFI .3s ease 2.1s forwards; }
+.sp-row-num { color:#f5c842; font-size:.50rem; flex-shrink:0; width:20px; }
+.sp-row-txt { color:#c8904a; font-size:.38rem; line-height:2.2; }
+.sp-press {
+  display:block; width:100%; padding:13px;
+  border:3px solid #f5c842; background:#0a0500;
+  color:#f5c842; font-family:'Press Start 2P',monospace;
+  font-size:.44rem; letter-spacing:2px; text-align:center;
+  cursor:pointer; flex-shrink:0;
+  opacity:0;
+  animation:spFI .1s ease 2.4s forwards, spBlink .85s step-end 2.4s infinite;
+}
+@keyframes spFI   { from{opacity:0} to{opacity:1} }
+@keyframes spBlink{ 0%,100%{opacity:1} 50%{opacity:0} }
+</style>
+</head>
+<body>
+
+<!-- SPLASH SCREEN -->
+<div id="splash" onclick="dismissSplash()">
+  <div class="sp-layout">
+
+    <!-- LEFT: scene — same size as the canvas -->
+    <div class="sp-scene">
+      <canvas id="splashChef" class="sp-logo"></canvas>
+      <div class="sp-scene-title">PIXEL KITCHEN</div>
+      <div class="sp-scene-sub">A CULINARY CHALLENGE</div>
+    </div>
+
+    <!-- RIGHT: info panel — same size as .game-panel -->
+    <div class="sp-panel">
+      <div class="sp-head">
+        <div class="sp-head-lbl">HOW TO PLAY</div>
+        <div class="sp-head-sub">Match ingredients to<br>complete each dish!</div>
+      </div>
+      <div class="sp-body">
+        <div>
+          <div class="sp-section-lbl">▶ RULES</div>
+          <div class="sp-row">
+            <span class="sp-row-num">①</span>
+            <span class="sp-row-txt">Read the emoji clues<br>on the dish card</span>
+          </div>
+          <div class="sp-row">
+            <span class="sp-row-num">②</span>
+            <span class="sp-row-txt">Tap matching ingredient<br>names in the grid</span>
+          </div>
+          <div class="sp-row">
+            <span class="sp-row-num">③</span>
+            <span class="sp-row-txt">Complete 10 dishes<br>before time runs out!</span>
+          </div>
+        </div>
+        <div class="sp-press">▶ PRESS ANY KEY</div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<h1>★ PIXEL KITCHEN ★</h1>
+<div class="layout">
+  <canvas id="kitchen" width="620" height="480"></canvas>
+  <div class="game-panel">
+
+    <!-- TITLE PANE -->
+    <div class="gpane active" id="paneTitle">
+      <div class="gp-header">
+        <span class="gp-logo">👨‍🍳</span>
+        <div class="gp-title">INGREDIENT<br>CHALLENGE</div>
+        <div class="gp-sub">Match the recipe before time runs out!</div>
+      </div>
+      <div style="padding:8px 12px 0;">
+        <div class="diff-label" style="margin:0 0 5px;">▶ YOUR NAME</div>
+        <input class="name-input" id="nameInput" maxlength="12" placeholder="ENTER NAME..." style="width:100%;margin-bottom:4px;" />
+      </div>
+      <button class="btn-back" style="margin:4px 12px 0;width:calc(100% - 24px);" onclick="showLeader()">🏆 LEADERBOARD</button>
+      <div class="diff-label">▶ SELECT DIFFICULTY</div>
+      <div class="diff-grid">
+        <button class="d-btn d-apprenti" onclick="startGame('apprenti')">
+          <span class="d-icon">🧑‍🍳</span>
+          <span class="d-texts"><span class="d-name">APPRENTI</span><span class="d-info">90s · 8 tiles</span></span>
+        </button>
+        <button class="d-btn d-cuisinier" onclick="startGame('cuisinier')">
+          <span class="d-icon">👨‍🍳</span>
+          <span class="d-texts"><span class="d-name">CUISINIER</span><span class="d-info">75s · 9 tiles</span></span>
+        </button>
+        <button class="d-btn d-chef" onclick="startGame('chef')">
+          <span class="d-icon">🎩</span>
+          <span class="d-texts"><span class="d-name">CHEF</span><span class="d-info">60s · 10 tiles</span></span>
+        </button>
+      </div>
+    </div>
+
+    <!-- GAME PANE -->
+    <div class="gpane" id="paneGame">
+      <div class="game-hud">
+        <div class="hud-item"><span class="hud-val" id="hudTimer">2:30</span><div class="hud-lbl">TIME</div></div>
+        <div class="hud-item"><span class="hud-val" id="hudScore">0</span><div class="hud-lbl">SCORE</div></div>
+        <div class="hud-item"><span class="hud-val" id="hudProg">1/10</span><div class="hud-lbl">DISH</div></div>
+        <div class="hud-item"><span class="hud-val" style="cursor:pointer;font-size:0.55rem;" onclick="confirmQuit()">✕</span><div class="hud-lbl">QUIT</div></div>
+      </div>
+      <div class="timer-bar-wrap"><div class="timer-bar-fill" id="timerBar"></div></div>
+      <div class="dish-card" id="dishCard">
+        <span class="golden-tag" id="goldenTag" style="display:none">⭐ GOLDEN</span>
+        <span class="dish-emoji" id="dishEmoji">🍲</span>
+        <div class="dish-name" id="dishName">Chef's Stew</div>
+        <div class="dish-hint">FIND THESE INGREDIENTS:</div>
+        <div class="dish-recipe" id="dishRecipe">🥩 🍷 🥕 🧅</div>
+        <div class="combo-tag" id="comboTag"></div>
+      </div>
+      <div class="ingr-grid" id="ingrGrid"></div>
+      <div class="ingr-feedback" id="ingrFb"></div>
+    </div>
+
+    <!-- RESULT PANE -->
+    <div class="gpane" id="paneResult">
+      <div class="result-wrap">
+        <div class="result-icon" id="resIcon">🏆</div>
+        <div class="result-title" id="resTitle">WELL DONE!</div>
+        <div class="result-score-lbl">FINAL SCORE</div>
+        <div class="result-score" id="resScore">0</div>
+        <div class="result-stats" id="resStats"></div>
+        <div id="saveStatus" style="font-size:0.36rem;color:#50c840;min-height:1rem;"></div>
+        <div style="display:flex;gap:6px;width:100%;">
+          <button class="btn-play-again" style="flex:1;" onclick="showTitle()">▶ PLAY AGAIN</button>
+          <button class="btn-leader" style="flex:1;" onclick="showLeader()">🏆 RANKS</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- LEADERBOARD PANE -->
+    <div class="gpane" id="paneLeader">
+      <div class="leader-header">
+        <div class="leader-title">🏆 LEADERBOARD</div>
+      </div>
+      <div class="leader-list" id="leaderList">
+        <div class="leader-empty">Loading...</div>
+      </div>
+      <button class="btn-back" onclick="showTitle()">◀ BACK</button>
+    </div>
+
+  </div>
+</div>
+<button id="muteBtn" onclick="toggleMute()" style="position:fixed;bottom:14px;right:14px;font-family:'Press Start 2P',monospace;font-size:0.45rem;padding:7px 11px;background:#0a0500;border:2px solid #8b5e2a;color:#f5c842;cursor:pointer;z-index:999;box-shadow:2px 2px 0 #5a2d0c;">🔊</button>
+
+<script>
+// ══════════════════════════════════════════════
+//  CANVAS SETUP  (155×120 logical, scale ×4)
+// ══════════════════════════════════════════════
+const canvas = document.getElementById('kitchen');
+const ctx    = canvas.getContext('2d');
+ctx.imageSmoothingEnabled = false;
+const S  = 4;          // 1 logical px = 4 canvas px
+const LW = 155, LH = 120;
+
+// ── PALETTE ──
+const _ =null, W='#f0f0f0', LG='#cccccc', MG='#888888', DG='#444444', BK='#111111',
+  SK='#f5c5a0', DK='#3a2010', RD='#e05050', OR='#f08030', YL='#f5d020',
+  GR='#50c040', BL='#4070d0', PU='#9050c0',
+  WL='#6aaa88', DWL='#4a8065', TL='#88c8a4',
+  FL='#5a3010', WD='#a07020', DWD='#6b3410',
+  CT='#b0b0b0', CR='#f5e8c0',
+  F1='#ff2200', F2='#ff6600', F3='#ffaa00', F4='#ffee00',
+  PT='#666666', DPT='#2a2a2a', LQ='#c04020',
+  LB='#87ceeb', SN='#ffe030';
+
+// ── DRAW HELPER ──
+function r(x,y,c,w=1,h=1){
+  if(!c)return;
+  ctx.fillStyle=c;
+  ctx.fillRect(Math.round(x)*S, Math.round(y)*S, w*S, h*S);
+}
+function rA(x,y,c,a,w=1,h=1){ // with alpha
+  ctx.save(); ctx.globalAlpha=a; r(x,y,c,w,h); ctx.restore();
+}
+
+// ══════════════════════════════════════════════
+//  BACKGROUND
+// ══════════════════════════════════════════════
+function drawBG(){
+  r(0,0,WL,LW,74);        // wall
+  // tile grid
+  ctx.fillStyle=DWL;
+  for(let x=0;x<=LW;x+=15) ctx.fillRect(x*S,20*S,S,52*S);
+  for(let y=20;y<72;y+=10) ctx.fillRect(0,y*S,LW*S,S);
+  ctx.fillStyle=TL;
+  for(let x=0;x<LW;x+=15)
+    for(let y=20;y<72;y+=10)
+      ctx.fillRect(x*S+S, y*S+S, 13*S, 8*S);
+  r(0,72,CT,LW,2);          // counter top metal
+  r(0,74,LG,LW,1);
+  r(0,75,FL,LW,45);         // counter body
+  r(0,75,DK,LW,2);          // counter top shadow
+
+  // ── DRAWERS (3 across, y=78–87) ──
+  const DRW=[{x:2,w:48},{x:54,w:48},{x:106,w:47}];
+  DRW.forEach(d=>{
+    r(d.x,  78,DWD,d.w,10);          // frame
+    r(d.x+1,79,WD, d.w-2,8);         // face
+    r(d.x+2,80,FL, d.w-4,6);         // inset
+    const hx=d.x+Math.floor(d.w/2)-4;
+    r(hx,85,DK,8,1);                  // handle shadow
+    r(hx,84,YL,8,2);                  // handle
+  });
+  r(0,89,DK,LW,1);                   // divider rail
+
+  // ── CABINET DOORS (4 across, y=90–114) ──
+  const CDRS=[{x:2,w:35},{x:40,w:35},{x:78,w:35},{x:116,w:37}];
+  CDRS.forEach(d=>{
+    r(d.x,  90,DWD,d.w,25);          // frame
+    r(d.x+1,91,WD, d.w-2,23);        // face
+    r(d.x+2,92,FL, d.w-4,21);        // inset panel
+    const hx=d.x+Math.floor(d.w/2)-1;
+    r(hx-1,109,DK,4,1);              // handle shadow
+    r(hx,  105,YL,3,6);              // vertical handle
+  });
+
+  // ── BASEBOARD ──
+  r(0,116,DK, LW,2);
+  r(0,118,DWD,LW,2);
+}
+
+// ══════════════════════════════════════════════
+//  WINDOW  (x=8, y=22, 18×16)
+// ══════════════════════════════════════════════
+function drawWindow(){
+  // Day/night sky cycle — ~3 min loop (1440 ticks × 125ms)
+  const cyc=1440, ph=(tick%cyc)/cyc;
+  const pts=[[255,144,96],[135,206,235],[255,85,51],[13,13,46],[255,144,96]];
+  const stp=[0,0.25,0.5,0.75,1.0];
+  let ci=0; for(let i=0;i<stp.length-1;i++){if(ph>=stp[i]&&ph<stp[i+1]){ci=i;break;}}
+  const t=(ph-stp[ci])/(stp[ci+1]-stp[ci]);
+  const lp=(a,b)=>Math.round(a+(b-a)*t);
+  const sc=`rgb(${lp(pts[ci][0],pts[ci+1][0])},${lp(pts[ci][1],pts[ci+1][1])},${lp(pts[ci][2],pts[ci+1][2])})`;
+  ctx.fillStyle=sc; ctx.fillRect(8*S,22*S,18*S,16*S);
+  // Sun (day/dawn/dusk) or crescent moon + stars (night)
+  const isNight=ph>0.58&&ph<0.88;
+  if(!isNight){
+    const sunCol=(ph>0.42&&ph<0.62)||ph>0.84?'#ff8844':SN;
+    r(18,23,sunCol,6,6);
+  } else {
+    drawStars(tick);
+    r(18,23,W,5,5);                                    // moon disc
+    ctx.fillStyle=sc; ctx.fillRect(20*S,23*S,3*S,4*S); // crescent bite
+  }
+  r(8,22,DK,18,1); r(8,37,DK,18,1);
+  r(8,22,DK,1,16); r(25,22,DK,1,16);
+  r(8,30,DK,18,1); r(17,22,DK,1,16);
+  r(7,37,WD,20,2); // sill
+}
+
+// ══════════════════════════════════════════════
+//  CLOCK  (x=128, y=22, 16×16)
+// ══════════════════════════════════════════════
+function drawClock(){
+  const now=new Date();
+  const s=now.getSeconds(), m=now.getMinutes(), h=now.getHours()%12;
+  const cx=136, cy=30; // centre
+  // face (approximated octagon)
+  r(cx-5,cy-7,CR,10,1); r(cx-6,cy-6,CR,12,1);
+  for(let i=-5;i<=5;i++) r(cx-6,cy+i,CR,12,1);
+  r(cx-6,cy+6,CR,12,1); r(cx-5,cy+7,CR,10,1);
+  // border
+  ctx.strokeStyle=DK; ctx.lineWidth=S;
+  ctx.beginPath(); ctx.arc(cx*S,cy*S,7*S,0,Math.PI*2); ctx.stroke();
+  // hands (draw with logical Bresenham)
+  const hand=(angle,len,col)=>{
+    const ex=Math.round(cx+Math.sin(angle)*len);
+    const ey=Math.round(cy-Math.cos(angle)*len);
+    bLine(cx,cy,ex,ey,col);
+  };
+  hand((m/60+s/3600)*2*Math.PI, 5, DG);
+  hand((h/12+m/720)*2*Math.PI,  3, BK);
+  r(cx,cy,BK,1,1);
+}
+function bLine(x0,y0,x1,y1,c){
+  let dx=Math.abs(x1-x0),dy=Math.abs(y1-y0),
+      sx=x0<x1?1:-1,sy=y0<y1?1:-1,err=dx-dy;
+  while(true){r(x0,y0,c);if(x0===x1&&y0===y1)break;
+    let e2=2*err;if(e2>-dy){err-=dy;x0+=sx;}if(e2<dx){err+=dx;y0+=sy;}}
+}
+
+// ══════════════════════════════════════════════
+//  CABINETS  (y=1–17, 6 doors)
+// ══════════════════════════════════════════════
+function drawCabinets(){
+  const doors=[{x:4,w:22},{x:27,w:22},{x:50,w:22},{x:73,w:22},{x:96,w:22},{x:119,w:28}];
+  doors.forEach(d=>{
+    r(d.x,1,DWD,d.w,17);
+    r(d.x+1,2,WD,d.w-2,14);
+    r(d.x+2,3,DWD,d.w-4,11);
+    r(d.x+3,4,FL,d.w-6,9);
+    const hx=d.x+Math.floor(d.w/2)-1;
+    r(hx,13,YL,3,2); r(hx,12,DK,3,1); // handle
+  });
+  r(4,18,DK,143,1); // bottom rail
+}
+
+// ══════════════════════════════════════════════
+//  SHELF + JARS
+// ══════════════════════════════════════════════
+const JARS=[
+  {x:26,c:RD},{x:38,c:GR},{x:50,c:YL},{x:62,c:PU},{x:74,c:BL}
+];
+function drawShelf(hideJarIdx){
+  r(22,20,WD,100,2); r(22,22,DWD,100,1); // shelf plank
+  JARS.forEach((j,i)=>{
+    if(i===hideJarIdx) return;
+    drawJar(j.x, 12, j.c);
+  });
+}
+function drawJar(x,y,c){
+  r(x,y,LG,6,1);       // lid
+  r(x,y+1,c,6,7);      // body
+  rA(x+1,y+2,W,0.35,2,3); // shine
+  r(x,y+8,DK,6,1);     // base
+}
+
+// ══════════════════════════════════════════════
+//  STOVE  (x=52–100, y=68–74)
+// ══════════════════════════════════════════════
+function drawStove(){
+  r(52,68,DG,50,6);
+  r(52,68,BK,50,1);
+  // grate bars
+  for(let gx=60;gx<=96;gx+=3) r(gx,69,DPT,1,4);
+  // knobs
+  r(54,70,MG,3,3); r(58,70,MG,3,3);
+}
+
+// ══════════════════════════════════════════════
+//  FLAMES  (above stove at x=66–86, base y=68)
+// ══════════════════════════════════════════════
+function drawFlames(tick, intense){
+  const f=tick%4;
+  const cols=[
+    {x:67, h:intense?(f<2?18:13):(f<2?10:7)},
+    {x:71, h:intense?(f===1||f===3?22:16):(f===1||f===3?13:9)},
+    {x:75, h:intense?(f<2?20:15):(f<2?12:8)},
+    {x:79, h:intense?(f===0||f===2?19:14):(f===0||f===2?11:7)},
+    {x:83, h:intense?(f<2?16:12):(f<2?9:6)},
+  ];
+  cols.forEach(col=>{
+    const b=68;
+    r(col.x, b-col.h,     F4, 2, 2);
+    r(col.x, b-col.h+2,   F3, 2, Math.max(2,Math.round(col.h*.35)));
+    r(col.x, b-Math.round(col.h*.6), F2, 2, Math.round(col.h*.3));
+    r(col.x, b-Math.round(col.h*.3), F1, 2, Math.round(col.h*.3));
+  });
+}
+
+// ══════════════════════════════════════════════
+//  POT  (x=57–93, y=54–68, lid y=50–54)
+// ══════════════════════════════════════════════
+function drawPot(tick, boiling){
+  const lidOff = boiling?(tick%2?-2:0):(tick%4?0:-1);
+  // shadow
+  r(56,56,DPT,40,14);
+  // body
+  r(58,55,PT,36,14);
+  r(58,55,MG,36,1); // rim
+  // handles
+  r(51,59,PT,7,5); r(92,59,PT,7,5);
+  r(52,60,DPT,5,3); r(93,60,DPT,5,3);
+  // liquid
+  const lqH=boiling?7:4;
+  r(59,55+14-lqH, boiling?'#ff5030':LQ, 34,lqH);
+  if(boiling && tick%2===0){
+    r(65,55+14-lqH-1,W,2,1);
+    r(73,55+14-lqH-1,W,2,1);
+    r(81,55+14-lqH-1,W,2,1);
+  }
+  // lid
+  const ly=50+lidOff;
+  r(56,ly+2,DPT,42,5);
+  r(58,ly,  LG, 38,5);
+  r(58,ly,  W,  38,1);
+  r(73,ly-3,MG,  8,3);
+  r(74,ly-5,LG,  6,2);
+}
+
+// ══════════════════════════════════════════════
+//  STEAM
+// ══════════════════════════════════════════════
+function drawSteam(tick, heavy){
+  const puffs=heavy?
+    [{x:62,y:46,ph:0},{x:68,y:44,ph:1},{x:74,y:42,ph:2},{x:80,y:45,ph:.5},{x:86,y:43,ph:1.5}]:
+    [{x:64,y:47,ph:0},{x:72,y:45,ph:1.5},{x:80,y:48,ph:.7}];
+  puffs.forEach(p=>{
+    const t=(tick*.3+p.ph)%(Math.PI*2);
+    const wb=Math.round(Math.sin(t)*2);
+    const rise=(tick%8)*.5;
+    const a=heavy?0.32:0.16;
+    rA(p.x+wb,   p.y-rise,   W,a+Math.sin(t)*.08, 4,3);
+    rA(p.x+wb-1, p.y-rise-3, W,a*.7, 3,2);
+    rA(p.x+wb-1, p.y-rise-5, W,a*.4, 3,2);
+  });
+}
+
+// ══════════════════════════════════════════════
+//  CUTTING BOARD + VEGGIES + KNIFE
+// ══════════════════════════════════════════════
+function drawBoard(tick, chopMode, vegsOn){
+  r(108,72,DWD,37,5);
+  r(108,72,WD, 36,4);
+  r(109,73,'#c09030',34,2);
+  for(let gx=113;gx<144;gx+=8) r(gx,73,DWD,1,2); // grain
+
+  if(vegsOn){
+    const b=chopMode?(tick%2?-1:0):0;
+    r(113,67+b,RD,5,4);       // tomato
+    r(115,68+b,W,1,2);        // cut lines
+    r(117,68+b,W,1,2);
+    r(120,67+b,GR,6,5);       // broccoli
+    r(121,68+b,GR,4,3);
+    r(128,67+b,YL,5,4);       // pepper
+    r(135,68+b,RD,4,4);       // chili
+    r(136,69+b,F2,2,2);       // chili shine
+  }
+  // knife
+  const ku = chopMode?(tick%2===0):false;
+  const ky = ku ? 61 : 67;
+  r(113,ky,  LG,27,3);
+  r(113,ky+1,W, 24,1);
+  r(140,ky,  MG,2,4);
+  r(109,ky-1,DWD,6,5);
+  r(110,ky,  WD, 4,3);
+}
+
+// ══════════════════════════════════════════════
+//  RECIPE BOOK  (x=143–153, y=63–77)
+// ══════════════════════════════════════════════
+function drawBook(){
+  r(143,63,'#800000',8,14);
+  r(151,63,RD,5,14);
+  r(151,64,'#ff9090',3,1);
+  r(156,64,W,3,12);
+  r(157,66,MG,1,1); r(157,68,MG,1,1); r(157,70,MG,1,1); r(157,72,MG,1,1);
+}
+
+// ══════════════════════════════════════════════
+//  CHEF  (hat top at cx=16,cy=39)
+// ══════════════════════════════════════════════
+function drawChef(tick, mode){
+  // mode: 'idle'|'chop'|'stir'
+  const cx=16, cy=39;
+  // hat
+  r(cx+3,cy,   W,10,1);
+  r(cx+2,cy+1, W,12,6);
+  r(cx+1,cy+7, W,14,2);
+  r(cx+1,cy+9, LG,14,1);
+  // head
+  r(cx+3,cy+10, SK,10,9);
+  r(cx+2,cy+11, SK,12,7);
+  // eyes
+  r(cx+5,cy+13, BK,2,2); r(cx+9,cy+13,BK,2,2);
+  r(cx+6,cy+13, W,1,1);  r(cx+10,cy+13,W,1,1);
+  // brows
+  r(cx+5,cy+12,DK,3,1); r(cx+9,cy+12,DK,3,1);
+  // moustache
+  r(cx+5,cy+16,DK,6,1);
+  r(cx+4,cy+15,DK,3,1); r(cx+9,cy+15,DK,3,1);
+  // smile
+  r(cx+5,cy+17,DK,1,1); r(cx+10,cy+17,DK,1,1);
+  r(cx+6,cy+18,DK,4,1);
+  // cheeks
+  rA(cx+3,cy+15,'#dd8070',.35,3,2);
+  rA(cx+10,cy+15,'#dd8070',.35,3,2);
+  // body
+  r(cx+1,cy+19,W,14,16);
+  r(cx+6,cy+22,DK,2,2);
+  r(cx+6,cy+26,DK,2,2);
+  r(cx+6,cy+30,DK,2,2);
+  // apron
+  r(cx+3,cy+27,LG,6,6); r(cx+4,cy+28,W,4,4);
+
+  // arms
+  if(mode==='chop'){
+    r(cx-3,cy+22,W,4,4); r(cx-3,cy+26,SK,3,3);
+    const ry=tick%2===0?cy+17:cy+24;
+    r(cx+15,ry,W,4,4); r(cx+15,ry+4,SK,3,3);
+  } else if(mode==='stir'){
+    const a=(tick%8)/8, ax=Math.round(Math.sin(a*Math.PI*2)*4), ay=Math.round(Math.cos(a*Math.PI*2)*2);
+    r(cx-3+ax,cy+22+ay,W,4,4); r(cx-3+ax,cy+26+ay,SK,3,3);
+    r(cx-5+ax,cy+26+ay,MG,3,4); r(cx-6+ax,cy+29+ay,LG,5,3);
+    r(cx+15,cy+22,W,4,4); r(cx+15,cy+26,SK,3,3);
+  } else {
+    const sw=tick%6<3?0:1;
+    r(cx-3,cy+22+sw,W,4,4); r(cx-3,cy+26+sw,SK,3,3);
+    r(cx-5,cy+27,MG,3,3); r(cx-6,cy+30,LG,5,3);
+    r(cx+15,cy+22,W,4,4); r(cx+15,cy+26,SK,3,3);
+  }
+}
+
+// ══════════════════════════════════════════════
+//  SPEECH BUBBLE  (appears above/right of chef)
+// ══════════════════════════════════════════════
+function drawSpeech(text){
+  ctx.font=`${S*2}px 'Press Start 2P',monospace`;
+  const tw=ctx.measureText(text).width;
+  const bw=Math.ceil(tw/S)+6, bh=9;
+  const bx=32, by=25;
+  r(bx,by,W,bw,bh);
+  ctx.strokeStyle=DK; ctx.lineWidth=S;
+  ctx.strokeRect(bx*S,by*S,bw*S,bh*S);
+  r(bx+3,by+bh,DK,3,2); r(bx+4,by+bh,W,1,1); // tail
+  ctx.fillStyle=DK;
+  ctx.fillText(text, (bx+3)*S, (by+6.5)*S);
+}
+
+// ══════════════════════════════════════════════
+//  HANGING UTENSILS  (below shelf, x=88–120)
+// ══════════════════════════════════════════════
+function drawHangingUtensils(tick){
+  const items=[
+    {x:89, type:'pan'},
+    {x:101,type:'pot'},
+    {x:113,type:'ladle'},
+  ];
+  items.forEach((it,i)=>{
+    const sway=Math.sin(tick*.04+i*1.2)*1.2;
+    const bx=Math.round(it.x+sway);
+    // hook
+    r(bx+1,22,DK,2,1); r(bx+2,23,DK,1,2);
+    if(it.type==='pan'){
+      r(bx,25,DG,1,6);               // handle (thinner, shorter)
+      r(bx-2,30,DPT,7,4);            // pan body
+      r(bx-1,31,PT,5,2); r(bx-1,31,CT,5,1);
+    } else if(it.type==='pot'){
+      r(bx+2,24,DK,1,3);             // wire
+      r(bx,27,DPT,5,1); r(bx,28,PT,5,4); r(bx,28,CT,5,1); // pot
+      r(bx-1,30,PT,2,2); r(bx+6,30,PT,2,2); // handles (smaller)
+      r(bx+1,27,DPT,3,1); r(bx+2,26,MG,1,1); // lid+knob
+    } else {
+      r(bx+2,24,DG,1,9);             // ladle handle (shorter)
+      r(bx,33,PT,5,3); r(bx+1,34,MG,3,1); // ladle cup
+    }
+  });
+}
+
+// ══════════════════════════════════════════════
+//  COFFEE MACHINE  (x=1, on counter)
+// ══════════════════════════════════════════════
+function drawCoffeeMachine(tick){
+  // body
+  r(1,62,DPT,11,10);            // machine body
+  r(2,63,DG, 9, 8);             // front panel
+  r(1,62,PT, 11,1);             // top rim
+  // water tank
+  r(3,58,DPT,7,1);              // tank top cap
+  r(3,59,MG, 7,4);              // tank body
+  rA(4,60,'#6090d0',.45,5,2);   // water tint
+  r(3,62,DPT,7,1);              // tank bottom
+  // buttons
+  r(3,65,RD,2,2);               // red button
+  r(6,65,GR,2,2);               // green button
+  r(3,68,DPT,4,1);              // display slot
+  // spout
+  r(5,69,PT,3,1);
+  r(6,70,PT,1,2);
+  // drip tray
+  r(0,71,DPT,13,1);
+  r(0,72,CT, 13,1);
+  // espresso cup
+  r(4,70,CR,4,2);               // cup body
+  r(3,71,CT,6,1);               // saucer
+  r(5,70,DWD,2,1);              // coffee
+  // steam from cup (subtle)
+  const sp=tick%6;
+  rA(5,68,W, sp<3?.10:.06, 1,1);
+  rA(7,67,W, sp<3?.06:.10, 1,1);
+}
+
+// ══════════════════════════════════════════════
+//  AMBIENT DUST PARTICLES
+// ══════════════════════════════════════════════
+let dustPts=[];
+function spawnDust(){
+  if(dustPts.length<12 && Math.random()<0.18){
+    dustPts.push({
+      x:20+Math.random()*120,
+      y:20+Math.random()*55,
+      vx:(Math.random()-.5)*.25,
+      vy:-.08-.08*Math.random(),
+      life:60+Math.random()*40,
+      max:100,
+      c:[YL,W,'#f5a030','#d0c090'][Math.floor(Math.random()*4)]
+    });
+  }
+}
+function drawDust(){
+  spawnDust();
+  dustPts=dustPts.filter(p=>{
+    p.x+=p.vx; p.y+=p.vy; p.life--;
+    const a=(p.life/p.max)*0.22;
+    rA(Math.round(p.x),Math.round(p.y),p.c,a,1,1);
+    return p.life>0 && p.y>18;
+  });
+}
+
+// ══════════════════════════════════════════════
+//  STARS IN WINDOW  (night only)
+// ══════════════════════════════════════════════
+const STARS=[{x:10,y:24},{x:14,y:27},{x:20,y:23},{x:23,y:29},{x:11,y:31},{x:17,y:33},{x:21,y:26}];
+function drawStars(tick){
+  STARS.forEach((s,i)=>{
+    const twinkle=Math.sin(tick*.15+i*1.7);
+    const a=Math.max(0,(twinkle*.4+0.5));
+    rA(s.x,s.y,W,a,1,1);
+  });
+}
+
+// ══════════════════════════════════════════════
+//  CAT  (x=40–50, on counter y=71)
+// ══════════════════════════════════════════════
+function drawCat(tick){
+  const blink=tick%48<2;
+  const tail=Math.round(Math.sin(tick*.08)*2);
+  // tail
+  r(37+tail,67,DG,2,5); r(36+tail,72,DG,3,2); r(34+tail,73,DG,3,1);
+  // body
+  r(39,66,DG,9,7); r(38,67,DG,11,5);
+  // head
+  r(40,61,DG,8,6); r(39,62,DG,10,4);
+  // ears
+  r(40,59,DG,2,3); r(46,59,DG,2,3);
+  r(41,60,MG,1,2); r(47,60,MG,1,2);
+  // eyes
+  if(blink){
+    r(42,63,DG,2,1); r(46,63,DG,2,1);
+  } else {
+    r(42,63,YL,2,2); r(46,63,YL,2,2);
+    r(43,64,BK,1,1); r(47,64,BK,1,1);
+  }
+  // nose & mouth
+  r(44,65,RD,1,1);
+  r(43,66,DG,1,1); r(45,66,DG,1,1);
+  // whiskers
+  r(35,64,MG,6,1); r(35,65,MG,5,1);
+  r(48,64,MG,6,1); r(49,65,MG,5,1);
+  // paws
+  r(39,72,DG,4,2); r(44,72,DG,4,2);
+}
+
+// ══════════════════════════════════════════════
+//  STAGE LABEL
+// ══════════════════════════════════════════════
+function drawStageLabel(text){
+  if(!text) return;
+  ctx.font=`${S*2}px 'Press Start 2P',monospace`;
+  const tw=ctx.measureText(text).width;
+  const bw=Math.ceil(tw/S)+6;
+  const bx=Math.round((LW-bw)/2);
+  r(bx,1,BK,bw,8);
+  r(bx+1,2,DG,bw-2,6);
+  ctx.fillStyle=YL;
+  ctx.textAlign='center';
+  ctx.fillText(text, LW/2*S, 6.5*S);
+  ctx.textAlign='left';
+}
+
+// ══════════════════════════════════════════════
+//  PLATE  (appears during plate stage)
+// ══════════════════════════════════════════════
+function drawPlate(showFood){
+  // oval plate on counter
+  r(55,70,W,48,3); r(53,71,W,52,4); r(55,75,LG,48,1);
+  if(showFood){
+    r(60,67,LQ,38,5); r(62,66,OR,34,4); r(64,65,F3,28,2);
+    r(71,64,GR,5,3); r(79,64,GR,4,3); // herbs
+    rA(66,61,W,.3,2,3); rA(72,59,W,.3,2,4); rA(78,61,W,.3,2,3); // steam
+  }
+}
+
+// ══════════════════════════════════════════════
+//  SERVE BANNER
+// ══════════════════════════════════════════════
+function drawServeBanner(){
+  r(25,32,YL,110,14);
+  r(26,33,OR,108,12);
+  r(27,34,YL,106,10);
+  for(let bx=25;bx<135;bx+=4){ r(bx,32,OR,2,1); r(bx,45,OR,2,1); }
+  ctx.fillStyle=DK; ctx.font=`${S*2}px 'Press Start 2P',monospace`;
+  ctx.textAlign='center';
+  ctx.fillText('ORDER READY!', LW/2*S, 40*S);
+  ctx.textAlign='left';
+}
+
+// ══════════════════════════════════════════════
+//  DYNAMIC PARTICLES & OBJECTS
+// ══════════════════════════════════════════════
+let flyVegs=[], floatJar=null, spicePts=[], sparkles=[];
+
+function spawnFlyVegs(){
+  [{sx:115,sy:67,c:RD},{sx:122,sy:67,c:GR},{sx:129,sy:67,c:YL},{sx:136,sy:67,c:RD}]
+    .forEach((v,i)=>setTimeout(()=>flyVegs.push({...v,tx:76,ty:60,t:0,max:20}),i*180));
+}
+function drawFlyVegs(){
+  flyVegs=flyVegs.filter(v=>{
+    const p=v.t/v.max;
+    const x=v.sx+(v.tx-v.sx)*p, y=v.sy+(v.ty-v.sy)*p-Math.sin(p*Math.PI)*22;
+    r(Math.round(x),Math.round(y),v.c,3,3); v.t++; return v.t<=v.max;
+  });
+}
+
+function spawnFloatJar(){
+  floatJar={x:50,y:12,phase:'tospot',t:0}; // jar3 (yellow) logical x=50
+}
+function drawFloatJar(){
+  if(!floatJar) return;
+  floatJar.t++;
+  if(floatJar.phase==='tospot'){
+    const p=Math.min(floatJar.t/10,1);
+    floatJar.x=50+(75-50)*ease(p); floatJar.y=12+(42-12)*ease(p);
+    if(p>=1){floatJar.phase='pour';floatJar.t=0;}
+  } else if(floatJar.phase==='pour'){
+    // *** FIX: spawn particles at POT position, not shelf ***
+    // pot centre x≈75, above lid y≈52 → particles fall into pot interior y≈60
+    if(floatJar.t%2===0) spawnSpice(75,52);
+    if(floatJar.t>=18){floatJar.phase='back';floatJar.t=0;}
+  } else {
+    const p=Math.min(floatJar.t/10,1);
+    floatJar.x=75+(50-75)*ease(p); floatJar.y=42+(12-42)*ease(p);
+    if(p>=1) floatJar=null;
+  }
+  if(!floatJar) return;
+  const jx=Math.round(floatJar.x), jy=Math.round(floatJar.y);
+  if(floatJar.phase==='pour'){
+    // draw jar sideways (tipped) above pot
+    ctx.save();
+    ctx.translate((jx+3)*S,(jy+4)*S); ctx.rotate(-Math.PI/2);
+    ctx.fillStyle=LG; ctx.fillRect(-3*S,-4*S,6*S,S);
+    ctx.fillStyle=YL; ctx.fillRect(-3*S,-3*S,6*S,7*S);
+    ctx.fillStyle=DK; ctx.fillRect(-3*S, 4*S,6*S,S);
+    ctx.restore();
+  } else {
+    drawJar(jx,jy,YL);
+  }
+}
+function ease(t){return t<.5?2*t*t:-1+(4-2*t)*t;}
+
+function spawnSpice(fromX,fromY){
+  // Particles fall from ABOVE POT into pot interior — not on chef!
+  const cols=[YL,RD,GR,PU,OR,'#ff8800','#40b0ff'];
+  for(let i=0;i<3;i++){
+    spicePts.push({
+      x:fromX+(Math.random()*8-4),  // scatter within pot opening width
+      y:fromY,
+      vx:(Math.random()-.5)*.6,
+      vy:.9+Math.random()*.7,       // fall downward into pot
+      c:cols[Math.floor(Math.random()*cols.length)],
+      life:16
+    });
+  }
+}
+function drawSpice(){
+  spicePts=spicePts.filter(p=>{
+    p.x+=p.vx; p.y+=p.vy; p.life--;
+    rA(Math.round(p.x),Math.round(p.y),p.c,p.life/16,2,2);
+    return p.life>0;
+  });
+}
+
+function spawnSparkles(){
+  [[20,30],[55,20],[95,25],[135,28],[150,55],[108,45],[40,55],[75,18],[20,62],[140,20]]
+    .forEach(([x,y],i)=>setTimeout(()=>sparkles.push({x,y,t:24,max:24,c:[YL,W,F3,OR][i%4]}),i*80));
+}
+function drawSparkles(){
+  sparkles=sparkles.filter(sp=>{
+    sp.t--;
+    const a=sp.t/sp.max, sz=Math.round(a*3)+1;
+    rA(sp.x,sp.y,sp.c,a,sz,sz);
+    rA(sp.x+Math.floor(sz/2),sp.y-sz,sp.c,a,1,sz*2);
+    rA(sp.x-sz,sp.y+Math.floor(sz/2),sp.c,a,sz*2,1);
+    return sp.t>0;
+  });
+}
+
+// ══════════════════════════════════════════════
+//  STATE
+// ══════════════════════════════════════════════
+let tick=0, cookMode='idle', boiling=false, intense=false,
+    vegsOn=true, plateOn=false, foodOn=false, bannerOn=false,
+    stageText='', speechText='BON APPETIT!', cooking=false;
+
+// ══════════════════════════════════════════════
+//  MAIN DRAW LOOP  (8 FPS retro)
+// ══════════════════════════════════════════════
+function draw(){
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+  drawBG();
+  drawWindow();
+  drawCabinets();
+  drawShelf(floatJar!==null?2:undefined); // hide yellow jar when floating
+  drawClock();
+  drawStove();
+  drawFlames(tick,intense);
+  drawPot(tick,boiling);
+  drawSteam(tick,boiling);
+  drawHangingUtensils(tick);
+  drawCoffeeMachine(tick);
+  drawBook();
+  drawBoard(tick,cookMode==='chop',vegsOn);
+  if(plateOn) drawPlate(foodOn);
+  drawCat(tick);
+  drawChef(tick, cookMode==='chop'?'chop':cookMode==='stir'?'stir':'idle');
+  drawDust();
+  drawFlyVegs();
+  drawFloatJar();
+  drawSpice();
+  if(bannerOn) drawServeBanner();
+  drawSparkles();
+  drawSpeech(speechText);
+  drawStageLabel(stageText);
+  tick++;
+}
+setInterval(draw,125);
+
+// ══════════════════════════════════════════════
+//  COOKING STAGES
+// ══════════════════════════════════════════════
+const STAGES=[
+  {label:'CHOP!',       speech:'CHOP CHOP!',  dur:1800,
+   start:()=>cookMode='chop',      end:()=>cookMode='idle'},
+  {label:'INTO THE POT!',speech:'IN IT GOES!', dur:2200,
+   start:()=>{cookMode='toss';spawnFlyVegs();vegsOn=false;}, end:()=>{}},
+  {label:'CRANK HEAT!', speech:'MORE FIRE!',  dur:1600,
+   start:()=>{intense=true;boiling=true;},    end:()=>{}},
+  {label:'ADD SPICES!', speech:'SECRET MIX!', dur:3800,
+   start:()=>spawnFloatJar(),                 end:()=>{floatJar=null;spicePts=[];}},
+  {label:'STIR!',       speech:'STIR IT UP!', dur:2000,
+   start:()=>cookMode='stir',      end:()=>cookMode='idle'},
+  {label:'PLATING...',  speech:'BEAUTIFUL!',  dur:1600,
+   start:()=>{plateOn=true;setTimeout(()=>foodOn=true,500);}, end:()=>{}},
+  {label:'SERVED!',     speech:'VOILA!',      dur:1400,
+   start:()=>{bannerOn=true;spawnSparkles();},end:()=>{}},
+];
+
+function runStages(snap,total){
+  let i=0;
+  (function next(){
+    if(i>0) STAGES[i-1].end();
+    if(i>=STAGES.length){
+      setTimeout(()=>{stageText='';showReceipt(snap,total);},500);
+      return;
+    }
+    const s=STAGES[i]; stageText=s.label; speechText=s.speech;
+    s.start(); i++;
+    setTimeout(next,s.dur);
+  })();
+}
+
+function resetKitchen(){
+  cookMode='idle'; boiling=false; intense=false; vegsOn=true;
+  plateOn=false; foodOn=false; bannerOn=false; stageText='';
+  flyVegs=[]; floatJar=null; spicePts=[]; sparkles=[]; cooking=false;
+}
+
+// ══════════════════════════════════════════════
+//  INGREDIENT GAME
+// ══════════════════════════════════════════════
+// Ingredient pool
+const INGR={
+  beef:    {e:'🥩',l:'Beef'},     salmon:  {e:'🐟',l:'Salmon'},
+  lamb:    {e:'🍖',l:'Lamb'},     chicken: {e:'🍗',l:'Chicken'},
+  egg:     {e:'🥚',l:'Egg'},      carrot:  {e:'🥕',l:'Carrot'},
+  onion:   {e:'🧅',l:'Onion'},    garlic:  {e:'🧄',l:'Garlic'},
+  tomato:  {e:'🍅',l:'Tomato'},   lemon:   {e:'🍋',l:'Lemon'},
+  mango:   {e:'🥭',l:'Mango'},    apricot: {e:'🍑',l:'Apricot'},
+  potato:  {e:'🥔',l:'Potato'},   lettuce: {e:'🥬',l:'Lettuce'},
+  mushroom:{e:'🍄',l:'Mushroom'}, butter:  {e:'🧈',l:'Butter'},
+  cream:   {e:'🥛',l:'Cream'},    parmesan:{e:'🧀',l:'Parmesan'},
+  pasta:   {e:'🍝',l:'Pasta'},    sugar:   {e:'🧂',l:'Sugar'},
+  almond:  {e:'🌰',l:'Almond'},   redwine: {e:'🍷',l:'Red Wine'},
+  truffle: {e:'🟤',l:'Truffle'},  herb:    {e:'🌿',l:'Herbs'},
+  oliveoil:{e:'🫒',l:'Olive Oil'},curry:   {e:'🌶️',l:'Curry Paste'},
+  coconut: {e:'🥥',l:'Coconut'},  honey:   {e:'🍯',l:'Honey'},
+  vanilla: {e:'🫙',l:'Vanilla'},  caramel: {e:'🍮',l:'Caramel'},
+  choc:    {e:'🍫',l:'Chocolate'},cardamom:{e:'🌱',l:'Cardamom'},
+  yogurt:  {e:'🥣',l:'Yogurt'},   flour:   {e:'🌾',l:'Flour'},
+};
+const ALL_IDS=Object.keys(INGR);
+
+// 25 dishes — 10 picked randomly each round
+const DISHES=[
+  // ── Mains ──
+  {name:"Chef's Stew",      e:'🍲', ok:['beef','redwine','carrot','onion']},
+  {name:'Ratatouille',      e:'🫕', ok:['tomato','onion','garlic','oliveoil']},
+  {name:'Grilled Ribeye',   e:'🥩', ok:['beef','butter','garlic','herb']},
+  {name:'Seared Salmon',    e:'🐟', ok:['salmon','lemon','butter','herb']},
+  {name:"Chef's Curry",     e:'🍛', ok:['chicken','coconut','curry','garlic']},
+  {name:"Shepherd's Pie",   e:'🥧', ok:['lamb','potato','carrot','onion']},
+  {name:'Garden Salad',     e:'🥗', ok:['lettuce','tomato','lemon','oliveoil']},
+  {name:'Truffle Fries',    e:'🍟', ok:['potato','truffle','parmesan','herb']},
+  {name:'Beef Bourguignon', e:'🫕', ok:['beef','redwine','mushroom','carrot']},
+  {name:'French Onion Soup',e:'🧅', ok:['onion','butter','redwine','parmesan']},
+  {name:'Mushroom Risotto', e:'🍄', ok:['mushroom','parmesan','cream','butter']},
+  {name:'Herb Roast Chicken',e:'🍗',ok:['chicken','herb','garlic','lemon']},
+  {name:'Potato Gratin',    e:'🥔', ok:['potato','cream','parmesan','onion']},
+  {name:'Tomato Bruschetta',e:'🍅', ok:['tomato','garlic','oliveoil','herb']},
+  {name:'Honey Salmon',     e:'🐟', ok:['salmon','honey','garlic','lemon']},
+  {name:'Lamb Kebab',       e:'🍢', ok:['lamb','garlic','onion','herb']},
+  {name:'Truffle Risotto',  e:'🫕', ok:['truffle','mushroom','parmesan','cream']},
+  {name:'Caesar Salad',     e:'🥗', ok:['lettuce','parmesan','garlic','oliveoil']},
+  // ── Desserts ──
+  {name:'Lava Cake',        e:'🍫', ok:['choc','butter','egg','flour']},
+  {name:'Mango Lassi',      e:'🍹', ok:['mango','yogurt','honey','cardamom']},
+  {name:'Crème Brûlée',     e:'🍮', ok:['cream','egg','sugar','vanilla']},
+  {name:'Chocolate Mousse', e:'🍫', ok:['choc','cream','egg','sugar']},
+  {name:'Crêpes',           e:'🫓', ok:['flour','egg','butter','cream']},
+  {name:'Caramel Flan',     e:'🍮', ok:['caramel','cream','egg','vanilla']},
+  {name:'Coconut Mango Pudding',e:'🥭',ok:['coconut','mango','cream','vanilla']},
+];
+
+// Difficulty config
+const DIFF_CFG={
+  apprenti: {time:90, grid:8},
+  cuisinier:{time:75, grid:9},
+  chef:     {time:60, grid:10},
+};
+
+// Chef reactions
+const C_IDLE   =['BON APPETIT!','À VOS MARQUES!','ALLEZ ALLEZ!','CONCENTRE!'];
+const C_CORRECT=['PARFAIT!','OUI OUI!','MAGNIFIQUE!','EXCELLENT!','C\'EST ÇA!'];
+const C_WRONG  =['MON DIEU!','NON NON!','PAS ÇA!','ATTENTION!'];
+const C_HURRY  =['VITE VITE!','DÉPÊCHE-TOI!','HURRY!','PLUS VITE!'];
+const C_COMBO  =['INCROYABLE!','EN FEU!','UNSTOPPABLE!'];
+const rnd=a=>a[Math.floor(Math.random()*a.length)];
+
+// Game state
+let gState='title', gDiff='apprenti';
+let timeLeft=0, gTimerInt=null;
+let gScore=0, gDishIdx=0, gDishes=[], gGolden=new Set();
+let gCombo=0, gBestCombo=0, gCorrect=0;
+let gPicked=new Set(), gGrid=[];
+
+function shuffleArr(a){
+  for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}
+  return a;
+}
+function showPane(id){
+  if(id !== 'paneLeader') detachLeaderListener();
+  document.querySelectorAll('.gpane').forEach(p=>p.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+function confirmQuit(){
+  if(confirm('Quit and change difficulty?')) showTitle();
+}
+function showTitle(){
+  gState='title'; clearInterval(gTimerInt);
+  resetKitchen(); intense=false; boiling=false; stageText='';
+  speechText='BON APPETIT!';
+  showPane('paneTitle');
+}
+
+// ── START ──
+function startGame(diff){
+  initAudio();
+  gDiff=diff; gState='playing';
+  const cfg=DIFF_CFG[diff];
+  timeLeft=cfg.time;
+  gScore=0; gDishIdx=0; gCombo=0; gBestCombo=0; gCorrect=0;
+  gDishes=shuffleArr([...DISHES]).slice(0,10);
+  gGolden=new Set(shuffleArr([0,1,2,3,4,5,6,7,8,9]).slice(0,2));
+  resetKitchen(); intense=false; boiling=false; stageText=''; vegsOn=true;
+  speechText='BONNE CHANCE!';
+  updateHUD();
+  showPane('paneGame');
+  showDish();
+  startGTimer();
+  setTimeout(()=>{if(gState==='playing')speechText=rnd(C_IDLE);},2200);
+}
+
+// ── TIMER ──
+function startGTimer(){
+  clearInterval(gTimerInt);
+  gTimerInt=setInterval(()=>{
+    if(gState!=='playing') return;
+    timeLeft=Math.max(0,timeLeft-0.1);
+    updateTimerUI();
+    intense=timeLeft<30;
+    boiling=timeLeft<15;
+    if(timeLeft>0&&timeLeft<30&&Math.random()<0.015) speechText=rnd(C_HURRY);
+    if(timeLeft<=0){clearInterval(gTimerInt);endGame();}
+  },100);
+}
+function updateTimerUI(){
+  const m=Math.floor(timeLeft/60), s=Math.floor(timeLeft%60);
+  const el=document.getElementById('hudTimer');
+  el.textContent=`${m}:${String(s).padStart(2,'0')}`;
+  el.className='hud-val'+(timeLeft<30?' danger':'');
+  const pct=timeLeft/DIFF_CFG[gDiff].time*100;
+  const bar=document.getElementById('timerBar');
+  bar.style.width=pct+'%';
+  bar.className='timer-bar-fill'+(pct<20?' crit':pct<40?' warn':'');
+}
+function updateHUD(){
+  document.getElementById('hudScore').textContent=gScore;
+  document.getElementById('hudProg').textContent=`${Math.min(gDishIdx+1,10)}/10`;
+}
+
+// ── SHOW DISH ──
+function showDish(){
+  if(gDishIdx>=10){endGame();return;}
+  const dish=gDishes[gDishIdx];
+  const isGolden=gGolden.has(gDishIdx);
+  gPicked=new Set();
+  // build grid: correct + shuffled decoys
+  const cfg=DIFF_CFG[gDiff];
+  const decoys=shuffleArr(ALL_IDS.filter(id=>!dish.ok.includes(id))).slice(0,cfg.grid-dish.ok.length);
+  gGrid=shuffleArr([...dish.ok,...decoys]);
+  // render card
+  document.getElementById('dishEmoji').textContent=dish.e;
+  document.getElementById('dishName').textContent=dish.name;
+  document.getElementById('dishRecipe').textContent=dish.ok.map(id=>INGR[id].e).join('  ');
+  document.getElementById('dishCard').className='dish-card'+(isGolden?' golden':'');
+  document.getElementById('goldenTag').style.display=isGolden?'block':'none';
+  document.getElementById('comboTag').textContent='';
+  document.getElementById('ingrFb').textContent='Pick the right ingredients!';
+  document.getElementById('ingrFb').className='ingr-feedback';
+  updateHUD();
+  renderGrid();
+}
+function renderGrid(){
+  const grid=document.getElementById('ingrGrid'); grid.innerHTML='';
+  gGrid.forEach(id=>{
+    const ing=INGR[id];
+    const tile=document.createElement('div');
+    tile.className='ingr-tile'; tile.dataset.id=id;
+    tile.innerHTML=`<span class="ingr-label">${ing.l}</span>`;
+    tile.onclick=()=>selectIngr(id,tile);
+    grid.appendChild(tile);
+  });
+}
+
+// ── SELECT ──
+function selectIngr(id,tile){
+  if(gState!=='playing'||gPicked.has(id)||tile.classList.contains('locked')) return;
+  const dish=gDishes[gDishIdx];
+  if(dish.ok.includes(id)){
+    gPicked.add(id);
+    tile.classList.add('selected','locked');
+    sfxCorrectIngr();
+    spawnFlyVegs(); // ingredients fly into pot on canvas
+    if(gPicked.size===dish.ok.length) setTimeout(completeDish, 200);
+  } else {
+    tile.classList.add('wrong');
+    sfxWrongIngr();
+    timeLeft=Math.max(0,timeLeft-8);
+    if(gCombo>gBestCombo) gBestCombo=gCombo;
+    gCombo=0;
+    speechText=rnd(C_WRONG);
+    document.getElementById('ingrFb').textContent='✗ Wrong! −8 seconds';
+    document.getElementById('ingrFb').className='ingr-feedback bad';
+    setTimeout(()=>{
+      tile.classList.remove('wrong'); tile.classList.add('locked');
+      if(gState==='playing'){document.getElementById('ingrFb').textContent='Keep going!';document.getElementById('ingrFb').className='ingr-feedback';}
+    },500);
+  }
+}
+
+// ── DISH COMPLETE ──
+function completeDish(){
+  const isGolden=gGolden.has(gDishIdx);
+  gCombo++; gCorrect++;
+  if(gCombo>gBestCombo) gBestCombo=gCombo;
+  const timeCfg=DIFF_CFG[gDiff].time;
+  const goldenBonus=isGolden?15:0;
+  const comboBonus=gCombo>=3?8:0;
+  const pts=100+Math.round(timeLeft*0.3)+(isGolden?50:0)+(gCombo>=3?30:0);
+  gScore+=pts;
+  timeLeft=Math.min(timeCfg,timeLeft+goldenBonus+comboBonus);
+  // feedback
+  let fb=`✓ +${pts} pts`;
+  if(isGolden) fb+=`   ⭐ +${goldenBonus}s`;
+  if(gCombo>=3) fb+=`   🔥 COMBO +${comboBonus}s`;
+  document.getElementById('ingrFb').textContent=fb;
+  document.getElementById('ingrFb').className='ingr-feedback good';
+  if(gCombo>=3) document.getElementById('comboTag').textContent=`🔥 ×${gCombo} COMBO!`;
+  speechText=gCombo>=3?rnd(C_COMBO):rnd(C_CORRECT);
+  spawnSparkles();
+  sfxDishComplete(isGolden);
+  updateHUD();
+  // lock all tiles
+  document.getElementById('ingrGrid').querySelectorAll('.ingr-tile').forEach(t=>t.classList.add('locked'));
+  gDishIdx++;
+  setTimeout(()=>{
+    if(gState==='playing'){
+      if(gDishIdx>=10) endGame();
+      else{ resetKitchen(); stageText=''; vegsOn=true; showDish(); }
+    }
+  },1500);
+}
+
+// ── END GAME ──
+function endGame(){
+  gState='over'; clearInterval(gTimerInt);
+  intense=false; boiling=false;
+  const pct=gCorrect/10;
+  let icon,title;
+  if(pct>=0.9){icon='🏆';title='EXECUTIVE CHEF!';}
+  else if(pct>=0.7){icon='🥇';title='TRÈS BIEN!';}
+  else if(pct>=0.5){icon='🥈';title='PAS MAL!';}
+  else             {icon='🍳';title='KEEP COOKING!';}
+  document.getElementById('resIcon').textContent=icon;
+  document.getElementById('resTitle').textContent=title;
+  document.getElementById('resScore').textContent=gScore;
+  document.getElementById('resStats').innerHTML=
+    `${gCorrect} / 10 dishes correct<br>Best combo: ×${gBestCombo}<br>${gDiff.toUpperCase()} mode`;
+  speechText='MERCI!';
+  showPane('paneResult');
+  spawnSparkles();
+}
+
+// ── DUMMY STUBS (referenced by old canvas code still present) ──
+function placeOrder(){}
+function closeReceipt(){}
+
+// old canvas state re-init guard
+const menu={mains:[],sides:[],drinks:[],desserts:[]};
+let cart={}, currentCat='mains';
+function renderMenu(){}
+function renderCart(){}
+function switchCat(){}
+function chQty(){}
+function showReceipt(){}
+function startQuotes(){}
+startQuotes();
+renderMenu('mains');
+
+// ── AMBIENT KITCHEN ANIMATION ──
+// Periodically triggers chop/stir so the kitchen feels alive during gameplay
+setInterval(()=>{
+  if(gState!=='playing' || cookMode!=='idle') return;
+  const roll=Math.random();
+  if(roll<0.45){
+    // chop for 1.2s
+    cookMode='chop';
+    setTimeout(()=>{ if(cookMode==='chop') cookMode='idle'; },1200);
+  } else if(roll<0.65){
+    // stir for 1.6s
+    cookMode='stir';
+    setTimeout(()=>{ if(cookMode==='stir') cookMode='idle'; },1600);
+  }
+},2800);
+
+// ══════════════════════════════════════════════
+//  ORDER COUNTER + UI EFFECTS  [removed — game mode]
+// ══════════════════════════════════════════════
+let orderNum=0;
+function showPricePopup(){}
+function pulseBadge(){}
+function confettiBurst(){}
+
+// ══════════════════════════════════════════════
+//  AUDIO ENGINE
+// ══════════════════════════════════════════════
+const AC=window.AudioContext||window.webkitAudioContext;
+let actx=null,masterGain=null,muted=false,bgPlaying=false,bgTimeout=null;
+
+function initAudio(){
+  if(actx) return;
+  actx=new AC();
+  masterGain=actx.createGain();
+  masterGain.gain.value=0.35;
+  masterGain.connect(actx.destination);
+  startBGMusic();
+}
+
+function toggleMute(){
+  muted=!muted;
+  if(masterGain) masterGain.gain.setTargetAtTime(muted?0:0.35,actx.currentTime,0.1);
+  document.getElementById('muteBtn').textContent=muted?'🔇':'🔊';
+}
+
+function beep(freq,start,dur,vol=0.1,type='triangle',atk=0.01,rel=0.1){
+  if(!actx) return;
+  const osc=actx.createOscillator(),g=actx.createGain();
+  osc.type=type; osc.frequency.value=freq;
+  g.gain.setValueAtTime(0,start);
+  g.gain.linearRampToValueAtTime(vol,start+atk);
+  g.gain.setValueAtTime(vol,Math.max(start+atk+0.001,start+dur-rel));
+  g.gain.linearRampToValueAtTime(0.0001,start+dur);
+  osc.connect(g); g.connect(masterGain);
+  osc.start(start); osc.stop(start+dur+0.02);
+}
+
+// Note table
+const KF={
+  C3:130.81,F3:174.61,G3:196.00,A3:220.00,
+  D4:293.66,E4:329.63,F4:349.23,G4:392.00,A4:440.00,B4:493.88,
+  C5:523.25,D5:587.33,E5:659.25,G5:783.99,A5:880.00
+};
+
+// ── BACKGROUND MUSIC: lo-fi kitchen, BPM 78 ──
+const K4=60/78, K8=K4/2;
+const KMEL=[KF.C5,KF.E5,KF.G5,KF.A5, KF.G5,KF.E5,KF.D5,KF.C5];
+const KBAS=[KF.C3,0,    KF.G3,0,     KF.A3,0,    KF.F3,0    ];
+const KMID=[KF.E4,KF.G4,KF.B4,0,     KF.A4,KF.F4,KF.D4,KF.E4];
+
+function scheduleBGBar(t){
+  if(!actx||!bgPlaying) return;
+  for(let i=0;i<8;i++){
+    const st=t+i*K4;
+    if(KMEL[i]) beep(KMEL[i],st,K4*0.80,0.09,'triangle',0.02,0.14);
+    if(KBAS[i]) beep(KBAS[i],st,K4*0.70,0.11,'sine',    0.02,0.12);
+    if(KMID[i]) beep(KMID[i],st,K8*0.80,0.06,'triangle',0.01,0.08);
+  }
+  const barDur=8*K4;
+  bgTimeout=setTimeout(()=>scheduleBGBar(actx.currentTime+0.05),(barDur-0.12)*1000);
+}
+
+function startBGMusic(){
+  if(!actx||bgPlaying) return;
+  bgPlaying=true; scheduleBGBar(actx.currentTime+0.2);
+}
+function stopBGMusic(){
+  bgPlaying=false;
+  if(bgTimeout){clearTimeout(bgTimeout);bgTimeout=null;}
+}
+
+// ── SOUND EFFECTS ──
+// ── GAME SFX ──
+function sfxCorrectIngr(){
+  if(!actx) return; const t=actx.currentTime;
+  beep(KF.G5,t,     0.07,0.14,'sine',0.005,0.06);
+  beep(KF.C5,t+0.06,0.07,0.10,'sine',0.005,0.06);
+}
+function sfxWrongIngr(){
+  if(!actx) return; const t=actx.currentTime;
+  beep(220,t,     0.10,0.18,'sawtooth',0.005,0.08);
+  beep(196,t+0.09,0.10,0.14,'sawtooth',0.005,0.08);
+}
+function sfxDishComplete(golden=false){
+  if(!actx) return; const t=actx.currentTime;
+  const seq=golden?[KF.C5,KF.E5,KF.G5,KF.C5*2,KF.E5*2]:[KF.C5,KF.E5,KF.G5,KF.C5*2];
+  seq.forEach((f,i)=>beep(f,t+i*0.08,0.10,golden?0.22:0.18,'square',0.005,0.06));
+}
+
+// ── SPLASH CHEF PIXEL ART ──
+(function initSplashChef(){
+  const c=document.getElementById('splashChef');
+  if(!c) return;
+  const S=6, CW=30, CH=44;
+  c.width=CW*S; c.height=CH*S;
+  const ctx=c.getContext('2d');
+  ctx.imageSmoothingEnabled=false;
+
+  const _W='#ffffff',LG='#d8d0c0',SK='#f0c090',DK='#3a2010',BK='#1a0800',MG='#d04040';
+  function r(x,y,col,w,h){ ctx.fillStyle=col; ctx.fillRect(x*S,y*S,w*S,h*S); }
+  function rA(x,y,col,a,w,h){ ctx.globalAlpha=a; ctx.fillStyle=col; ctx.fillRect(x*S,y*S,w*S,h*S); ctx.globalAlpha=1; }
+
+  let tick=0;
+  function frame(){
+    ctx.clearRect(0,0,c.width,c.height);
+    const cx=7, cy=1;
+    // hat
+    r(cx+3,cy,   _W,10,1);
+    r(cx+2,cy+1, _W,12,6);
+    r(cx+1,cy+7, _W,14,2);
+    r(cx+1,cy+9, LG,14,1);
+    // head
+    r(cx+3,cy+10,SK,10,9);
+    r(cx+2,cy+11,SK,12,7);
+    // eyes
+    r(cx+5,cy+13,BK,2,2); r(cx+9,cy+13,BK,2,2);
+    r(cx+6,cy+13,_W,1,1); r(cx+10,cy+13,_W,1,1);
+    // brows
+    r(cx+5,cy+12,DK,3,1); r(cx+9,cy+12,DK,3,1);
+    // moustache
+    r(cx+5,cy+16,DK,6,1);
+    r(cx+4,cy+15,DK,3,1); r(cx+9,cy+15,DK,3,1);
+    // smile
+    r(cx+5,cy+17,DK,1,1); r(cx+10,cy+17,DK,1,1);
+    r(cx+6,cy+18,DK,4,1);
+    // cheeks
+    rA(cx+3,cy+15,'#dd8070',.35,3,2);
+    rA(cx+10,cy+15,'#dd8070',.35,3,2);
+    // body
+    r(cx+1,cy+19,_W,14,16);
+    r(cx+6,cy+22,DK,2,2);
+    r(cx+6,cy+26,DK,2,2);
+    r(cx+6,cy+30,DK,2,2);
+    // apron
+    r(cx+3,cy+27,LG,6,6); r(cx+4,cy+28,_W,4,4);
+    // arms — idle wave
+    const sw=tick%6<3?0:1;
+    r(cx-3,cy+22+sw,_W,4,4); r(cx-3,cy+26+sw,SK,3,3);
+    r(cx-5,cy+27,MG,3,3); r(cx-6,cy+30,LG,5,3);
+    // right arm raised/waving
+    const wy=tick%8<4?cy+18:cy+20;
+    r(cx+15,wy,_W,4,4); r(cx+15,wy+4,SK,3,3);
+    tick++;
+  }
+  frame();
+  setInterval(frame, 125); // 8fps
+})();
+
+// ── SPLASH ──
+function dismissSplash(){
+  const sp=document.getElementById('splash');
+  if(!sp||sp.classList.contains('hide')) return;
+  initAudio();
+  sp.classList.add('hide');
+  setTimeout(()=>sp.remove(), 750);
+}
+document.addEventListener('keydown', dismissSplash, {once:true});
+document.addEventListener('click',function onFirstClick(){initAudio();},{once:true});
+
+// ══════════════════════════════════════════════
+//  FIREBASE LEADERBOARD
+// ══════════════════════════════════════════════
+const fbApp = firebase.initializeApp({
+  apiKey:"AIzaSyAJ3C969-IHJxptn3rcuudOrDxzTzlFHYg",
+  authDomain:"pixel-kitchen-e6b18.firebaseapp.com",
+  databaseURL:"https://pixel-kitchen-e6b18-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId:"pixel-kitchen-e6b18",
+  storageBucket:"pixel-kitchen-e6b18.firebasestorage.app",
+  messagingSenderId:"631692992106",
+  appId:"1:631692992106:web:384cf6c3a2ff3096a7b413"
+});
+const db = firebase.database();
+const LB_REF = db.ref('leaderboard');
+
+let lastScore=0, lastDiff='', lastCorrect=0;
+let _lbListener=null;
+
+function detachLeaderListener(){
+  if(_lbListener){ LB_REF.off('value', _lbListener); _lbListener=null; }
+}
+
+function submitScore(name, score, diff, correct){
+  const status=document.getElementById('saveStatus');
+  status.style.color='#f5c842'; status.textContent='Saving...';
+  LB_REF.push({
+    name: name.toUpperCase().slice(0,12),
+    score, diff, correct,
+    ts: Date.now()
+  }).then(()=>{
+    status.style.color='#50c840'; status.textContent='✓ Score saved!';
+  }).catch(()=>{
+    status.style.color='#e05050'; status.textContent='✗ Save failed';
+  });
+}
+
+function showLeader(){
+  showPane('paneLeader');
+  const list=document.getElementById('leaderList');
+  list.innerHTML='<div class="leader-empty">Loading...</div>';
+  detachLeaderListener();
+  _lbListener = LB_REF.orderByChild('score').limitToLast(10).on('value', snap=>{
+    const rows=[];
+    snap.forEach(c=>rows.push(c.val()));
+    rows.sort((a,b)=>b.score-a.score);
+    if(!rows.length){ list.innerHTML='<div class="leader-empty">No scores yet.<br>Be the first!</div>'; return; }
+    list.innerHTML='';
+    rows.forEach((r,i)=>{
+      const rankClass=i===0?'gold':i===1?'silver':i===2?'bronze':'';
+      const rankSymbol=i===0?'🥇':i===1?'🥈':i===2?'🥉':`#${i+1}`;
+      const div=document.createElement('div');
+      div.className='leader-row';
+      div.innerHTML=`
+        <span class="leader-rank ${rankClass}">${rankSymbol}</span>
+        <span class="leader-name">${r.name}</span>
+        <span class="leader-score">${r.score}</span>
+        <span class="leader-diff ${r.diff}">${r.diff.toUpperCase()}</span>`;
+      list.appendChild(div);
+    });
+  }, ()=>{ list.innerHTML='<div class="leader-empty">Failed to load.<br>Check connection.</div>'; });
+}
+
+// Hook into endGame — auto-submit if name was entered
+const _origEndGame = endGame;
+endGame = function(){
+  _origEndGame();
+  const name = document.getElementById('nameInput').value.trim();
+  document.getElementById('saveStatus').textContent='';
+  if(name){
+    submitScore(name, gScore, gDiff, gCorrect);
+  } else {
+    document.getElementById('saveStatus').style.color='#664420';
+    document.getElementById('saveStatus').textContent='Enter a name to save your score';
+  }
+};
+</script>
+</body>
+</html>
