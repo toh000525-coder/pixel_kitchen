@@ -229,6 +229,42 @@ body::after {
   color:var(--border-hi);
   text-decoration:none;
 }
+
+/* ── ROTATE OVERLAY ── */
+#rotateMsg {
+  display:none;
+  position:fixed; inset:0; z-index:99999;
+  background:var(--bg);
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  gap:24px;
+}
+@media (orientation:portrait) and (max-width:900px) {
+  #rotateMsg { display:flex; }
+}
+.rotate-phone {
+  font-size:52px;
+  animation:rotatePhone 2s steps(2) infinite;
+  display:block;
+}
+@keyframes rotatePhone {
+  0%,40%  { transform:rotate(0deg);   }
+  60%,100%{ transform:rotate(90deg);  }
+}
+.rotate-text {
+  color:var(--gold);
+  font-size:.46rem;
+  letter-spacing:2px;
+  text-align:center;
+  line-height:2.4;
+  text-shadow:0 0 16px #ffd97d55;
+}
+.rotate-sub {
+  color:var(--sub);
+  font-size:.30rem;
+  letter-spacing:2px;
+}
 </style>
 </head>
 <body>
@@ -413,5 +449,12 @@ function scaleHub(){
 document.addEventListener('DOMContentLoaded', scaleHub);
 window.addEventListener('resize', scaleHub);
 </script>
+<!-- ROTATE OVERLAY -->
+<div id="rotateMsg">
+  <span class="rotate-phone">📱</span>
+  <div class="rotate-text">ROTATE YOUR<br>DEVICE</div>
+  <div class="rotate-sub">LANDSCAPE MODE ONLY</div>
+</div>
+
 </body>
 </html>

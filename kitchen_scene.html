@@ -108,6 +108,38 @@ canvas { display:block; image-rendering:pixelated; image-rendering:crisp-edges; 
 .btn-back { margin:8px; padding:9px; background:#0a0500; border:2px solid #8b5e2a; color:#c8904a; font-family:'Press Start 2P',monospace; font-size:0.42rem; cursor:pointer; flex-shrink:0; }
 .btn-back:hover { border-color:#f5c842; color:#f5c842; }
 
+/* ── ROTATE OVERLAY ── */
+#rotateMsg {
+  display:none;
+  position:fixed; inset:0; z-index:99999;
+  background:#0a0500;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  gap:24px;
+}
+@media (orientation:portrait) and (max-width:900px) {
+  #rotateMsg { display:flex; }
+}
+.rotate-phone {
+  font-size:52px;
+  animation:rotatePhone 2s steps(2) infinite;
+  display:block;
+}
+@keyframes rotatePhone {
+  0%,40%  { transform:rotate(0deg);  }
+  60%,100%{ transform:rotate(90deg); }
+}
+.rotate-text {
+  color:#f5c842;
+  font-size:.46rem;
+  letter-spacing:2px;
+  text-align:center;
+  line-height:2.4;
+  text-shadow:2px 2px #8b3a00, 0 0 20px #f5a70055;
+}
+.rotate-sub { color:#664420; font-size:.30rem; letter-spacing:2px; }
+
 /* ── NAME MODAL ── */
 #nameModal {
   position:fixed; inset:0; background:rgba(0,0,0,.88); z-index:8888;
@@ -279,6 +311,13 @@ canvas { display:block; image-rendering:pixelated; image-rendering:crisp-edges; 
 
   </div>
   </div><!-- /spScaleWrap -->
+</div>
+
+<!-- ROTATE OVERLAY -->
+<div id="rotateMsg">
+  <span class="rotate-phone">📱</span>
+  <div class="rotate-text">ROTATE YOUR<br>DEVICE</div>
+  <div class="rotate-sub">LANDSCAPE MODE ONLY</div>
 </div>
 
 <!-- NAME MODAL -->
