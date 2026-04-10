@@ -346,63 +346,54 @@ body {
 
 <script>
 // ══════════════════════════════════════════
-//  PIXEL CHEF (cute, scale ×4, toque hat)
+//  PIXEL CHEF — same design as game splash,
+//  scaled down (S=4 vs S=6)
 // ══════════════════════════════════════════
 (function(){
   const c=document.getElementById('hubChef');
-  const S=4, CW=18, CH=24;
+  const S=4, CW=30, CH=44;
   c.width=CW*S; c.height=CH*S;
   const ctx=c.getContext('2d');
   ctx.imageSmoothingEnabled=false;
-  const W='#ffffff',SK='#f5c49a',DK='#2a1408',BK='#0e0500',
-        PK='#ff8fb0',GD='#ffd97d',LG='#ddd8cc',PU='#c87eb8',RD='#e05050';
-  function r(x,y,col,w=1,h=1){ ctx.fillStyle=col; ctx.fillRect(x*S,y*S,w*S,h*S); }
 
-  // ── TOQUE BLANCHE (chef hat, centered x=9) ──
-  r(6,0, W,6,1);    // narrow flat top
-  r(4,1, W,10,3);   // puffy cylindrical body
-  r(4,1, LG,1,3);   // left shadow (3D cylinder feel)
-  r(4,4, LG,10,1);  // hat band
+  const _W='#ffffff',LG='#d8d0c0',SK='#f0c090',DK='#3a2010',BK='#1a0800',MG='#d04040';
+  function r(x,y,col,w,h){ ctx.fillStyle=col; ctx.fillRect(x*S,y*S,w*S,h*S); }
+  function rA(x,y,col,a,w,h){ ctx.globalAlpha=a; ctx.fillStyle=col; ctx.fillRect(x*S,y*S,w*S,h*S); ctx.globalAlpha=1; }
 
-  // ── HEAD (rows 5-12, 12px wide) ──
-  r(3,5,  SK,12,1); // top
-  r(3,6,  SK,12,5); // main
-  r(3,11, SK,12,1); // bottom
-  r(2,7,  SK,1,3);  // left ear
-  r(15,7, SK,1,3);  // right ear
-
-  // ── EYES (2×2 each, cute simple) ──
-  r(5,7,  BK,2,2);  r(11,7, BK,2,2);
-  r(5,7,  W,1,1);   r(11,7, W,1,1);   // shine
-  r(6,8,  PU,1,1);  r(12,8, PU,1,1);  // iris
-
-  // ── CHEEKS ──
-  r(4,9,  PK,2,1);  r(12,9, PK,2,1);
-
-  // ── SMILE ──
-  r(6,10, DK,1,1);
-  r(7,11, DK,4,1);
-  r(11,10,DK,1,1);
-
-  // ── BODY (rows 12-18) ──
-  r(4,12, LG,10,1); // collar
-  r(4,13, W,10,5);  // uniform
-  r(3,13, LG,1,5);  r(14,13,LG,1,5); // borders
-  r(8,14, DK,2,1);  // button 1
-  r(8,16, DK,2,1);  // button 2
-
-  // ── ARMS ──
-  r(1,13, SK,2,4);  r(15,13,SK,2,4);
-
-  // ── HANDS ──
-  r(1,17, GD,2,2);  // gold ladle
-  r(15,17,RD,2,2);  // red pot
-
-  // ── LEGS ──
-  r(5,18, DK,3,4);  r(10,18,DK,3,4);
-
-  // ── FEET ──
-  r(4,22, BK,4,2);  r(10,22,BK,4,2);
+  const cx=7, cy=1;
+  // hat
+  r(cx+3,cy,   _W,10,1);
+  r(cx+2,cy+1, _W,12,6);
+  r(cx+1,cy+7, _W,14,2);
+  r(cx+1,cy+9, LG,14,1);
+  // head
+  r(cx+3,cy+10,SK,10,9);
+  r(cx+2,cy+11,SK,12,7);
+  // eyes
+  r(cx+5,cy+13,BK,2,2); r(cx+9,cy+13,BK,2,2);
+  r(cx+6,cy+13,_W,1,1); r(cx+10,cy+13,_W,1,1);
+  // brows
+  r(cx+5,cy+12,DK,3,1); r(cx+9,cy+12,DK,3,1);
+  // moustache
+  r(cx+5,cy+16,DK,6,1);
+  r(cx+4,cy+15,DK,3,1); r(cx+9,cy+15,DK,3,1);
+  // smile
+  r(cx+5,cy+17,DK,1,1); r(cx+10,cy+17,DK,1,1);
+  r(cx+6,cy+18,DK,4,1);
+  // cheeks (pink tint for cute hub theme)
+  rA(cx+3,cy+15,'#ff8fb0',.5,3,2);
+  rA(cx+10,cy+15,'#ff8fb0',.5,3,2);
+  // body
+  r(cx+1,cy+19,_W,14,16);
+  r(cx+6,cy+22,DK,2,2);
+  r(cx+6,cy+26,DK,2,2);
+  r(cx+6,cy+30,DK,2,2);
+  // apron
+  r(cx+3,cy+27,LG,6,6); r(cx+4,cy+28,_W,4,4);
+  // arms (idle)
+  r(cx-3,cy+22,_W,4,4); r(cx-3,cy+26,SK,3,3);
+  r(cx-5,cy+27,MG,3,3); r(cx-6,cy+30,LG,5,3);
+  r(cx+15,cy+22,_W,4,4); r(cx+15,cy+26,SK,3,3);
 })();
 
 // ══════════════════════════════════════════
