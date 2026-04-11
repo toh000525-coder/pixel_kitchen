@@ -129,7 +129,7 @@ GAME_H = canvas height + ~40px for topbar. Current values:
 - pantry_peek: GAME_W=936, GAME_H=564
 - kitchen_scene: GAME_W=932, GAME_H=564
 
-### ★ PIXEL KITCHEN ★ title style (approved, do not change)
+### Topbar style (approved, do not change sizes)
 ```css
 /* Topbar — transparent background, no border */
 .game-topbar {
@@ -137,15 +137,26 @@ GAME_H = canvas height + ~40px for topbar. Current values:
   display:flex; align-items:center;
   padding:10px 14px 6px; gap:12px;
 }
-/* Brand text */
+/* ★ PIXEL KITCHEN ★ brand — 1rem gold glow */
 .game-topbar-brand {
   font-size:1rem; letter-spacing:3px;
   color:#f5c842;
   text-shadow:2px 2px #8b3a00, 0 0 20px #f5a700;
   flex:1;
 }
+/* Coin balance — slightly smaller than brand */
+.game-topbar-coins { color:#f5c842; font-size:.72rem; }
+.game-topbar-coinlbl { color:#5a4a20; font-size:.42rem; }
 ```
-HTML: `<span class="game-topbar-brand">★ PIXEL KITCHEN ★</span>`
+HTML:
+```html
+<div class="game-topbar">
+  <span class="game-topbar-brand">★ PIXEL KITCHEN ★</span>
+  <span class="game-topbar-coins">🪙 <span id="topbarCoins">0</span></span>
+  <span class="game-topbar-coinlbl">COINS</span>
+</div>
+```
+Applied to: all game pages + hub topbar. **NOT on splash screen.**
 
 ### Game panel standard structure (all games)
 Title pane bottom: side-by-side `[◀ HUB]` and `[🏆 RANKS]` buttons using `btn-back` class.
