@@ -1,0 +1,1205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Recipe Rush</title>
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-database-compat.js"></script>
+<script src="menu.js"></script>
+<style>
+* { margin:0; padding:0; box-sizing:border-box; image-rendering:pixelated; }
+body {
+  background:radial-gradient(ellipse at 50% 30%, #fff5e6 0%, #ffe0b0 100%);
+  font-family:'Press Start 2P',monospace;
+  width:100vw; height:100vh; overflow:hidden;
+}
+
+/* ══ WRAP & TOPBAR ══ */
+#gameWrap {
+  position:fixed; top:50%; left:50%;
+  transform-origin:center center;
+  display:flex; flex-direction:column;
+}
+.game-topbar {
+  flex-shrink:0; background:transparent;
+  display:flex; align-items:center;
+  padding:10px 14px 6px; gap:12px;
+}
+.game-topbar-brand { font-size:1rem; letter-spacing:3px; color:#f5c842; text-shadow:2px 2px #8b3a00, 0 0 20px #f5a700; flex:1; }
+.game-topbar-coins { color:#f5c842; font-size:.72rem; }
+.game-topbar-coinlbl { color:#5a4a20; font-size:.42rem; }
+
+/* ══ LAYOUT ══ */
+.game-content { display:flex; gap:16px; align-items:flex-start; justify-content:center; flex:1; }
+
+/* ══ CANVAS WRAP ══ */
+.canvas-wrap { position:relative; flex-shrink:0; }
+canvas { display:block; }
+
+/* ══ GAME OVERLAY ══ */
+#gameOverlay {
+  position:absolute; inset:4px;
+  display:flex; flex-direction:column;
+  align-items:center; justify-content:center;
+  pointer-events:none; overflow:hidden;
+}
+#gameOverlay > * { pointer-events:auto; }
+.g-hidden { display:none !important; }
+
+/* ══ MEM CARD ══ */
+#memCard {
+  background:rgba(255,248,238,0.96); border:3px solid #e8913a;
+  padding:16px 20px; display:flex; flex-direction:column;
+  align-items:center; gap:12px; width:580px;
+  box-shadow:0 0 32px rgba(200,90,26,0.25);
+}
+.mem-title { color:#c85a1a; font-size:.52rem; letter-spacing:2px; }
+#memGrid { display:flex; flex-wrap:wrap; gap:10px; justify-content:center; }
+.mem-item {
+  width:78px; height:78px; background:#fff5e8;
+  border:3px solid #d4a060;
+  display:flex; flex-direction:column; align-items:center;
+  justify-content:center; gap:3px; transition:all .15s;
+}
+.mem-item .mi-emoji { font-size:2.2rem; }
+.mem-item.active { border-color:#e8913a; background:#ffe0b0; box-shadow:0 0 16px #e8913a66; transform:scale(1.1); }
+.mem-timer-bar { width:100%; height:5px; background:#f5e0c0; border:1px solid #d4a060; }
+.mem-timer-fill { height:100%; background:#e8913a; transition:width .1s linear; width:100%; }
+.mem-ready-btn {
+  font-family:'Press Start 2P',monospace; font-size:.44rem;
+  padding:10px 24px; background:#fff5e8;
+  border:3px solid #e8913a; color:#c85a1a; cursor:pointer;
+}
+.mem-ready-btn:hover { filter:brightness(1.1); }
+
+/* ══ COOK GRID ══ */
+#cookGrid {
+  width:100%; padding:16px;
+  display:grid; gap:10px;
+}
+.cook-item {
+  background:#fff5e8; border:3px solid #d4a060;
+  display:flex; flex-direction:column;
+  align-items:center; justify-content:center;
+  gap:6px; cursor:pointer;
+  transition:transform .08s,filter .08s; padding:8px;
+}
+.cook-item:hover { filter:brightness(0.92); transform:translate(-1px,-1px); }
+.cook-item .ci-emoji { font-size:2.2rem; pointer-events:none; }
+.cook-item .ci-name { font-size:.22rem; color:#8a5020; pointer-events:none; }
+.cook-item.correct { border-color:#50c840; background:#e8ffe0; }
+.cook-item.wrong { border-color:#e05050; animation:itemShake .3s; }
+@keyframes itemShake { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-6px)} 75%{transform:translateX(6px)} }
+
+/* ══ FEEDBACK ══ */
+.feedback-msg {
+  position:absolute; top:50%; left:50%;
+  transform:translate(-50%,-50%);
+  font-size:1rem; letter-spacing:3px;
+  padding:12px 28px; border:4px solid; text-align:center;
+  animation:feedPop .3s ease; pointer-events:none;
+}
+@keyframes feedPop {
+  0%{transform:translate(-50%,-50%) scale(.6)}
+  60%{transform:translate(-50%,-50%) scale(1.1)}
+  100%{transform:translate(-50%,-50%) scale(1)}
+}
+.feedback-msg.ok { color:#2a8020; border-color:#50c840; background:rgba(230,255,230,0.96); }
+.feedback-msg.fail { color:#c02020; border-color:#e05050; background:rgba(255,230,230,0.96); }
+
+/* ══ PANEL ══ */
+.game-panel {
+  width:280px; background:#fff8ee;
+  border:4px solid #e8913a;
+  box-shadow:4px 4px 0 #c07020, inset 0 0 0 1px #f5dcc0;
+  display:flex; flex-direction:column;
+  height:480px; overflow:hidden; position:relative;
+}
+.game-panel::after {
+  content:''; position:absolute; inset:0; pointer-events:none; z-index:99;
+  background:repeating-linear-gradient(0deg,transparent,transparent 3px,rgba(0,0,0,.04) 3px,rgba(0,0,0,.04) 4px);
+}
+.gpane { display:none; flex-direction:column; flex:1; overflow:hidden; }
+.gpane.active { display:flex; }
+
+/* ══ TITLE PANE ══ */
+.gp-header {
+  background:#f5dbb0; padding:10px 14px; text-align:center;
+  border-bottom:4px solid #e8a050; flex-shrink:0; position:relative; overflow:hidden;
+}
+.gp-header::before {
+  content:''; position:absolute; top:0; left:0; right:0; height:3px;
+  background:linear-gradient(90deg,transparent,#f5a742,#f5c842,#f5a742,transparent);
+}
+.gp-header::after {
+  content:'◆  ◆  ◆'; position:absolute; bottom:-10px; left:50%; transform:translateX(-50%);
+  font-size:6px; color:#d4a060; letter-spacing:3px; white-space:nowrap;
+}
+@keyframes bookBounce { 0%,100%{transform:rotate(-6deg) scale(1)} 50%{transform:rotate(6deg) scale(1.12)} }
+.gp-logo { font-size:34px; display:inline-block; margin-bottom:4px; animation:bookBounce 1.6s ease-in-out infinite; }
+.gp-title { color:#c85a1a; font-size:.70rem; letter-spacing:2px; line-height:1.6; text-shadow:2px 2px #f5dcc0, 0 0 12px #e8913a44; }
+.gp-sub { color:#8a5020; font-size:0.38rem; margin-top:4px; line-height:1.5; }
+.px-div { text-align:center; color:#d4a060; font-size:.28rem; letter-spacing:4px; margin:4px 0 0; flex-shrink:0; }
+
+/* HOW TO PLAY */
+.how-block { padding:6px 12px 4px; border-left:3px solid #e8913a; margin:8px 10px 0; background:rgba(245,220,180,0.5); }
+
+@keyframes scorePulse { 0%,100%{text-shadow:2px 2px #3a1208} 50%{text-shadow:2px 2px #3a1208,0 0 24px #f5a74288} }
+
+/* Difficulty */
+.diff-label { color:#8a5020; font-size:.40rem; margin:8px 12px 4px; }
+.diff-grid { display:flex; flex-direction:column; gap:5px; padding:0 12px 8px; }
+.d-btn {
+  padding:8px 12px; border:3px solid; background:#fff5e8;
+  cursor:pointer; font-family:'Press Start 2P',monospace;
+  text-align:left; transition:filter .12s;
+  display:flex; align-items:center; gap:10px;
+}
+.d-btn:hover { filter:brightness(1.35); }
+.d-icon { font-size:22px; flex-shrink:0; }
+.d-texts { display:flex; flex-direction:column; gap:4px; }
+.d-name { font-size:.55rem; color:inherit; }
+.d-info { font-size:.35rem; color:#888; }
+.d-easy   { border-color:#50c840; color:#50c840; }
+.d-medium { border-color:#f5c842; color:#f5c842; }
+.d-hard   { border-color:#e05050; color:#e05050; }
+
+/* HUD */
+.game-hud {
+  display:flex; justify-content:space-around;
+  background:#f5e0c0; border-bottom:3px solid #e8a050;
+  padding:7px 6px; flex-shrink:0;
+}
+.hud-item { text-align:center; }
+.hud-val { color:#c85a1a; font-size:.80rem; display:block; }
+.hud-lbl { color:#b08050; font-size:.32rem; margin-top:3px; }
+
+/* phase badges + lives */
+.hud-phase {
+  display:flex; flex-direction:column;
+  align-items:center; justify-content:center;
+  gap:8px; flex:1; padding:10px 8px;
+}
+@keyframes memPulse { 0%,100%{opacity:1;box-shadow:0 0 8px #f5a74244} 50%{opacity:.7;box-shadow:0 0 18px #f5a742aa} }
+.phase-badge {
+  font-size:.44rem; padding:5px 12px;
+  border:2px solid; display:none; letter-spacing:2px;
+}
+.phase-badge.memorize { color:#f5a742; border-color:#f5a742; animation:memPulse 1.2s ease-in-out infinite; }
+.phase-badge.cook { color:#50c840; border-color:#50c840; }
+.phase-badge.show { display:block; }
+.phase-progress { font-size:.38rem; color:#c87a38; letter-spacing:1px; }
+.lives-row { display:flex; gap:4px; font-size:1rem; }
+
+/* RESULT */
+.result-box {
+  padding:12px 14px; text-align:center; flex:1;
+  display:flex; flex-direction:column;
+  align-items:center; justify-content:center; gap:8px;
+}
+.result-title { color:#c85a1a; font-size:.70rem; letter-spacing:2px; }
+.result-score { color:#c85a1a; font-size:1.1rem; animation:scorePulse 1.6s ease-in-out infinite; }
+.result-sub { color:#8a5020; font-size:.34rem; line-height:2; white-space:pre-line; }
+.save-status { font-size:.32rem; color:#c85a1a; min-height:1rem; text-align:center; }
+.btn-orange {
+  padding:10px; background:#fff5e8; border:3px solid #e8913a;
+  color:#c85a1a; font-family:'Press Start 2P',monospace;
+  font-size:.40rem; cursor:pointer; width:100%;
+}
+.btn-orange:hover { filter:brightness(0.92); }
+.btn-gold {
+  padding:10px; background:#fff5e8; border:3px solid #d4a030;
+  color:#8a6010; font-family:'Press Start 2P',monospace;
+  font-size:.40rem; cursor:pointer; width:100%;
+}
+.btn-gold:hover { filter:brightness(0.92); }
+.btn-back {
+  margin:8px; padding:8px; background:#f5e8d8;
+  border:2px solid #d4b080; color:#8a6030;
+  font-family:'Press Start 2P',monospace; font-size:.38rem;
+  cursor:pointer; flex-shrink:0;
+}
+.btn-back:hover { border-color:#e8913a; color:#c85a1a; }
+
+/* LEADERBOARD */
+.leader-header {
+  background:#f5dbb0; padding:10px 14px;
+  text-align:center; border-bottom:4px solid #e8a050; flex-shrink:0;
+}
+.leader-title { color:#c85a1a; font-size:.70rem; letter-spacing:2px; }
+.leader-title span { font-size:2rem; display:block; margin-bottom:4px; }
+.leader-list {
+  flex:1; overflow-y:auto; padding:8px;
+  display:flex; flex-direction:column; gap:6px; min-height:0;
+}
+.leader-row {
+  display:flex; align-items:center; gap:8px;
+  background:#fff5e8; border:2px solid #e8c090;
+  padding:7px 10px;
+}
+.leader-row.me { border-color:#e8913a; background:#ffe0b0; }
+.leader-rank { color:#d4a060; font-size:.44rem; width:30px; flex-shrink:0; text-align:center; }
+.leader-rank.gold   { color:#d4900a; }
+.leader-rank.silver { color:#8090a0; }
+.leader-rank.bronze { color:#a05820; }
+.leader-name { flex:1; color:#5a3010; font-size:.40rem; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.leader-score { color:#c85a1a; font-size:.50rem; flex-shrink:0; }
+.leader-diff { font-size:.28rem; flex-shrink:0; padding:2px 4px; border:1px solid; }
+.leader-diff.apprenti { color:#2a8020; border-color:#50c840; }
+.leader-diff.cuisinier { color:#a07000; border-color:#d4a030; }
+.leader-diff.chef { color:#c02020; border-color:#e05050; }
+.leader-empty { color:#c0a070; font-size:.36rem; text-align:center; padding:20px; line-height:2; }
+
+/* MUTE */
+.btn-mute {
+  position:absolute; bottom:8px; right:8px;
+  font-family:'Press Start 2P',monospace; font-size:.28rem;
+  padding:4px 7px; background:#f5e8d8;
+  border:2px solid #d4b080; color:#b08050; cursor:pointer; z-index:10;
+}
+.btn-mute:hover { border-color:#e8913a; color:#c85a1a; }
+
+/* ROTATE OVERLAY */
+#rotateMsg {
+  display:none; position:fixed; inset:0; z-index:99999;
+  background:#1e0a04;
+  flex-direction:column; align-items:center; justify-content:center; gap:24px;
+}
+@media (orientation:portrait) { #rotateMsg { display:flex; } }
+.rotate-phone { font-size:52px; animation:rotatePhone 2s steps(2) infinite; }
+@keyframes rotatePhone { 0%,40%{transform:rotate(0deg)} 60%,100%{transform:rotate(90deg)} }
+.rotate-text { color:#f5a742; font-size:.50rem; letter-spacing:2px; text-align:center; line-height:2.4; }
+.rotate-sub  { color:#6a2808; font-size:.32rem; letter-spacing:2px; }
+</style>
+</head>
+<body>
+
+<div id="gameWrap">
+<div class="game-topbar">
+  <span class="game-topbar-brand">★ PIXEL KITCHEN ★</span>
+  <span class="game-topbar-coins">🪙 <span id="topbarCoins">0</span></span>
+  <span class="game-topbar-coinlbl">COINS</span>
+</div>
+<div class="game-content">
+
+<!-- CANVAS + OVERLAY -->
+<div class="canvas-wrap">
+  <canvas id="gameCanvas" width="620" height="480"></canvas>
+  <div id="gameOverlay">
+    <!-- MEMORIZE CARD -->
+    <div id="memCard" class="g-hidden">
+      <div class="mem-title">📋 MEMORIZE THE RECIPE</div>
+      <div id="memGrid"></div>
+      <div class="mem-timer-bar"><div id="memTimerFill" class="mem-timer-fill"></div></div>
+      <button id="memReadyBtn" class="g-hidden mem-ready-btn" onclick="startCook()">▶ START COOKING!</button>
+    </div>
+    <!-- COOK GRID -->
+    <div id="cookGrid" class="g-hidden"></div>
+    <!-- FEEDBACK -->
+    <div id="feedbackMsg" class="g-hidden feedback-msg"></div>
+  </div>
+</div>
+
+<!-- GAME PANEL -->
+<div class="game-panel">
+
+  <!-- TITLE PANE -->
+  <div class="gpane active" id="paneTitle">
+    <div class="gp-header">
+      <span class="gp-logo">🍳</span>
+      <div class="gp-title">RECIPE<br>RUSH!</div>
+      <div class="gp-sub">Memorize & cook the recipe!</div>
+    </div>
+    <div class="how-block">
+      <div class="diff-label" style="margin:0 0 4px;padding:0;">▶ HOW TO PLAY</div>
+      <div style="font-size:.34rem;color:#7a4820;line-height:2;padding:0 2px;">
+        ① Watch the recipe sequence<br>
+        ② Wait for GET READY...<br>
+        ③ Click foods in ORDER<br>
+        ④ Each round adds +1 step!
+      </div>
+    </div>
+    <div class="px-div">─────────────────</div>
+    <div class="diff-label">▶ SELECT DIFFICULTY</div>
+    <div class="diff-grid">
+      <button class="d-btn d-easy" onclick="startGame('apprenti')">
+        <span class="d-icon">🥕</span>
+        <div class="d-texts">
+          <span class="d-name">APPRENTI</span>
+          <span class="d-info">3 steps · 5 rounds · slow</span>
+        </div>
+      </button>
+      <button class="d-btn d-medium" onclick="startGame('cuisinier')">
+        <span class="d-icon">🍝</span>
+        <div class="d-texts">
+          <span class="d-name">CUISINIER</span>
+          <span class="d-info">4 steps · 5 rounds · medium</span>
+        </div>
+      </button>
+      <button class="d-btn d-hard" onclick="startGame('chef')">
+        <span class="d-icon">🧀</span>
+        <div class="d-texts">
+          <span class="d-name">CHEF</span>
+          <span class="d-info">5 steps · 5 rounds · fast</span>
+        </div>
+      </button>
+    </div>
+    <div style="display:flex;gap:6px;padding:4px 12px 6px;">
+      <button class="btn-back" style="flex:1;" onclick="location.href='index.html?from=game'">◀ HUB</button>
+      <button class="btn-back" style="flex:1;" onclick="openLeaderFromTitle()">🏆 RANKS</button>
+    </div>
+  </div>
+
+  <!-- GAME HUD PANE -->
+  <div class="gpane" id="paneGame">
+    <div class="game-hud">
+      <div class="hud-item">
+        <span class="hud-val" id="hudScore">0</span>
+        <div class="hud-lbl">SCORE</div>
+      </div>
+      <div class="hud-item">
+        <span class="hud-val" id="hudRound">1/5</span>
+        <div class="hud-lbl">ROUND</div>
+      </div>
+      <div class="hud-item">
+        <span class="hud-val" id="hudSteps">3</span>
+        <div class="hud-lbl">STEPS</div>
+      </div>
+      <div class="hud-item">
+        <span class="hud-val" style="cursor:pointer;" onclick="openPauseMenu()">⏸</span>
+        <div class="hud-lbl">PAUSE</div>
+      </div>
+    </div>
+    <div class="hud-phase">
+      <div class="phase-badge memorize" id="badgeMemorize">👁 MEMORIZE</div>
+      <div class="phase-badge cook" id="badgeCook">🍳 COOK!</div>
+      <div class="phase-progress" id="phaseProgress"></div>
+      <div class="lives-row" id="livesRow"></div>
+    </div>
+  </div>
+
+  <!-- RESULT PANE -->
+  <div class="gpane" id="paneResult">
+    <div class="result-box">
+      <div class="result-title" id="resultTitle">WELL DONE!</div>
+      <div class="result-score" id="resultScore">0</div>
+      <div class="result-sub" id="resultSub"></div>
+      <div id="resultCoins" style="font-size:.50rem;color:#a07010;letter-spacing:2px;min-height:1.2rem;"></div>
+      <div class="save-status" id="saveStatus"></div>
+      <button class="btn-orange" onclick="replayGame()">▶ PLAY AGAIN</button>
+      <button class="btn-gold"   onclick="showLeader()">🏆 LEADERBOARD</button>
+      <button class="btn-back"   onclick="location.href='index.html?from=game'" style="margin:4px 8px;width:calc(100% - 16px);">◀ HUB</button>
+    </div>
+  </div>
+
+  <!-- LEADERBOARD PANE -->
+  <div class="gpane" id="paneLeader">
+    <div class="leader-header">
+      <div class="leader-title"><span>🏆</span>LEADERBOARD</div>
+    </div>
+    <div class="leader-list" id="leaderList">
+      <div class="leader-empty">Loading...</div>
+    </div>
+    <button class="btn-back" id="leaderBackBtn" onclick="showPane('paneResult')">◀ BACK</button>
+  </div>
+
+  <button class="btn-mute" id="muteBtn" onclick="toggleMute()">♪ ON</button>
+</div><!-- .game-panel -->
+</div><!-- .game-content -->
+</div><!-- #gameWrap -->
+
+<!-- PAUSE MENU -->
+<div id="pauseMenu" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(200,150,80,0.45);align-items:center;justify-content:center;">
+  <div style="background:#fff8ee;border:4px solid #e8913a;box-shadow:4px 4px 0 #c07020,0 0 40px rgba(200,100,20,0.3);padding:28px 32px;text-align:center;display:flex;flex-direction:column;gap:12px;min-width:220px;">
+    <div style="font-family:'Press Start 2P',monospace;font-size:0.85rem;color:#c85a1a;text-shadow:2px 2px #f5dcc0;letter-spacing:2px;margin-bottom:6px;">⏸ PAUSED</div>
+    <button class="btn-back" onclick="resumeGame()">▶ RESUME</button>
+    <button class="btn-back" onclick="quitFromMenu()">◀ QUIT</button>
+  </div>
+</div>
+
+<!-- ROTATE OVERLAY -->
+<div id="rotateMsg">
+  <span class="rotate-phone">📱</span>
+  <div class="rotate-text">ROTATE YOUR<br>DEVICE</div>
+  <div class="rotate-sub">LANDSCAPE MODE ONLY</div>
+</div>
+
+<script>
+// ══════════════════════════════════════════
+//  FIREBASE
+// ══════════════════════════════════════════
+firebase.initializeApp({
+  apiKey:"AIzaSyAJ3C969-IHJxptn3rcuudOrDxzTzlFHYg",
+  authDomain:"pixel-kitchen-e6b18.firebaseapp.com",
+  databaseURL:"https://pixel-kitchen-e6b18-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId:"pixel-kitchen-e6b18",
+  storageBucket:"pixel-kitchen-e6b18.firebasestorage.app",
+  messagingSenderId:"631692992106",
+  appId:"1:631692992106:web:384cf6c3a2ff3096a7b413"
+},'recipe');
+const LB_REF = firebase.app('recipe').database().ref('recipe_rush/scores');
+let _lbQ=null, _lbL=null;
+function detachLeader(){ if(_lbQ&&_lbL){ _lbQ.off('value',_lbL); _lbQ=null; _lbL=null; } }
+
+// ══════════════════════════════════════════
+//  SCALING
+// ══════════════════════════════════════════
+const GAME_W=936, GAME_H=564;
+function scaleGame(){
+  const wrap=document.getElementById('gameWrap');
+  const vw=window.visualViewport?window.visualViewport.width:window.innerWidth;
+  const vh=window.visualViewport?window.visualViewport.height:window.innerHeight;
+  const scale=Math.min((vw-8)/GAME_W,(vh-8)/GAME_H);
+  wrap.style.transform=`translate(-50%,-50%) scale(${scale})`;
+}
+function checkRotate(){
+  const el=document.getElementById('rotateMsg');
+  if(!el) return;
+  const vw=window.visualViewport?window.visualViewport.width:window.innerWidth;
+  const vh=window.visualViewport?window.visualViewport.height:window.innerHeight;
+  el.style.display=(vw<vh)?'flex':'';
+}
+function updateTopbarCoins(){
+  const n=parseInt(localStorage.getItem('pkCoins')||'0');
+  const el=document.getElementById('topbarCoins');
+  if(el) el.textContent=n.toLocaleString();
+}
+function onResize(){ scaleGame(); checkRotate(); }
+document.addEventListener('DOMContentLoaded',()=>{ onResize(); updateTopbarCoins(); showTitle(); });
+window.addEventListener('resize',onResize);
+window.addEventListener('orientationchange',()=>setTimeout(onResize,100));
+if(window.visualViewport) window.visualViewport.addEventListener('resize',onResize);
+
+// ══════════════════════════════════════════
+//  CANVAS
+// ══════════════════════════════════════════
+const canvas=document.getElementById('gameCanvas');
+const ctx=canvas.getContext('2d');
+ctx.imageSmoothingEnabled=false;
+const CW=620, CH=480;
+
+// ══════════════════════════════════════════
+//  FOOD DATA
+// ══════════════════════════════════════════
+const FOODS = PK_INGREDIENTS.map(i => ({emoji: i.emoji, name: i.name}));
+const DIFF = {
+  apprenti:  {label:'APPRENTI',  startSteps:3, maxSteps:5, rounds:5, showMs:1100, color:'#50c840'},
+  cuisinier: {label:'CUISINIER', startSteps:4, maxSteps:7, rounds:5, showMs:800,  color:'#f5c842'},
+  chef:      {label:'CHEF',      startSteps:5, maxSteps:9, rounds:5, showMs:600,  color:'#e05050'},
+};
+
+// ══════════════════════════════════════════
+//  STATE
+// ══════════════════════════════════════════
+let cfg=null, diffKey='apprenti';
+let recipe=[];        // array of food indices (the sequence)
+let cookItems=[];     // scrambled array of food indices
+let clickIdx=0;       // how many the player has clicked correctly
+let round=0, gScore=0, lives=3, maxRounds=5;
+let phase='idle';     // 'idle'|'memorize'|'cook'|'ending'|'result'
+let cookStartTime=0;
+let paused=false;
+let memTimers=[];     // pending setTimeout IDs for memorize sequence
+
+function shuffle(arr){
+  const a=[...arr];
+  for(let i=a.length-1;i>0;i--){
+    const j=Math.floor(Math.random()*(i+1));
+    [a[i],a[j]]=[a[j],a[i]];
+  }
+  return a;
+}
+
+// ══════════════════════════════════════════
+//  PANE HELPER
+// ══════════════════════════════════════════
+function showPane(id){
+  document.querySelectorAll('.gpane').forEach(p=>p.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+// ══════════════════════════════════════════
+//  TITLE / IDLE
+// ══════════════════════════════════════════
+function showTitle(){
+  phase='idle';
+  // Hide overlay elements
+  document.getElementById('memCard').classList.add('g-hidden');
+  document.getElementById('cookGrid').classList.add('g-hidden');
+  document.getElementById('feedbackMsg').classList.add('g-hidden');
+  showPane('paneTitle');
+  startIdleCanvas();
+}
+
+// ══════════════════════════════════════════
+//  GAME FLOW
+// ══════════════════════════════════════════
+function startGame(diff){
+  if(!localStorage.getItem('pkName')){ location.href='index.html'; return; }
+  diffKey=diff;
+  cfg=DIFF[diff];
+  round=0; gScore=0; lives=3; maxRounds=cfg.rounds;
+  paused=false;
+  document.getElementById('pauseMenu').style.display='none';
+  stopIdleCanvas();
+  showPane('paneGame');
+  nextRound();
+}
+
+function replayGame(){ startGame(diffKey); }
+
+function nextRound(){
+  round++;
+  const n=Math.min(cfg.startSteps+(round-1), cfg.maxSteps);
+  // pick n random unique food indices
+  const pool=shuffle(Array.from({length:FOODS.length},(_,i)=>i));
+  recipe=pool.slice(0,n);
+  clickIdx=0;
+  updateHUD();
+  startMemorize();
+}
+
+function startMemorize(){
+  phase='memorize';
+  // Show badges
+  document.getElementById('badgeMemorize').classList.add('show');
+  document.getElementById('badgeCook').classList.remove('show');
+  document.getElementById('phaseProgress').textContent='';
+
+  // Build mem grid
+  const grid=document.getElementById('memGrid');
+  grid.innerHTML='';
+  recipe.forEach((foodIdx,i)=>{
+    const div=document.createElement('div');
+    div.className='mem-item';
+    div.id=`mi_${i}`;
+    div.innerHTML=`<span class="mi-emoji">${FOODS[foodIdx].emoji}</span>`;
+    grid.appendChild(div);
+  });
+
+  // Reset timer bar and ready button
+  const fill=document.getElementById('memTimerFill');
+  fill.style.width='100%';
+  fill.style.transition='none';
+  const readyBtn=document.getElementById('memReadyBtn');
+  readyBtn.classList.add('g-hidden');
+
+  // Show the mem card
+  document.getElementById('memCard').classList.remove('g-hidden');
+  document.getElementById('cookGrid').classList.add('g-hidden');
+
+  // Clear any old timers
+  memTimers.forEach(t=>clearTimeout(t));
+  memTimers=[];
+
+  const n=recipe.length;
+  const showMs=cfg.showMs;
+  const totalMs=n*showMs;
+
+  // Animate timer bar
+  setTimeout(()=>{
+    fill.style.transition=`width ${totalMs/1000}s linear`;
+    fill.style.width='0%';
+  },50);
+
+  // Highlight each item in sequence
+  for(let i=0;i<n;i++){
+    const t1=setTimeout(()=>{
+      // deactivate all
+      document.querySelectorAll('.mem-item').forEach(el=>el.classList.remove('active'));
+      // activate current
+      const el=document.getElementById(`mi_${i}`);
+      if(el){ el.classList.add('active'); playReveal(i); }
+      // Show progress
+      document.getElementById('phaseProgress').textContent=`${i+1} / ${n}`;
+    }, i*showMs + 200);
+    memTimers.push(t1);
+  }
+
+  // After last step: deactivate all, brief pause, then auto-start cook
+  const tEnd=setTimeout(()=>{
+    document.querySelectorAll('.mem-item').forEach(el=>el.classList.remove('active'));
+    document.getElementById('phaseProgress').textContent='GET READY...';
+  }, n*showMs + 200);
+  memTimers.push(tEnd);
+
+  const tCook=setTimeout(()=>{
+    startCook();
+  }, n*showMs + 1500);
+  memTimers.push(tCook);
+}
+
+function startCook(){
+  if(phase!=='memorize') return;
+  phase='cook';
+
+  document.getElementById('badgeMemorize').classList.remove('show');
+  document.getElementById('badgeCook').classList.add('show');
+  document.getElementById('memCard').classList.add('g-hidden');
+
+  // Scramble
+  cookItems=shuffle([...recipe]);
+  clickIdx=0;
+  cookStartTime=Date.now();
+  updateProgress();
+
+  // Determine grid cols
+  const n=cookItems.length;
+  const cols=n<=4?2:3;
+  const cookGrid=document.getElementById('cookGrid');
+  cookGrid.style.gridTemplateColumns=`repeat(${cols},1fr)`;
+  // height hint so items don't get too tall
+  const rows=Math.ceil(n/cols);
+  const itemH=Math.floor(380/rows);
+  cookGrid.innerHTML='';
+  cookItems.forEach((foodIdx,gridIdx)=>{
+    const btn=document.createElement('button');
+    btn.className='cook-item';
+    btn.id=`ci_${gridIdx}`;
+    btn.style.height=`${Math.min(itemH,120)}px`;
+    btn.innerHTML=`<span class="ci-emoji">${FOODS[foodIdx].emoji}</span><span class="ci-name">${FOODS[foodIdx].name}</span>`;
+    btn.onclick=()=>onCookClick(gridIdx,foodIdx);
+    cookGrid.appendChild(btn);
+  });
+
+  cookGrid.classList.remove('g-hidden');
+}
+
+function onCookClick(gridIdx,foodIdx){
+  if(phase!=='cook') return;
+  if(paused) return;
+
+  const btn=document.getElementById(`ci_${gridIdx}`);
+  if(!btn||btn.disabled) return;
+
+  const expected=recipe[clickIdx];
+  if(foodIdx===expected){
+    // Correct!
+    btn.classList.add('correct');
+    btn.disabled=true;
+    playCorrect();
+    clickIdx++;
+    updateProgress();
+
+    if(clickIdx>=recipe.length){
+      // Round complete
+      setTimeout(onRoundComplete, 400);
+    }
+  } else {
+    // Wrong
+    btn.classList.add('wrong');
+    setTimeout(()=>{ if(btn) btn.classList.remove('wrong'); },350);
+    playWrong();
+    showFeedback('✗ WRONG!', false);
+    loseLife();
+  }
+}
+
+function updateProgress(){
+  document.getElementById('phaseProgress').textContent=`${clickIdx} / ${recipe.length}`;
+}
+
+function loseLife(){
+  lives=Math.max(0,lives-1);
+  updateLives();
+  if(lives<=0){
+    phase='ending';
+    setTimeout(endGame,800);
+  }
+}
+
+function onRoundComplete(){
+  // Calculate speed bonus
+  const elapsed=(Date.now()-cookStartTime)/1000;
+  const speedBonus=Math.max(0,Math.floor(150-elapsed*10));
+  const roundScore=200+speedBonus;
+  gScore+=roundScore;
+  updateHUD();
+
+  showFeedback(`+${roundScore}!`, true);
+  playRoundClear();
+
+  document.getElementById('cookGrid').classList.add('g-hidden');
+  document.getElementById('badgeCook').classList.remove('show');
+
+  if(round>=maxRounds){
+    setTimeout(endGame, 900);
+  } else {
+    setTimeout(nextRound, 1000);
+  }
+}
+
+function endGame(){
+  phase='result';
+  stopIdleCanvas();
+  drawKitchenBg(); // static bg
+
+  const pct=gScore/(maxRounds*350);
+  const title=pct>=0.8?'MASTERCHEF!':pct>=0.55?'WELL DONE!':pct>=0.3?'KEEP GOING!':'NEEDS WORK...';
+  document.getElementById('resultTitle').textContent=title;
+  document.getElementById('resultScore').textContent=gScore;
+  document.getElementById('resultSub').textContent=
+    `ROUNDS: ${round}/${maxRounds}   LIVES: ${lives}\nDIFFICULTY: ${DIFF[diffKey].label}`;
+  document.getElementById('saveStatus').textContent='';
+
+  const coins=Math.floor(gScore/50);
+  const prev=parseInt(localStorage.getItem('pkCoins')||'0');
+  localStorage.setItem('pkCoins',prev+coins);
+  updateTopbarCoins();
+  document.getElementById('resultCoins').textContent=coins>0?`🪙 +${coins} COINS`:'';
+
+  // Hide overlay
+  document.getElementById('memCard').classList.add('g-hidden');
+  document.getElementById('cookGrid').classList.add('g-hidden');
+  document.getElementById('feedbackMsg').classList.add('g-hidden');
+  document.getElementById('badgeMemorize').classList.remove('show');
+  document.getElementById('badgeCook').classList.remove('show');
+
+  showPane('paneResult');
+  submitScore();
+}
+
+// ══════════════════════════════════════════
+//  HUD
+// ══════════════════════════════════════════
+function updateHUD(){
+  document.getElementById('hudScore').textContent=gScore;
+  document.getElementById('hudRound').textContent=`${round}/${maxRounds}`;
+  const n=Math.min(cfg.startSteps+(round-1), cfg.maxSteps);
+  document.getElementById('hudSteps').textContent=n;
+  updateLives();
+}
+function updateLives(){
+  const el=document.getElementById('livesRow');
+  if(!el) return;
+  let h='';
+  for(let i=0;i<3;i++) h+= i<lives ? '❤️' : '🖤';
+  el.innerHTML=h;
+}
+
+// ══════════════════════════════════════════
+//  FEEDBACK MESSAGE
+// ══════════════════════════════════════════
+function showFeedback(msg, ok){
+  const el=document.getElementById('feedbackMsg');
+  el.textContent=msg;
+  el.className='feedback-msg '+(ok?'ok':'fail');
+  el.classList.remove('g-hidden');
+  clearTimeout(el._timer);
+  el._timer=setTimeout(()=>{ el.classList.add('g-hidden'); },900);
+}
+
+// ══════════════════════════════════════════
+//  PAUSE
+// ══════════════════════════════════════════
+function openPauseMenu(){
+  if(phase==='idle'||phase==='result'||phase==='ending') return;
+  paused=true;
+  document.getElementById('pauseMenu').style.display='flex';
+}
+function resumeGame(){
+  paused=false;
+  document.getElementById('pauseMenu').style.display='none';
+}
+function quitFromMenu(){
+  paused=false;
+  phase='idle';
+  document.getElementById('pauseMenu').style.display='none';
+  memTimers.forEach(t=>clearTimeout(t));
+  memTimers=[];
+  document.getElementById('memCard').classList.add('g-hidden');
+  document.getElementById('cookGrid').classList.add('g-hidden');
+  document.getElementById('feedbackMsg').classList.add('g-hidden');
+  showTitle();
+}
+
+// ══════════════════════════════════════════
+//  CANVAS DRAWING
+// ══════════════════════════════════════════
+function drawKitchenBg(){
+  // ── PIXEL ART KITCHEN — bright & cheerful ──
+  const P=(x,y,w,h,c)=>{ctx.fillStyle=c;ctx.fillRect(x,y,w,h);};
+
+  // ── BASE: warm cream tile floor (checkerboard) ──
+  for(let ty=0;ty<CH;ty+=20){
+    for(let tx=0;tx<CW;tx+=20){
+      const light=((tx/20+ty/20)%2===0);
+      P(tx,ty,20,20,light?'#fdf6e8':'#f5ecda');
+    }
+  }
+  // tile grout lines
+  for(let ty=0;ty<CH;ty+=20){ P(0,ty,CW,1,'#e8dbc8'); }
+  for(let tx=0;tx<CW;tx+=20){ P(tx,0,1,CH,'#e8dbc8'); }
+
+  // ── TOP ZONE: pixel brick wall (top 130px) ──
+  for(let wy=0;wy<130;wy+=18){
+    const offset=(Math.floor(wy/18)%2===0)?0:32;
+    P(0,wy,CW,18,'#d4856a');
+    P(0,wy,CW,2,'#c87058');      // mortar (darker)
+    P(0,wy+16,CW,2,'#b86048');   // mortar bottom
+    for(let wx=offset;wx<CW;wx+=64){
+      P(wx,wy+2,62,14,'#e0907a'); // brick face
+      P(wx,wy+2,62,3,'#eca888');  // brick top highlight
+      P(wx+1,wy+2,4,12,'#f0b898'); // left light catch
+    }
+  }
+
+  // ── KITCHEN COUNTER SURFACE (y=130 to y=190) ──
+  P(0,130,CW,60,'#d4a870');   // counter top
+  P(0,130,CW,4,'#e8c090');    // counter top highlight
+  P(0,130,CW,2,'#f0d0a0');    // brightest top edge
+  P(0,186,CW,4,'#a07840');    // counter front shadow
+  P(0,188,CW,2,'#8a6030');    // counter base line
+  // counter tile pattern (subtle squares)
+  for(let tx=0;tx<CW;tx+=30){ P(tx,132,1,56,'#c89860'); }
+
+  // ── WALL SHELF LEFT (y≈30) with jars ──
+  P(10,30,160,10,'#c8a060');  // shelf body
+  P(10,30,160,3,'#e0c080');   // shelf top highlight
+  P(10,38,160,2,'#8a6020');   // shelf bottom shadow
+  // jars on shelf
+  [{x:16,c:'#e05050'},{x:46,c:'#e8a020'},{x:76,c:'#50b840'},{x:106,c:'#5080d0'},{x:136,c:'#c050c0'}].forEach(({x,c})=>{
+    P(x,8,22,24,c);          // jar body
+    P(x,8,22,5,'#c8c8c8');   // lid
+    P(x,8,22,2,'#e8e8e8');   // lid top
+    P(x+2,13,4,6,'#ffffff44'); // shine
+    P(x+4,18,14,8,'#ffffff22'); // label area
+    P(x,30,22,2,'rgba(0,0,0,0.2)'); // jar shadow on shelf
+  });
+
+  // ── WALL SHELF RIGHT (y≈30) with utensil hooks ──
+  P(CW-170,30,160,10,'#c8a060');
+  P(CW-170,30,160,3,'#e0c080');
+  P(CW-170,38,160,2,'#8a6020');
+  // hanging utensils (pixel silhouettes)
+  // Ladle
+  P(CW-154,40,6,40,'#c0a060'); P(CW-151,76,12,6,'#c0a060'); P(CW-151,80,12,4,'#a88040');
+  P(CW-154,40,6,2,'#d0b070');
+  // Spatula
+  P(CW-124,40,5,36,'#b09050'); P(CW-128,74,14,8,'#b09050'); P(CW-128,74,14,2,'#c8a860');
+  // Whisk
+  P(CW-94,40,4,24,'#b0b0b8'); P(CW-100,62,16,18,'#c0c0c8');
+  P(CW-100,62,4,16,'#b0b0b8'); P(CW-96,64,4,14,'#c8c8d0'); P(CW-92,62,4,16,'#b0b0b8'); P(CW-88,64,4,14,'#c8c8d0');
+  // Fork
+  P(CW-64,40,4,38,'#a0a0a8'); P(CW-68,40,4,14,'#a0a0a8'); P(CW-60,40,4,14,'#a0a0a8');
+  P(CW-68,52,4,6,'#b0b0b8'); P(CW-60,52,4,6,'#b0b0b8');
+
+  // ── COUNTER ITEMS (on the counter, y=135–185) ──
+  // Cutting board (left)
+  P(20,136,90,48,'#b87840');  // board
+  P(20,136,90,4,'#d09050');   // top highlight
+  [8,16,24,32,40].forEach(gy=>P(24,136+gy,82,1,'#a06830')); // grain
+  P(20,182,90,2,'#7a5020');   // bottom shadow
+  // Knife on cutting board
+  P(28,158,18,7,'#5a3018'); P(28,158,18,3,'#6a4020'); // handle
+  P(32,159,3,2,'#9a7040'); P(38,159,3,2,'#9a7040');   // rivets
+  P(46,157,58,4,'#c8ccd0'); P(46,157,58,1,'#e0e4e8'); // blade
+  P(103,155,5,8,'#c8ccd0'); // tip
+
+  // Mixing bowl (centre of counter)
+  P(240,138,80,6,'#e0d8c0');  // bowl rim
+  P(240,138,80,2,'#f0e8d0');  // rim highlight
+  P(244,144,72,38,'#d4c8b0'); // bowl front face
+  P(244,144,72,4,'#e4d8c0');  // interior top
+  P(244,180,72,2,'#b0a488');  // bowl base
+  // colourful ingredients sticking out top
+  P(252,136,12,10,'#e05050'); P(272,134,10,12,'#f5a020'); P(290,136,12,10,'#50c040');
+  P(252,136,12,3,'#f07060'); P(272,134,10,3,'#f8c040'); P(290,136,12,3,'#70d060');
+
+  // Salt + pepper shakers (right side of counter)
+  P(470,136,18,44,'#f0f0f0'); P(470,136,18,4,'#d0d0d0'); P(470,136,18,2,'#e8e8e8'); // salt
+  P(474,140,4,4,'#b0b0b0'); P(480,140,4,4,'#b0b0b0'); P(474,146,4,4,'#b0b0b0');
+  P(496,136,18,44,'#2a2a2a'); P(496,136,18,4,'#484848'); P(496,136,18,2,'#383838'); // pepper
+  P(500,140,4,4,'#505050'); P(506,140,4,4,'#505050'); P(500,146,4,4,'#505050');
+
+  // ── LEFT WALL: hanging herb bundles ──
+  P(2,140,6,80,'#8a7030');  // hanging nail/hook line
+  [[2,152],[0,172],[4,194]].forEach(([hx,hy])=>{
+    P(hx,hy,10,18,'#6a9020');  // herb bundle
+    P(hx+1,hy,8,6,'#8ab030');  // leaf cluster top
+    P(hx,hy+14,10,4,'#8a6020'); // twine
+    P(hx+2,hy+1,6,4,'#a0c040');
+  });
+
+  // ── RIGHT WALL: chalkboard decoration ──
+  P(CW-10,140,10,130,'#2a5a20'); // chalkboard border
+  P(CW-8,142,8,126,'#1a3a10');   // chalkboard face
+  // chalk squiggles (decorative)
+  P(CW-7,148,6,2,'rgba(255,255,255,0.5)');
+  P(CW-7,156,4,2,'rgba(255,255,255,0.4)');
+  P(CW-7,164,5,2,'rgba(255,255,255,0.5)');
+  P(CW-7,172,3,2,'rgba(255,255,255,0.35)');
+
+  // ── FLOOR AREA (below counter, y=190+): warm tiles ──
+  // (already drawn with checkerboard base — add a few accent objects)
+  // Potted plant (bottom-left)
+  P(14,CH-60,36,30,'#c8702a');  // pot
+  P(14,CH-60,36,4,'#e89040');   // pot rim
+  P(14,CH-60,36,2,'#f0a050');   // rim top
+  P(16,CH-56,32,22,'#7a2810');  // soil
+  // leaves
+  P(22,CH-84,8,28,'#3a9020'); P(30,CH-90,10,32,'#4aaa28'); P(16,CH-76,8,20,'#308018');
+  P(22,CH-84,8,4,'#50c030'); P(30,CH-90,10,4,'#60d040');
+
+  // Woven kitchen mat (bottom-centre)
+  for(let mx=180;mx<380;mx+=12){
+    const alt=(Math.floor(mx/12)%2===0);
+    P(mx,CH-18,12,18,alt?'#d4a050':'#c09040');
+    P(mx,CH-18,12,2,alt?'#e8b860':'#d4a850');
+  }
+  P(180,CH-20,200,2,'#a07830'); // top border
+  P(180,CH-2,200,2,'#a07830');  // bottom border
+
+  // ── PIXEL CORNER BRACKETS (warm orange) ──
+  const BR='#e8913a', BS=8, BL=22;
+  P(BS,BS,BL,3,BR); P(BS,BS,3,BL,BR);
+  P(CW-BS-BL,BS,BL,3,BR); P(CW-BS-3,BS,3,BL,BR);
+  P(BS,CH-BS-3,BL,3,BR); P(BS,CH-BS-BL,3,BL,BR);
+  P(CW-BS-BL,CH-BS-3,BL,3,BR); P(CW-BS-3,CH-BS-BL,3,BL,BR);
+
+  // ── PIXEL SCANLINE (very subtle on light bg) ──
+  for(let sl=0;sl<CH;sl+=4){ ctx.fillStyle='rgba(0,0,0,0.04)'; ctx.fillRect(0,sl,CW,2); }
+
+  // ── SOFT VIGNETTE ──
+  const vig=ctx.createRadialGradient(CW/2,CH/2,80,CW/2,CH/2,340);
+  vig.addColorStop(0,'rgba(0,0,0,0)');
+  vig.addColorStop(1,'rgba(0,0,0,0.22)');
+  ctx.fillStyle=vig; ctx.fillRect(0,0,CW,CH);
+}
+
+// ══════════════════════════════════════════
+//  IDLE ANIMATION
+// ══════════════════════════════════════════
+let _idleRaf=null;
+let _idleT=0;
+// 3 sparkles
+const _sparkles=[
+  {x:90,y:210,phase:0},{x:160,y:360,phase:2.1},{x:500,y:380,phase:4.2},{x:540,y:220,phase:1.5}
+];
+
+function startIdleCanvas(){
+  stopIdleCanvas();
+  _idleT=0;
+  function idleLoop(){
+    _idleT+=0.016;
+    drawKitchenBg();
+    drawIdlePot();
+    drawIdleSparkles();
+    _idleRaf=requestAnimationFrame(idleLoop);
+  }
+  _idleRaf=requestAnimationFrame(idleLoop);
+}
+
+function stopIdleCanvas(){
+  if(_idleRaf){ cancelAnimationFrame(_idleRaf); _idleRaf=null; }
+}
+
+function drawIdlePot(){
+  // ── PIXEL ART COOKING POT — centred on canvas ──
+  const P=(x,y,w,h,c)=>{ctx.fillStyle=c;ctx.fillRect(x,y,w,h);};
+  const t=_idleT;
+  const cx=CW/2, cy=280;
+
+  // ── Stove burner glow (under pot) ──
+  const glow=Math.sin(t*3)*0.15+0.5;
+  P(cx-50,cy+50,100,8,`rgba(220,80,20,${glow*0.6})`);
+  P(cx-40,cy+52,80,4,`rgba(255,140,40,${glow*0.5})`);
+
+  // ── Animated flames (3 clusters, pixel blocks) ──
+  const fBase=cy+50;
+  [[-28,1.0],[-8,1.5],[14,0.7],[32,1.2]].forEach(([ox,phase],fi)=>{
+    const flick=Math.sin(t*5+phase)*3;
+    const h1=12+Math.floor(Math.sin(t*4+phase)*4);
+    const h2=8+Math.floor(Math.sin(t*5.5+phase+1)*3);
+    // outer flame (dark orange)
+    P(cx+ox-4,fBase-h1+flick,10,h1,'#e05a10');
+    // inner flame (bright yellow-orange)
+    P(cx+ox-2,fBase-h2+flick,6,h2,'#f5a020');
+    // tip (yellow)
+    P(cx+ox-1,fBase-h2-4+flick,4,5,'#f5d040');
+  });
+
+  // ── Pot body ──
+  // drop shadow
+  P(cx-46,cy+6,92,52,'rgba(0,0,0,0.25)');
+  // pot outer
+  P(cx-44,cy,88,52,'#5a5560');
+  // pot rim (top)
+  P(cx-46,cy,92,8,'#7a7080');
+  P(cx-44,cy,90,3,'#9a9098');
+  // handles
+  P(cx-56,cy+10,14,20,'#5a5560'); P(cx-56,cy+10,14,3,'#7a7080');
+  P(cx+42,cy+10,14,20,'#5a5560'); P(cx+42,cy+10,14,3,'#7a7080');
+  // pot interior (dark)
+  P(cx-38,cy+8,76,40,'#2a2028');
+  // boiling liquid surface
+  const bubbleShift=Math.sin(t*2)*2;
+  P(cx-36,cy+10+bubbleShift,72,4,'#c86818');
+  P(cx-34,cy+14,68,26,'#3a1808');
+  // bubbles (pixel squares that appear/disappear)
+  [[cx-20,cy+22],[cx+4,cy+28],[cx+18,cy+20]].forEach(([bx2,by2],bi)=>{
+    const bv=Math.sin(t*3.5+bi*2.2);
+    if(bv>0.1){
+      const bs=Math.floor(bv*6+2);
+      P(bx2-bs/2,by2-bs/2,bs,bs,'#e07820');
+      P(bx2-bs/2,by2-bs/2,bs,2,'#f0a040');
+    }
+  });
+  // pot shine line
+  P(cx-40,cy+8,30,2,'rgba(180,170,190,0.4)');
+  // pot base
+  P(cx-38,cy+48,76,4,'#3a3038');
+
+  // ── Steam (pixel dots rising above pot) ──
+  const steamCols=[[cx-18,'#d0b090'],[cx+2,'#c8a880'],[cx+20,'#d4b898']];
+  steamCols.forEach(([sx,col],si)=>{
+    // 3 puffs per column, staggered timing
+    [0,1,2].forEach(pi=>{
+      const phase2=(t*0.6+si*0.4+pi*0.5)%1;
+      const sy2=cy-(phase2*70)-(pi*18);
+      const alpha=phase2<0.2?phase2/0.2:phase2>0.8?(1-phase2)/0.2:1;
+      const sz=4-pi;
+      ctx.fillStyle=`rgba(208,176,144,${alpha*0.7})`;
+      ctx.fillRect(sx-sz/2,sy2-sz/2,sz,sz);
+    });
+  });
+}
+
+function drawIdleSparkles(){
+  const t=_idleT;
+  _sparkles.forEach((sp,i)=>{
+    const wobble=Math.sin(t*1.8+sp.phase)*6;
+    const alpha=0.4+0.5*Math.abs(Math.sin(t*2.2+sp.phase));
+    const y=sp.y+wobble;
+    const x=sp.x;
+    const sz=5;
+    ctx.save();
+    ctx.globalAlpha=alpha;
+    ctx.fillStyle='#e8913a';
+    // cross shape
+    ctx.fillRect(x-sz*0.5,y-sz*1.5,sz,sz*3);
+    ctx.fillRect(x-sz*1.5,y-sz*0.5,sz*3,sz);
+    ctx.fillStyle='#f5c842';
+    ctx.fillRect(x-sz*0.5,y-sz*0.5,sz,sz);
+    ctx.restore();
+  });
+}
+
+// ══════════════════════════════════════════
+//  SCORE SUBMIT
+// ══════════════════════════════════════════
+function submitScore(){
+  const name=localStorage.getItem('pkName');
+  if(!name||gScore<=0) return;
+  document.getElementById('saveStatus').textContent='Saving...';
+  LB_REF.orderByChild('name_diff').equalTo(`${name}_${diffKey}`)
+    .limitToFirst(1).once('value').then(snap=>{
+      let key=null,old=0;
+      snap.forEach(c=>{ key=c.key; old=c.val().score; });
+      if(gScore<=old){
+        document.getElementById('saveStatus').textContent='(previous score was higher)';
+        return null;
+      }
+      const ref=key?LB_REF.child(key):LB_REF.push();
+      return ref.set({name,score:gScore,diff:diffKey,name_diff:`${name}_${diffKey}`,ts:Date.now()});
+    }).then(r=>{
+      if(r!==null) document.getElementById('saveStatus').textContent='✓ Score saved!';
+    }).catch(()=>{
+      document.getElementById('saveStatus').textContent='✗ Save failed';
+    });
+}
+
+// ══════════════════════════════════════════
+//  LEADERBOARD
+// ══════════════════════════════════════════
+function openLeaderFromTitle(){ showLeader('paneTitle'); }
+
+function showLeader(returnPane='paneResult'){
+  document.getElementById('leaderBackBtn').onclick=()=>showPane(returnPane);
+  showPane('paneLeader');
+  const list=document.getElementById('leaderList');
+  list.innerHTML='<div class="leader-empty">Loading...</div>';
+  detachLeader();
+  _lbQ=LB_REF.orderByChild('score').limitToLast(10);
+  _lbL=_lbQ.on('value',snap=>{
+    const rows=[];
+    snap.forEach(c=>rows.push(c.val()));
+    rows.sort((a,b)=>b.score-a.score);
+    if(!rows.length){
+      list.innerHTML='<div class="leader-empty">No scores yet!<br>Be the first chef!</div>';
+      return;
+    }
+    list.innerHTML='';
+    const myName=localStorage.getItem('pkName');
+    rows.forEach((r,i)=>{
+      const rc=i===0?'gold':i===1?'silver':i===2?'bronze':'';
+      const rs=i===0?'1ST':i===1?'2ND':i===2?'3RD':`#${i+1}`;
+      const d=document.createElement('div');
+      d.className='leader-row'+(r.name===myName?' me':'');
+      const diffCls=r.diff||'apprenti';
+      d.innerHTML=`<span class="leader-rank ${rc}">${rs}</span>
+        <span class="leader-name">${r.name}</span>
+        <span class="leader-score">${r.score}</span>
+        <span class="leader-diff ${diffCls}">${(r.diff||'apprenti').toUpperCase()}</span>`;
+      list.appendChild(d);
+    });
+  },()=>{
+    list.innerHTML='<div class="leader-empty">Failed to load.<br>Check connection.</div>';
+  });
+}
+
+// ══════════════════════════════════════════
+//  AUDIO
+// ══════════════════════════════════════════
+const AC=window.AudioContext||window.webkitAudioContext;
+let actx=null, masterGain=null, muted=false;
+
+function initAudio(){
+  if(actx) return;
+  actx=new AC();
+  masterGain=actx.createGain();
+  masterGain.gain.value=0.30;
+  masterGain.connect(actx.destination);
+}
+function playTone(freq,dur,type='square',vol=0.12){
+  if(!actx||muted) return;
+  const osc=actx.createOscillator();
+  const g=actx.createGain();
+  const t=actx.currentTime;
+  osc.type=type; osc.frequency.value=freq;
+  g.gain.setValueAtTime(0,t);
+  g.gain.linearRampToValueAtTime(vol,t+0.01);
+  g.gain.setValueAtTime(vol,Math.max(t+0.012,t+dur-0.04));
+  g.gain.linearRampToValueAtTime(0.0001,t+dur);
+  osc.connect(g); g.connect(masterGain);
+  osc.start(t); osc.stop(t+dur+0.02);
+}
+function playReveal(step){
+  // Rising scale tones for reveal
+  const notes=[262,294,330,349,392,440,494,523,587,659];
+  const freq=notes[step%notes.length];
+  playTone(freq,0.12,'triangle',0.10);
+}
+function playCorrect(){
+  playTone(523,0.06,'square',0.08);
+  setTimeout(()=>playTone(659,0.08,'square',0.08),70);
+}
+function playWrong(){
+  playTone(200,0.12,'square',0.10);
+  setTimeout(()=>playTone(150,0.15,'square',0.08),100);
+}
+function playRoundClear(){
+  const freqs=[523,659,784,1047];
+  freqs.forEach((f,i)=>setTimeout(()=>playTone(f,0.10,'triangle',0.10),i*90));
+}
+function toggleMute(){
+  muted=!muted;
+  document.getElementById('muteBtn').textContent=muted?'♪ OFF':'♪ ON';
+}
+document.addEventListener('click',function onFirstClick(){ initAudio(); },{once:true});
+
+</script>
+</body>
+</html>

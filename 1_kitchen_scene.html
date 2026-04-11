@@ -7,6 +7,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-database-compat.js"></script>
+<script src="menu.js"></script>
 <style>
 * { margin:0; padding:0; box-sizing:border-box; image-rendering:pixelated; }
 body { background:radial-gradient(ellipse at 50% 30%, #3a1e0a 0%, #1c0d04 100%); font-family:'Press Start 2P',monospace; width:100vw; height:100vh; overflow:hidden; }
@@ -1132,58 +1133,21 @@ function resetKitchen(){
 // ══════════════════════════════════════════════
 //  INGREDIENT GAME
 // ══════════════════════════════════════════════
-// Ingredient pool
-const INGR={
-  beef:    {e:'🥩',l:'Beef'},     salmon:  {e:'🐟',l:'Salmon'},
-  lamb:    {e:'🍖',l:'Lamb'},     chicken: {e:'🍗',l:'Chicken'},
-  egg:     {e:'🥚',l:'Egg'},      carrot:  {e:'🥕',l:'Carrot'},
-  onion:   {e:'🧅',l:'Onion'},    garlic:  {e:'🧄',l:'Garlic'},
-  tomato:  {e:'🍅',l:'Tomato'},   lemon:   {e:'🍋',l:'Lemon'},
-  mango:   {e:'🥭',l:'Mango'},    apricot: {e:'🍑',l:'Apricot'},
-  potato:  {e:'🥔',l:'Potato'},   lettuce: {e:'🥬',l:'Lettuce'},
-  mushroom:{e:'🍄',l:'Mushroom'}, butter:  {e:'🧈',l:'Butter'},
-  cream:   {e:'🥛',l:'Cream'},    parmesan:{e:'🧀',l:'Parmesan'},
-  pasta:   {e:'🍝',l:'Pasta'},    sugar:   {e:'🧂',l:'Sugar'},
-  almond:  {e:'🌰',l:'Almond'},   redwine: {e:'🍷',l:'Red Wine'},
-  truffle: {e:'🟤',l:'Truffle'},  herb:    {e:'🌿',l:'Herbs'},
-  oliveoil:{e:'🫒',l:'Olive Oil'},curry:   {e:'🌶️',l:'Curry Paste'},
-  coconut: {e:'🥥',l:'Coconut'},  honey:   {e:'🍯',l:'Honey'},
-  vanilla: {e:'🫙',l:'Vanilla'},  caramel: {e:'🍮',l:'Caramel'},
-  choc:    {e:'🍫',l:'Chocolate'},cardamom:{e:'🌱',l:'Cardamom'},
-  yogurt:  {e:'🥣',l:'Yogurt'},   flour:   {e:'🌾',l:'Flour'},
-};
-const ALL_IDS=Object.keys(INGR);
-
-// 25 dishes — 10 picked randomly each round
-const DISHES=[
-  // ── Mains ──
-  {name:"Chef's Stew",      e:'🍲', ok:['beef','redwine','carrot','onion']},
-  {name:'Ratatouille',      e:'🫕', ok:['tomato','onion','garlic','oliveoil']},
-  {name:'Grilled Ribeye',   e:'🥩', ok:['beef','butter','garlic','herb']},
-  {name:'Seared Salmon',    e:'🐟', ok:['salmon','lemon','butter','herb']},
-  {name:"Chef's Curry",     e:'🍛', ok:['chicken','coconut','curry','garlic']},
-  {name:"Shepherd's Pie",   e:'🥧', ok:['lamb','potato','carrot','onion']},
-  {name:'Garden Salad',     e:'🥗', ok:['lettuce','tomato','lemon','oliveoil']},
-  {name:'Truffle Fries',    e:'🍟', ok:['potato','truffle','parmesan','herb']},
-  {name:'Beef Bourguignon', e:'🫕', ok:['beef','redwine','mushroom','carrot']},
-  {name:'French Onion Soup',e:'🧅', ok:['onion','butter','redwine','parmesan']},
-  {name:'Mushroom Risotto', e:'🍄', ok:['mushroom','parmesan','cream','butter']},
-  {name:'Herb Roast Chicken',e:'🍗',ok:['chicken','herb','garlic','lemon']},
-  {name:'Potato Gratin',    e:'🥔', ok:['potato','cream','parmesan','onion']},
-  {name:'Tomato Bruschetta',e:'🍅', ok:['tomato','garlic','oliveoil','herb']},
-  {name:'Honey Salmon',     e:'🐟', ok:['salmon','honey','garlic','lemon']},
-  {name:'Lamb Kebab',       e:'🍢', ok:['lamb','garlic','onion','herb']},
-  {name:'Truffle Risotto',  e:'🫕', ok:['truffle','mushroom','parmesan','cream']},
-  {name:'Caesar Salad',     e:'🥗', ok:['lettuce','parmesan','garlic','oliveoil']},
-  // ── Desserts ──
-  {name:'Lava Cake',        e:'🍫', ok:['choc','butter','egg','flour']},
-  {name:'Mango Lassi',      e:'🍹', ok:['mango','yogurt','honey','cardamom']},
-  {name:'Crème Brûlée',     e:'🍮', ok:['cream','egg','sugar','vanilla']},
-  {name:'Chocolate Mousse', e:'🍫', ok:['choc','cream','egg','sugar']},
-  {name:'Crêpes',           e:'🫓', ok:['flour','egg','butter','cream']},
-  {name:'Caramel Flan',     e:'🍮', ok:['caramel','cream','egg','vanilla']},
-  {name:'Coconut Mango Pudding',e:'🥭',ok:['coconut','mango','cream','vanilla']},
-];
+// Ingredient pool — derived from shared menu.js
+(function(){
+  function toKey(name){ return name.toLowerCase().replace(/ /g,'_'); }
+  function toLabel(name){ return name.split(' ').map(w=>w[0]+w.slice(1).toLowerCase()).join(' '); }
+  window.INGR = Object.fromEntries(
+    PK_INGREDIENTS.map(i => [toKey(i.name), {e:i.emoji, l:toLabel(i.name)}])
+  );
+  const _E2K = Object.fromEntries(PK_INGREDIENTS.map(i => [i.emoji, toKey(i.name)]));
+  window.DISHES = PK_DISHES.map(d => ({
+    name: toLabel(d.name),
+    e: d.emoji,
+    ok: d.items.map(it => _E2K[it.emoji]).filter(Boolean)
+  }));
+  window.ALL_IDS = Object.keys(window.INGR);
+})();
 
 // Difficulty config
 const DIFF_CFG={

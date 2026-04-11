@@ -1,0 +1,1271 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Kitchen Chaos</title>
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+<script src="menu.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-database-compat.js"></script>
+<style>
+* { margin:0; padding:0; box-sizing:border-box; image-rendering:pixelated; }
+body {
+  background:radial-gradient(ellipse at 50% 30%, #181820 0%, #10101a 100%);
+  font-family:'Press Start 2P',monospace;
+  width:100vw; height:100vh; overflow:hidden;
+}
+
+/* ══ WRAP & TOPBAR ══ */
+#gameWrap {
+  position:fixed; top:50%; left:50%;
+  transform-origin:center center;
+  display:flex; flex-direction:column;
+}
+.game-topbar {
+  flex-shrink:0; background:transparent;
+  display:flex; align-items:center;
+  padding:10px 14px 6px; gap:12px;
+}
+.game-topbar-brand { font-size:1rem; letter-spacing:3px; color:#f5c842; text-shadow:2px 2px #8b3a00, 0 0 20px #f5a700; flex:1; }
+.game-topbar-coins { color:#f5c842; font-size:.72rem; }
+.game-topbar-coinlbl { color:#5a4a20; font-size:.42rem; }
+
+/* ══ LAYOUT ══ */
+.game-content { display:flex; gap:16px; align-items:flex-start; justify-content:center; flex:1; }
+.canvas-wrap { position:relative; flex-shrink:0; }
+canvas { display:block; border:3px solid #6878a0; box-shadow:0 0 18px #2a2a4a; }
+.g-hidden { display:none !important; }
+
+/* ══ GAME PANEL ══ */
+.game-panel {
+  width:280px; height:480px;
+  background:#1a1a24;
+  border:4px solid #6878a0;
+  box-shadow:4px 4px 0 #2a2a3a, inset 0 0 0 1px #2e2e44;
+  display:flex; flex-direction:column;
+  position:relative; flex-shrink:0; overflow:hidden;
+}
+/* scanline overlay */
+.game-panel::after {
+  content:''; position:absolute; inset:0; pointer-events:none; z-index:99;
+  background:repeating-linear-gradient(0deg,transparent,transparent 3px,rgba(0,0,0,.08) 3px,rgba(0,0,0,.08) 4px);
+}
+
+/* ══ HEADER ══ */
+.gp-header {
+  background:#24243a; border-bottom:4px solid #1a1a24;
+  padding:10px 14px; text-align:center;
+  flex-shrink:0; position:relative; overflow:hidden;
+}
+/* top accent bar */
+.gp-header::before {
+  content:''; position:absolute; top:0; left:0; right:0; height:3px;
+  background:linear-gradient(90deg,transparent,#6878a0,#c0c8d0,#6878a0,transparent);
+}
+/* decorative dots below header */
+.gp-header::after {
+  content:'◆  ◆  ◆'; position:absolute; bottom:-10px; left:50%; transform:translateX(-50%);
+  font-size:6px; color:#3a4060; letter-spacing:3px; white-space:nowrap;
+}
+.gp-logo  { font-size:34px; display:inline-block; margin-bottom:4px; animation:chaosWobble 1.4s ease-in-out infinite; }
+.gp-title { color:#c0c8d0; font-size:.70rem; letter-spacing:2px; line-height:1.6; text-shadow:2px 2px #10101a, 0 0 12px #6878a088; }
+.gp-sub   { color:#7080a0; font-size:.38rem; margin-top:4px; line-height:1.5; }
+
+/* pixel divider */
+.px-div { text-align:center; color:#3a4060; font-size:.28rem; letter-spacing:4px; margin:4px 0 0; flex-shrink:0; }
+
+/* HOW TO PLAY accent block */
+.how-block { padding:6px 12px 4px; border-left:3px solid #6878a0; margin:10px 10px 0; background:#24243a88; }
+
+/* ══ PANE SYSTEM ══ */
+.pane { flex:1; display:flex; flex-direction:column; overflow:hidden; }
+
+/* — Diff buttons — */
+.diff-label { color:#7080a0; font-size:.40rem; margin:8px 12px 4px; }
+.diff-grid  { display:flex; flex-direction:column; gap:5px; padding:0 12px 8px; }
+.d-btn {
+  padding:8px 12px; border:3px solid; background:#1a1a24;
+  cursor:pointer; font-family:'Press Start 2P',monospace;
+  text-align:left; transition:filter .12s;
+  display:flex; align-items:center; gap:10px;
+}
+.d-btn:hover { filter:brightness(1.35); }
+.d-icon  { font-size:22px; flex-shrink:0; }
+.d-texts { display:flex; flex-direction:column; gap:4px; }
+.d-name  { font-size:.50rem; color:inherit; }
+.d-info  { font-size:.30rem; color:#888; }
+.d-easy   { border-color:#50c840; color:#50c840; }
+.d-medium { border-color:#c0c8d0; color:#c0c8d0; }
+.d-hard   { border-color:#e05050; color:#e05050; }
+
+/* — Shared button styles — */
+.btn-silver {
+  padding:10px; background:#1a1a24; border:3px solid #6878a0;
+  color:#c0c8d0; font-family:'Press Start 2P',monospace;
+  font-size:.40rem; cursor:pointer; width:100%;
+}
+.btn-silver:hover { filter:brightness(1.3); }
+.btn-gold {
+  padding:10px; background:#1a1a24; border:3px solid #f5c842;
+  color:#f5c842; font-family:'Press Start 2P',monospace;
+  font-size:.40rem; cursor:pointer; width:100%;
+}
+.btn-gold:hover { filter:brightness(1.3); }
+.btn-back {
+  margin:8px; padding:8px; background:#1a1a24;
+  border:2px solid #3a4060; color:#7080a0;
+  font-family:'Press Start 2P',monospace; font-size:.38rem;
+  cursor:pointer; flex-shrink:0;
+}
+.btn-back:hover { border-color:#6878a0; color:#c0c8d0; }
+
+/* — Game pane HUD — */
+.game-hud {
+  display:flex; justify-content:space-around;
+  background:#1a1a24; border-bottom:3px solid #24243a;
+  padding:7px 6px; flex-shrink:0;
+}
+.hud-item { text-align:center; }
+.hud-val  { color:#c0c8d0; font-size:.80rem; display:block; }
+.hud-val.danger { color:#e05050; }
+.hud-lbl  { color:#3a4060; font-size:.32rem; margin-top:3px; }
+.lives-display {
+  display:flex; align-items:center; justify-content:center;
+  gap:3px; padding:6px 0; flex-shrink:0;
+}
+.life-pip {
+  width:14px; height:14px; background:#e05050;
+  border:2px solid #ff7070; display:inline-block;
+  transition:background .2s, border-color .2s;
+}
+.life-pip.lost { background:#3a1a1a; border-color:#4a2020; }
+.diff-badge {
+  font-family:'Press Start 2P',monospace; font-size:.30rem;
+  color:#7080a0; text-align:center; padding:4px 0; flex-shrink:0;
+}
+.hud-tap-area {
+  flex:1; display:flex; align-items:center; justify-content:center;
+  cursor:default; border-top:2px solid #24243a;
+}
+.hud-tap-txt { color:#3a4060; font-size:.42rem; text-align:center; line-height:2.4; }
+.btn-pause {
+  font-family:'Press Start 2P',monospace; font-size:.30rem;
+  padding:8px; background:#1a1a24; border:2px solid #3a4060;
+  color:#7080a0; cursor:pointer; width:calc(100% - 24px);
+  text-align:center; margin:6px 12px; flex-shrink:0;
+}
+.btn-pause:hover { border-color:#6878a0; color:#c0c8d0; }
+
+/* — Result pane — */
+.result-box { padding:12px 14px; text-align:center; flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:8px; }
+.result-title { color:#c0c8d0; font-size:.70rem; letter-spacing:2px; }
+.result-score { color:#c0c8d0; font-size:1.1rem; text-shadow:2px 2px #10101a, 0 0 24px #6878a088; animation:scorePulse 1.6s ease-in-out infinite; }
+@keyframes scorePulse { 0%,100%{text-shadow:2px 2px #10101a} 50%{text-shadow:2px 2px #10101a,0 0 24px #c0c8d088} }
+.result-sub   { color:#7080a0; font-size:.34rem; line-height:2; white-space:pre-line; }
+.result-coins { color:#f5c842; font-size:.50rem; letter-spacing:2px; }
+.save-status  { color:#6878a0; font-size:.32rem; min-height:1rem; text-align:center; }
+
+/* — Leader pane — */
+.leader-header { background:#24243a; padding:10px 14px; text-align:center; border-bottom:4px solid #1a1a24; flex-shrink:0; position:relative; overflow:hidden; }
+.leader-header::before { content:''; position:absolute; top:0; left:0; right:0; height:3px; background:linear-gradient(90deg,transparent,#6878a0,#c0c8d0,#6878a0,transparent); }
+.leader-title { color:#c0c8d0; font-size:.70rem; letter-spacing:2px; }
+.leader-title span { font-size:2rem; display:block; margin-bottom:4px; }
+.leader-diff-row { display:flex; gap:4px; flex-shrink:0; padding:6px 8px 0; }
+.ld-btn {
+  flex:1; font-family:'Press Start 2P',monospace; font-size:.22rem;
+  padding:5px 2px; background:#1a1a24; border:2px solid #3a4060;
+  color:#7080a0; cursor:pointer; text-align:center;
+}
+.ld-btn.active { border-color:#6878a0; color:#c0c8d0; }
+.leader-list { flex:1; overflow-y:auto; padding:8px; display:flex; flex-direction:column; gap:6px; min-height:0; }
+.leader-list::-webkit-scrollbar { width:4px; }
+.leader-list::-webkit-scrollbar-thumb { background:#3a4060; }
+.leader-row {
+  display:flex; align-items:center; gap:8px;
+  background:#1a1a24; border:2px solid #24243a;
+  padding:7px 10px;
+}
+.leader-row.me { border-color:#6878a0; background:#20202e; }
+.leader-rank { color:#3a4060; font-size:.44rem; width:30px; flex-shrink:0; text-align:center; }
+.leader-rank.gold   { color:#f5c842; }
+.leader-rank.silver { color:#c0c8d0; }
+.leader-rank.bronze { color:#cd7f32; }
+.leader-name { flex:1; color:#9098b0; font-size:.40rem; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.leader-score { color:#c0c8d0; font-size:.50rem; flex-shrink:0; }
+.leader-empty { color:#3a4060; font-size:.36rem; text-align:center; padding:20px; line-height:2; }
+.save-msg { color:#7080a0; font-size:.30rem; text-align:center; margin-top:4px; }
+
+/* ══ MUTE BUTTON ══ */
+.btn-mute {
+  position:absolute; bottom:8px; right:8px; z-index:10;
+  font-family:'Press Start 2P',monospace; font-size:.26rem;
+  padding:5px 8px; background:#1a1a24; border:2px solid #3a4060;
+  color:#6878a0; cursor:pointer;
+}
+.btn-mute:hover { border-color:#6878a0; color:#90a8c0; }
+
+/* ══ PAUSE MENU ══ */
+#pauseMenu {
+  display:none; position:fixed; inset:0; z-index:9000;
+  background:#08080e99;
+  align-items:center; justify-content:center;
+}
+#pauseMenu.visible { display:flex; }
+.pause-box {
+  background:#1a1a24; border:4px solid #6878a0;
+  box-shadow:6px 6px 0 #2a2a3a;
+  padding:30px 28px; display:flex; flex-direction:column;
+  gap:14px; align-items:center; min-width:280px;
+}
+.pause-title { color:#c0c8d0; font-size:.80rem; letter-spacing:4px; }
+.pause-btn {
+  font-family:'Press Start 2P',monospace; font-size:.38rem;
+  padding:11px 24px; background:#1a1a24; border:3px solid #6878a0;
+  color:#9098b0; cursor:pointer; width:100%; text-align:center; letter-spacing:1px;
+}
+.pause-btn:hover { filter:brightness(1.5); color:#c0c8d0; }
+
+/* ══ ROTATE OVERLAY ══ */
+#rotateMsg {
+  display:none; position:fixed; inset:0; z-index:99999;
+  background:#08080e;
+  flex-direction:column; align-items:center; justify-content:center; gap:24px;
+}
+@media (orientation:portrait) { #rotateMsg { display:flex; } }
+.rotate-phone { font-size:52px; animation:rotatePhone 2s steps(2) infinite; }
+@keyframes rotatePhone {
+  0%,40%  { transform:rotate(0deg);  }
+  60%,100%{ transform:rotate(90deg); }
+}
+.rotate-text { color:#c0c8d0; font-size:.50rem; letter-spacing:2px; text-align:center; line-height:2.4; }
+.rotate-sub  { color:#7080a0; font-size:.32rem; letter-spacing:2px; }
+
+/* ══ WOBBLE ANIM ══ */
+@keyframes chaosWobble {
+  0%,100%{transform:rotate(-8deg) scale(1)}
+  50%{transform:rotate(8deg) scale(1.15)}
+}
+</style>
+</head>
+<body>
+
+<div id="gameWrap">
+  <!-- TOPBAR -->
+  <div class="game-topbar">
+    <span class="game-topbar-brand">★ PIXEL KITCHEN ★</span>
+    <span class="game-topbar-coins">🪙 <span id="topbarCoins">0</span></span>
+    <span class="game-topbar-coinlbl">COINS</span>
+  </div>
+
+  <div class="game-content">
+    <!-- CANVAS -->
+    <div class="canvas-wrap">
+      <canvas id="gameCanvas" width="620" height="480"></canvas>
+    </div>
+
+    <!-- PANEL -->
+    <div class="game-panel">
+
+      <!-- TITLE PANE -->
+      <div id="paneTitle" class="pane" style="display:flex;">
+        <div class="gp-header">
+          <span class="gp-logo">🍳</span>
+          <div class="gp-title">KITCHEN<br>CHAOS</div>
+          <div class="gp-sub">React before time runs out!</div>
+        </div>
+        <div class="how-block">
+          <div class="diff-label" style="margin:0 0 4px;padding:0;">▶ HOW TO PLAY</div>
+          <div style="font-size:.32rem;color:#9098b0;line-height:2;padding:0 2px;">
+            ① Ingredients flow on the belt<br>
+            ② Click the RIGHT ones to grab<br>
+            ③ Fill the order = SERVED! 🍽️<br>
+            ④ Hit 💣 or wrong item = lose ❤️
+          </div>
+        </div>
+        <div class="px-div">─────────────────</div>
+        <div class="diff-label">▶ SELECT DIFFICULTY</div>
+        <div class="diff-grid">
+          <button class="d-btn d-easy" id="dApprentil" onclick="selectDiff('apprenti')">
+            <span class="d-icon">🟢</span>
+            <div class="d-texts">
+              <span class="d-name">APPRENTI</span>
+              <span class="d-info">1 order · 90s · 5 lives · slow</span>
+            </div>
+          </button>
+          <button class="d-btn d-medium" id="dCuisinier" onclick="selectDiff('cuisinier')">
+            <span class="d-icon">⚪</span>
+            <div class="d-texts">
+              <span class="d-name">CUISINIER</span>
+              <span class="d-info">2 orders · 75s · 4 lives · medium</span>
+            </div>
+          </button>
+          <button class="d-btn d-hard" id="dChef" onclick="selectDiff('chef')">
+            <span class="d-icon">🔴</span>
+            <div class="d-texts">
+              <span class="d-name">CHEF</span>
+              <span class="d-info">2 orders · 60s · 3 lives · fast</span>
+            </div>
+          </button>
+        </div>
+        <div style="display:flex;gap:6px;padding:4px 12px 6px;">
+          <button class="btn-back" style="flex:1;" onclick="location.href='index.html?from=game'">◀ HUB</button>
+          <button class="btn-back" style="flex:1;" onclick="showPane('paneLeader')">🏆 RANKS</button>
+        </div>
+        <button class="btn-mute" onclick="toggleMute()" id="btnMute">♪ ON</button>
+      </div>
+
+      <!-- GAME PANE -->
+      <div id="paneGame" class="pane" style="display:none;">
+        <div class="game-hud">
+          <div class="hud-item">
+            <span class="hud-val" id="hudScore">0</span>
+            <div class="hud-lbl">SCORE</div>
+          </div>
+          <div class="hud-item">
+            <span class="hud-val" id="hudTime">90</span>
+            <div class="hud-lbl">TIME</div>
+          </div>
+          <div class="hud-item">
+            <span class="hud-val" id="hudServed">0</span>
+            <div class="hud-lbl">ORDERS</div>
+          </div>
+          <div class="hud-item">
+            <span class="hud-val" style="cursor:pointer;" onclick="togglePause()">⏸</span>
+            <div class="hud-lbl">PAUSE</div>
+          </div>
+        </div>
+        <div class="lives-display" id="livesRow"></div>
+        <div class="diff-badge" id="diffBadge">— — —</div>
+        <div class="hud-tap-area">
+          <div class="hud-tap-txt">🎯<br>CLICK THE<br>RIGHT FOOD!</div>
+        </div>
+        <button class="btn-mute" onclick="toggleMute()" id="btnMuteGame">♪ ON</button>
+      </div>
+
+      <!-- RESULT PANE -->
+      <div id="paneResult" class="pane" style="display:none;">
+        <div class="result-box">
+          <div style="font-size:2rem;" id="resultGrade">⭐</div>
+          <div class="result-title" id="resultTitle">WELL DONE!</div>
+          <div class="result-score" id="resultScore">0</div>
+          <div class="result-sub" id="resultSub"></div>
+          <div class="result-coins" id="resultCoins"></div>
+          <div class="save-status" id="saveStatus"></div>
+          <button class="btn-silver" onclick="restartGame()">▶ PLAY AGAIN</button>
+          <button class="btn-gold"   onclick="showPane('paneLeader')">🏆 LEADERBOARD</button>
+          <button class="btn-back"   onclick="location.href='index.html?from=game'" style="margin:4px 8px;width:calc(100% - 16px);">← HUB</button>
+        </div>
+        <button class="btn-mute" onclick="toggleMute()" id="btnMuteResult">♪ ON</button>
+      </div>
+
+      <!-- LEADER PANE -->
+      <div id="paneLeader" class="pane" style="display:none;">
+        <div class="leader-header">
+          <div class="leader-title"><span>🏆</span>LEADERBOARD</div>
+        </div>
+        <div class="leader-diff-row">
+          <button class="ld-btn active" id="lbApprentil" onclick="switchLeader('apprenti')">APPRENTI</button>
+          <button class="ld-btn" id="lbCuisinier" onclick="switchLeader('cuisinier')">CUISIN</button>
+          <button class="ld-btn" id="lbChef" onclick="switchLeader('chef')">CHEF</button>
+        </div>
+        <div class="leader-list" id="leaderList">
+          <div class="leader-empty">Loading...</div>
+        </div>
+        <button class="btn-back" id="leaderBackBtn" onclick="showPane('paneTitle')">← BACK</button>
+        <button class="btn-mute" onclick="toggleMute()" id="btnMuteLeader">♪ ON</button>
+      </div>
+
+    </div><!-- .game-panel -->
+  </div><!-- .game-content -->
+</div><!-- #gameWrap -->
+
+<!-- PAUSE MENU -->
+<div id="pauseMenu">
+  <div class="pause-box">
+    <div class="pause-title">PAUSED</div>
+    <button class="pause-btn" onclick="togglePause()">▶ RESUME</button>
+    <button class="pause-btn" onclick="quitToTitle()">✕ QUIT</button>
+  </div>
+</div>
+
+<!-- ROTATE OVERLAY -->
+<div id="rotateMsg">
+  <span class="rotate-phone">📱</span>
+  <div class="rotate-text">ROTATE YOUR<br>DEVICE</div>
+  <div class="rotate-sub">LANDSCAPE MODE ONLY</div>
+</div>
+
+<script>
+// ══════════════════════════════════════════
+//  FIREBASE
+// ══════════════════════════════════════════
+const FB_CONFIG = {
+  apiKey:"AIzaSyAJ3C969-IHJxptn3rcuudOrDxzTzlFHYg",
+  authDomain:"pixel-kitchen-e6b18.firebaseapp.com",
+  databaseURL:"https://pixel-kitchen-e6b18-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId:"pixel-kitchen-e6b18",
+  storageBucket:"pixel-kitchen-e6b18.firebasestorage.app",
+  messagingSenderId:"631692992106",
+  appId:"1:631692992106:web:384cf6c3a2ff3096a7b413"
+};
+let fbApp, fbDb;
+try {
+  fbApp = firebase.app('chaos');
+} catch(e) {
+  fbApp = firebase.initializeApp(FB_CONFIG, 'chaos');
+}
+fbDb = firebase.database(fbApp);
+
+// ══════════════════════════════════════════
+//  CONSTANTS
+// ══════════════════════════════════════════
+const GAME_W = 936, GAME_H = 564;
+const CW = 620, CH = 480;
+const BELT_Y = 240; // belt center Y
+
+// Ingredient pool + recipes from shared menu.js
+const GOOD_ITEMS = PK_INGREDIENTS.map(i => ({emoji:i.emoji, name:i.name}));
+const BAD_ITEMS = [
+  {emoji:'💣',name:'BOMB'},
+  {emoji:'🦴',name:'BONE'},
+  {emoji:'🧟',name:'ZOMBIE'},
+];
+// Convert PK_DISHES to Kitchen Chaos format: {name, emoji, need:[...emojis]}
+const RECIPES = PK_DISHES.map(d => ({
+  name: d.name,
+  emoji: d.emoji,
+  need: d.items.map(i => i.emoji),
+}));
+const DIFF = {
+  apprenti:  {label:'APPRENTI',  maxOrders:1, time:90,  speed:65,  spawnMin:1.0, spawnMax:1.5, badChance:0.05, lives:5},
+  cuisinier: {label:'CUISINIER', maxOrders:2, time:75,  speed:95,  spawnMin:0.7, spawnMax:1.2, badChance:0.10, lives:4},
+  chef:      {label:'CHEF',      maxOrders:2, time:60,  speed:130, spawnMin:0.5, spawnMax:0.9, badChance:0.15, lives:3},
+};
+
+// ══════════════════════════════════════════
+//  STATE
+// ══════════════════════════════════════════
+const canvas = document.getElementById('gameCanvas');
+const ctx    = canvas.getContext('2d');
+ctx.imageSmoothingEnabled = false;
+
+let cfg         = null;
+let diffKey     = null;
+let running     = false;
+let paused      = false;
+let gTime       = 0;
+let gScore      = 0;
+let gServed     = 0;  // orders completed
+let gLives      = 0;
+let lastTime    = 0;
+let animId      = null;
+
+let items       = [];   // {emoji, isBad, x, y, bobT}
+let orders      = [];   // {recipe, collected:{emoji:count}}
+let effects     = [];   // {x, y, text, color, life, big}
+let beltOffset  = 0;    // scrolling belt texture
+let nextSpawnIn = 0;
+let flashRed    = 0;    // red flash on bad item hit
+
+let idleT      = 0;
+let idleAnimId = null;
+let audioCtx   = null;
+let muted      = false;
+
+// ══════════════════════════════════════════
+//  SCALING
+// ══════════════════════════════════════════
+function scaleGame() {
+  const vw = window.visualViewport ? window.visualViewport.width  : window.innerWidth;
+  const vh = window.visualViewport ? window.visualViewport.height : window.innerHeight;
+  const wrap = document.getElementById('gameWrap');
+  const scale = Math.min(vw / GAME_W, vh / GAME_H);
+  wrap.style.width  = GAME_W + 'px';
+  wrap.style.height = GAME_H + 'px';
+  wrap.style.transform = `translate(-50%,-50%) scale(${scale})`;
+}
+function checkRotate() {
+  const vw = window.visualViewport ? window.visualViewport.width  : window.innerWidth;
+  const vh = window.visualViewport ? window.visualViewport.height : window.innerHeight;
+  document.getElementById('rotateMsg').style.display = (vw < vh) ? 'flex' : '';
+}
+function onResize() { scaleGame(); checkRotate(); }
+window.addEventListener('resize', onResize);
+window.addEventListener('orientationchange', () => setTimeout(onResize, 100));
+if (window.visualViewport) window.visualViewport.addEventListener('resize', onResize);
+document.addEventListener('DOMContentLoaded', () => { onResize(); refreshCoins(); showPane('paneTitle'); });
+
+// ══════════════════════════════════════════
+//  COINS
+// ══════════════════════════════════════════
+function getCoins() { return parseInt(localStorage.getItem('pkCoins') || '0'); }
+function addCoins(n) {
+  const c = getCoins() + n;
+  localStorage.setItem('pkCoins', c);
+  document.getElementById('topbarCoins').textContent = c;
+}
+function refreshCoins() {
+  document.getElementById('topbarCoins').textContent = getCoins();
+}
+
+// ══════════════════════════════════════════
+//  SOUND
+// ══════════════════════════════════════════
+function getAudio() {
+  if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  return audioCtx;
+}
+function playTone(freq, dur, type='square', vol=0.18) {
+  if (muted) return;
+  try {
+    const a = getAudio();
+    const osc = a.createOscillator();
+    const gain = a.createGain();
+    osc.connect(gain); gain.connect(a.destination);
+    osc.type = type; osc.frequency.value = freq;
+    gain.gain.setValueAtTime(vol, a.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, a.currentTime + dur);
+    osc.start(); osc.stop(a.currentTime + dur);
+  } catch(e) {}
+}
+function sndSuccess()  { playTone(880, 0.08); setTimeout(()=>playTone(1200,0.12),60); }
+function sndPerfect()  { playTone(1047,0.06); setTimeout(()=>playTone(1319,0.06),50); setTimeout(()=>playTone(1568,0.12),100); }
+function sndMiss()     { playTone(180, 0.20, 'sawtooth', 0.20); }
+function sndSpawn()    { playTone(440, 0.05, 'sine', 0.10); }
+function sndTick()     { playTone(660, 0.04, 'square', 0.08); }
+function sndGameOver() { playTone(220,0.15,'sawtooth',0.2); setTimeout(()=>playTone(160,0.25,'sawtooth',0.2),120); }
+function sndServed()   {
+  playTone(523,0.06); setTimeout(()=>playTone(659,0.06),70);
+  setTimeout(()=>playTone(784,0.06),140); setTimeout(()=>playTone(1047,0.18),210);
+}
+
+function toggleMute() {
+  muted = !muted;
+  const label = muted ? '♪ OFF' : '♪ ON';
+  document.getElementById('btnMute').textContent       = label;
+  document.getElementById('btnMuteGame').textContent   = label;
+  document.getElementById('btnMuteResult').textContent = label;
+  document.getElementById('btnMuteLeader').textContent = label;
+}
+
+// ══════════════════════════════════════════
+//  PANE SYSTEM
+// ══════════════════════════════════════════
+function showPane(id) {
+  ['paneTitle','paneGame','paneResult','paneLeader'].forEach(p => {
+    const el = document.getElementById(p);
+    if (el) el.style.display = (p === id) ? 'flex' : 'none';
+  });
+  if (id === 'paneTitle') startIdleCanvas();
+  else stopIdleCanvas();
+  if (id === 'paneLeader') loadLeader(diffKey || 'apprenti');
+}
+
+// ══════════════════════════════════════════
+//  DIFFICULTY SELECT
+// ══════════════════════════════════════════
+function selectDiff(key) {
+  diffKey = key;
+  cfg     = DIFF[key];
+  ['apprentil','cuisinier','chef'].forEach(k => {
+    document.getElementById('d'+k.charAt(0).toUpperCase()+k.slice(1))?.classList.remove('active');
+  });
+  const btnMap = {apprenti:'dApprentil', cuisinier:'dCuisinier', chef:'dChef'};
+  document.getElementById(btnMap[key])?.classList.add('active');
+  setTimeout(() => startGame(), 300);
+}
+
+// ══════════════════════════════════════════
+//  IDLE CANVAS
+// ══════════════════════════════════════════
+function startIdleCanvas() {
+  stopIdleCanvas();
+  idleT = 0;
+  let last = 0;
+  function loop(ts) {
+    const dt = Math.min((ts - last) / 1000, 0.05);
+    last = ts;
+    idleT += dt;
+    drawIdle();
+    idleAnimId = requestAnimationFrame(loop);
+  }
+  idleAnimId = requestAnimationFrame(loop);
+}
+function stopIdleCanvas() {
+  if (idleAnimId) { cancelAnimationFrame(idleAnimId); idleAnimId = null; }
+}
+function drawIdle() {
+  const P = (x, y, w, h, c) => { ctx.fillStyle = c; ctx.fillRect(x, y, w, h); };
+  const t = idleT;
+  ctx.clearRect(0, 0, CW, CH);
+
+  // --- Background (reuse same structure as game bg) ---
+  P(0, 0, CW, 180, '#1e1e2c');
+  ctx.globalAlpha = 0.4;
+  for (let y = 0; y < 180; y += 80) P(0, y, CW, 2, '#3a4060');
+  for (let x = 0; x < CW; x += 120) P(x, 0, 2, 180, '#3a4060');
+  ctx.globalAlpha = 0.08;
+  P(0, 20, CW, 4, '#c0c8d0'); P(0, 100, CW, 2, '#c0c8d0');
+  ctx.globalAlpha = 1;
+  P(CW/2 - 140, 0, 280, 50, '#24243a');
+  P(CW/2 - 130, 50, 260, 12, '#2e2e44');
+  P(CW/2 - 140, 48, 280, 3, '#6878a0');
+  P(0, 185, CW, 30, '#282836');
+  P(0, 185, CW, 4, '#6878a0');
+  P(0, 215, CW, 4, '#1a1a28');
+  P(0, 215, CW, 80, '#1a1a24');
+  P(0, 295, CW, 20, '#1e1e2c');
+  P(0, 295, CW, 2, '#3a4060');
+  P(0, 315, CW, CH - 315, '#1a1a26');
+  const TS = 28;
+  for (let row = 0; row * TS < CH - 315; row++)
+    for (let col = 0; col * TS < CW; col++)
+      P(col*TS, 315+row*TS, TS, TS, (row+col)%2===0?'#20202e':'#181824');
+  ctx.globalAlpha = 0.04;
+  for (let y = 0; y < CH; y += 4) P(0, y, CW, 2, '#000000');
+  ctx.globalAlpha = 1;
+
+  // --- Belt ---
+  const bOff = (t * 80) % 40;
+  const by = BELT_Y - 28;
+  const bh = 56;
+  P(0, by, CW, bh, '#2a2a3a');
+  ctx.globalAlpha = 0.25;
+  for (let x = -40 + (bOff % 40); x < CW + 40; x += 40) {
+    P(x, by, 4, bh, '#6878a0'); P(x+20, by, 4, bh, '#6878a0');
+  }
+  ctx.globalAlpha = 1;
+  P(0, by, CW, 6, '#4a5070'); P(0, by+2, CW, 2, '#6878a0');
+  P(0, by+bh-6, CW, 6, '#3a4058'); P(0, by+bh-4, CW, 2, '#4a5070');
+  for (const rx of [0, CW-18]) {
+    P(rx, by, 18, bh, '#3a4058'); P(rx+2, by+2, 14, bh-4, '#4a5070');
+    P(rx+5, by+bh/2-8, 8, 16, '#2a2a3a'); P(rx+6, by+bh/2-6, 6, 12, '#5a6080');
+  }
+
+  // --- Idle flowing items ---
+  const IDLE_EMOJIS = ['🍅','🧀','🥩','💣','🌶️','🥬','🧅','🍄'];
+  ctx.font = '28px serif';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  IDLE_EMOJIS.forEach((emoji, i) => {
+    const spacing = (CW + 80) / IDLE_EMOJIS.length;
+    const x = ((CW + 80) - (t * 80 + i * spacing) % (CW + 80));
+    const bob = Math.sin(t * 3 + i * 1.1) * 3;
+    ctx.fillText(emoji, x, BELT_Y + bob);
+  });
+  ctx.textBaseline = 'alphabetic';
+
+  // --- Mini order card preview ---
+  P(CW/2 - 100, 20, 200, 80, '#1e1e2c');
+  P(CW/2 - 100, 20, 200, 3, '#6878a0');
+  P(CW/2 - 100, 20, 3, 80, '#6878a0');
+  ctx.fillStyle = '#c0c8d0';
+  ctx.font = '7px "Press Start 2P"';
+  ctx.textAlign = 'center';
+  ctx.fillText('📋 EXAMPLE ORDER', CW/2, 38);
+  ctx.font = '22px serif';
+  ['🍅','🧀','🌶️'].forEach((e, i) => {
+    const alpha = 0.4 + Math.sin(t * 2 + i) * 0.3;
+    ctx.globalAlpha = Math.max(0.2, alpha);
+    ctx.fillText(e, CW/2 - 30 + i * 32, 72);
+  });
+  ctx.globalAlpha = 1;
+  ctx.textAlign = 'left';
+
+  // --- Hint text ---
+  ctx.globalAlpha = 0.5 + Math.sin(t * 2) * 0.3;
+  ctx.fillStyle = '#7080a0';
+  ctx.font = '8px "Press Start 2P"';
+  ctx.textAlign = 'center';
+  ctx.fillText('SELECT DIFFICULTY →', CW/2, CH - 30);
+  ctx.globalAlpha = 1;
+  ctx.textAlign = 'left';
+}
+
+// ══════════════════════════════════════════
+//  GAME START
+// ══════════════════════════════════════════
+function startGame() {
+  if (!cfg) return;
+  stopIdleCanvas();
+
+  items       = [];
+  orders      = [];
+  effects     = [];
+  beltOffset  = 0;
+  nextSpawnIn = 0;
+  flashRed    = 0;
+  recentSpawns.length = 0;
+
+  gScore  = 0;
+  gServed = 0;
+  gLives  = cfg.lives;
+  gTime   = cfg.time;
+  paused  = false;
+  running = true;
+
+  for (let i = 0; i < cfg.maxOrders; i++) orders.push(makeOrder());
+
+  updateHUD();
+  document.getElementById('diffBadge').textContent = '— ' + cfg.label + ' —';
+  buildLivesRow();
+  showPane('paneGame');
+
+  if (animId) cancelAnimationFrame(animId);
+  lastTime = performance.now();
+  animId = requestAnimationFrame(gameLoop);
+}
+
+function makeOrder() {
+  const used  = orders.map(o => o.recipe.name);
+  const avail = RECIPES.filter(r => !used.includes(r.name));
+  const pool  = avail.length > 0 ? avail : RECIPES;
+  const recipe = pool[Math.floor(Math.random() * pool.length)];
+  const collected = {};
+  recipe.need.forEach(e => { collected[e] = 0; });
+  return { recipe, collected };
+}
+
+function buildLivesRow() {
+  const row = document.getElementById('livesRow');
+  row.innerHTML = '';
+  for (let i = 0; i < cfg.lives; i++) {
+    const pip = document.createElement('div');
+    pip.className = 'life-pip';
+    pip.id = 'pip' + i;
+    row.appendChild(pip);
+  }
+}
+function updateLivesRow() {
+  for (let i = 0; i < cfg.lives; i++) {
+    const pip = document.getElementById('pip' + i);
+    if (pip) pip.classList.toggle('lost', i >= gLives);
+  }
+}
+function updateHUD() {
+  document.getElementById('hudScore').textContent  = gScore;
+  document.getElementById('hudTime').textContent   = Math.ceil(gTime);
+  document.getElementById('hudServed').textContent = gServed;
+  const timeEl = document.getElementById('hudTime');
+  timeEl.classList.toggle('danger', gTime <= 10);
+}
+
+// ══════════════════════════════════════════
+//  GAME LOOP
+// ══════════════════════════════════════════
+function gameLoop(ts) {
+  try {
+    const dt = Math.min((ts - lastTime) / 1000, 0.05);
+    lastTime = ts;
+    if (running && !paused) {
+      update(dt);
+      draw();
+    }
+  } catch(e) { console.error('loop err', e); }
+  if (running) animId = requestAnimationFrame(gameLoop);
+}
+
+function update(dt) {
+  gTime -= dt;
+  if (gTime <= 0) { gTime = 0; endGame(); return; }
+
+  // Belt scroll
+  beltOffset = (beltOffset + cfg.speed * dt) % 40;
+
+  // Move items left
+  items.forEach(it => it.x -= cfg.speed * dt);
+  items = items.filter(it => it.x > -50);
+
+  // Flash decay
+  if (flashRed > 0) flashRed = Math.max(0, flashRed - dt * 3);
+
+  // Spawn timer
+  nextSpawnIn -= dt;
+  if (nextSpawnIn <= 0) {
+    spawnItem();
+    nextSpawnIn = randBetween(cfg.spawnMin, cfg.spawnMax);
+  }
+
+  // Age effects
+  effects = effects.filter(e => e.life > 0);
+  effects.forEach(e => { e.y -= 30 * dt; e.life -= dt; });
+
+  updateHUD();
+  updateLivesRow();
+}
+
+const recentSpawns = [];   // last 4 spawned emojis, to avoid consecutive repeats
+
+function spawnItem() {
+  const r = Math.random();
+  let emoji, isBad;
+
+  if (r < cfg.badChance) {
+    const bad = BAD_ITEMS[Math.floor(Math.random() * BAD_ITEMS.length)];
+    emoji = bad.emoji; isBad = true;
+  } else {
+    // Unique still-needed emojis across all active orders
+    const neededSet = new Set();
+    orders.forEach(ord => {
+      const needMap = {};
+      ord.recipe.need.forEach(e => { needMap[e] = (needMap[e] || 0) + 1; });
+      Object.keys(needMap).forEach(e => {
+        if ((ord.collected[e] || 0) < needMap[e]) neededSet.add(e);
+      });
+    });
+    const needed = [...neededSet].filter(e => e !== recentSpawns[recentSpawns.length - 1]);
+
+    if (Math.random() < 0.45 && needed.length > 0) {
+      // Pick a needed ingredient, prefer ones not recently spawned
+      const fresh = needed.filter(e => !recentSpawns.includes(e));
+      const pool  = fresh.length > 0 ? fresh : needed;
+      emoji = pool[Math.floor(Math.random() * pool.length)];
+    } else {
+      // Random good item — avoid last 2 spawned to keep variety
+      const pool = GOOD_ITEMS.map(g => g.emoji)
+        .filter(e => !recentSpawns.slice(-2).includes(e));
+      emoji = (pool.length > 0 ? pool : GOOD_ITEMS.map(g => g.emoji))
+        [Math.floor(Math.random() * (pool.length > 0 ? pool.length : GOOD_ITEMS.length))];
+    }
+    isBad = false;
+  }
+
+  recentSpawns.push(emoji);
+  if (recentSpawns.length > 4) recentSpawns.shift();
+  items.push({ emoji, isBad, x: CW + 30, y: BELT_Y, bobT: Math.random() * Math.PI * 2 });
+}
+
+function handleClick(mx, my) {
+  if (!running || paused) return;
+  let best = null, bestDist = 36;
+  items.forEach((it, idx) => {
+    const dx = mx - it.x, dy = my - it.y;
+    const dist = Math.sqrt(dx*dx + dy*dy);
+    if (dist < bestDist) { bestDist = dist; best = { it, idx }; }
+  });
+  if (best) clickItem(best.it, best.idx);
+}
+
+function clickItem(it, idx) {
+  if (it.isBad) {
+    items.splice(idx, 1);
+    gLives--;
+    flashRed = 1.0;
+    sndMiss();
+    spawnEffect(it.x, it.y - 30, 'DANGER! -1❤️', '#e05050');
+    if (gLives <= 0) { gLives = 0; setTimeout(() => endGame(), 700); }
+    updateLivesRow();
+    return;
+  }
+
+  let grabbed = false;
+  for (let i = 0; i < orders.length; i++) {
+    const ord = orders[i];
+    const needMap = {};
+    ord.recipe.need.forEach(e => { needMap[e] = (needMap[e] || 0) + 1; });
+    if (needMap[it.emoji] && (ord.collected[it.emoji] || 0) < needMap[it.emoji]) {
+      ord.collected[it.emoji] = (ord.collected[it.emoji] || 0) + 1;
+      items.splice(idx, 1);
+      gScore += 10;
+      sndSuccess();
+      spawnEffect(it.x, it.y - 30, '+10', '#c0c8d0');
+      checkOrderComplete(ord, i);
+      grabbed = true;
+      break;
+    }
+  }
+
+  if (!grabbed) {
+    gScore = Math.max(0, gScore - 5);
+    items.splice(idx, 1);
+    sndMiss();
+    spawnEffect(it.x, it.y - 30, '-5 WRONG!', '#e08050');
+  }
+}
+
+function checkOrderComplete(ord, idx) {
+  const needMap = {};
+  ord.recipe.need.forEach(e => { needMap[e] = (needMap[e] || 0) + 1; });
+  const done = Object.keys(needMap).every(e => (ord.collected[e] || 0) >= needMap[e]);
+  if (!done) return;
+  const n = ord.recipe.need.length;
+  const bonus = n <= 3 ? 50 : n <= 4 ? 80 : 100;
+  gScore += bonus;
+  gServed++;
+  sndServed();
+  spawnEffect(CW/2, BELT_Y - 60, '★ ORDER UP! ' + ord.recipe.emoji + ' +' + bonus, '#f5c842');
+  orders[idx] = makeOrder();
+}
+
+function spawnEffect(x, y, text, color) {
+  effects.push({ x, y, text, color, life: 1.2 });
+}
+
+// ══════════════════════════════════════════
+//  CANVAS HIT
+// ══════════════════════════════════════════
+canvas.addEventListener('click', e => {
+  const rect = canvas.getBoundingClientRect();
+  const mx = (e.clientX - rect.left) * (CW / rect.width);
+  const my = (e.clientY - rect.top)  * (CH / rect.height);
+  handleClick(mx, my);
+});
+canvas.addEventListener('touchstart', e => {
+  e.preventDefault();
+  const rect  = canvas.getBoundingClientRect();
+  const touch = e.changedTouches[0];
+  const mx = (touch.clientX - rect.left) * (CW / rect.width);
+  const my = (touch.clientY - rect.top)  * (CH / rect.height);
+  handleClick(mx, my);
+}, { passive: false });
+
+// ══════════════════════════════════════════
+//  DRAW
+// ══════════════════════════════════════════
+function draw() {
+  if (!cfg) return;
+  ctx.clearRect(0, 0, CW, CH);
+  drawKitchenBg();
+  drawBelt();
+  drawItems();
+  drawOrders();
+  drawEffects();
+  drawTimerBar();
+  // Red flash overlay
+  if (flashRed > 0) {
+    ctx.globalAlpha = flashRed * 0.35;
+    ctx.fillStyle = '#ff0000';
+    ctx.fillRect(0, 0, CW, CH);
+    ctx.globalAlpha = 1;
+  }
+}
+
+function drawKitchenBg() {
+  const P = (x, y, w, h, c) => { ctx.fillStyle = c; ctx.fillRect(x, y, w, h); };
+
+  // Wall
+  P(0, 0, CW, 185, '#1e1e2c');
+  ctx.globalAlpha = 0.4;
+  for (let y = 0; y < 185; y += 80) P(0, y, CW, 2, '#3a4060');
+  for (let x = 0; x < CW; x += 120) P(x, 0, 2, 185, '#3a4060');
+  ctx.globalAlpha = 0.08;
+  P(0, 20, CW, 4, '#c0c8d0'); P(0, 100, CW, 2, '#c0c8d0');
+  ctx.globalAlpha = 1;
+
+  // Exhaust hood
+  P(CW/2 - 140, 0, 280, 50, '#24243a');
+  P(CW/2 - 130, 50, 260, 12, '#2e2e44');
+  P(CW/2 - 140, 48, 280, 3, '#6878a0');
+
+  // Counter shelf (above belt)
+  P(0, 185, CW, 30, '#282836');
+  P(0, 185, CW, 4, '#6878a0');
+  P(0, 215, CW, 4, '#1a1a28');
+
+  // Belt area
+  P(0, 215, CW, 80, '#1a1a24');
+
+  // Counter front below belt
+  P(0, 295, CW, 20, '#1e1e2c');
+  P(0, 295, CW, 2, '#3a4060');
+
+  // Floor + checker tiles
+  P(0, 315, CW, CH - 315, '#1a1a26');
+  const TS = 28;
+  for (let row = 0; row * TS < CH - 315; row++)
+    for (let col = 0; col * TS < CW; col++)
+      P(col*TS, 315+row*TS, TS, TS, (row+col)%2===0 ? '#20202e' : '#181824');
+  ctx.globalAlpha = 0.3;
+  for (let row = 0; row * TS <= CH - 315 + TS; row++) P(0, 315 + row*TS, CW, 1, '#6878a0');
+  for (let col = 0; col * TS <= CW; col++) P(col*TS, 315, 1, CH - 315, '#6878a0');
+  ctx.globalAlpha = 1;
+
+  // Corner brackets
+  const BR = (x, y) => { P(x, y, 16, 3, '#6878a0'); P(x, y, 3, 16, '#6878a0'); };
+  BR(8, 8); BR(CW-24, 8); BR(8, CH-24); BR(CW-24, CH-24);
+
+  // Scanlines
+  ctx.globalAlpha = 0.04;
+  for (let y = 0; y < CH; y += 4) P(0, y, CW, 2, '#000000');
+  ctx.globalAlpha = 1;
+
+  // Vignette
+  const vg = ctx.createRadialGradient(CW/2, CH/2, CW*0.3, CW/2, CH/2, CW*0.7);
+  vg.addColorStop(0, 'rgba(0,0,0,0)');
+  vg.addColorStop(1, 'rgba(0,0,0,0.40)');
+  ctx.fillStyle = vg;
+  ctx.fillRect(0, 0, CW, CH);
+}
+
+function drawBelt() {
+  const P = (x, y, w, h, c) => { ctx.fillStyle = c; ctx.fillRect(x, y, w, h); };
+  const by = BELT_Y - 28;
+  const bh = 56;
+
+  // Belt surface + scrolling chevrons
+  P(0, by, CW, bh, '#2a2a3a');
+  ctx.globalAlpha = 0.25;
+  for (let x = -40 + (beltOffset % 40); x < CW + 40; x += 40) {
+    P(x, by, 4, bh, '#6878a0');
+    P(x+20, by, 4, bh, '#6878a0');
+  }
+  ctx.globalAlpha = 1;
+
+  // Metal rails top & bottom
+  P(0, by,      CW, 6,  '#4a5070'); P(0, by+2,    CW, 2, '#6878a0');
+  P(0, by+bh-6, CW, 6,  '#3a4058'); P(0, by+bh-4, CW, 2, '#4a5070');
+  P(0, by+6,    CW, 4, '#202030');
+  P(0, by+bh-10, CW, 4, '#202030');
+
+  // End rollers
+  for (const rx of [0, CW-18]) {
+    P(rx, by, 18, bh, '#3a4058');
+    P(rx+2, by+2, 14, bh-4, '#4a5070');
+    P(rx+5, by+bh/2-8, 8, 16, '#2a2a3a');
+    P(rx+6, by+bh/2-6, 6, 12, '#5a6080');
+  }
+}
+
+function drawItems() {
+  const t = performance.now() / 1000;
+  items.forEach(it => {
+    const bob = Math.sin(t * 4 + it.bobT) * 3;
+    ctx.font = '26px serif';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(it.emoji, it.x, it.y + bob);
+    ctx.textBaseline = 'alphabetic';
+    ctx.textAlign = 'left';
+  });
+}
+
+function drawOrders() {
+  if (!cfg || orders.length === 0) return;
+  const P = (x, y, w, h, c) => { ctx.fillStyle = c; ctx.fillRect(x, y, w, h); };
+  const cardH = 170;
+  const margin = 12;
+  const totalGap = (orders.length - 1) * 10;
+  const cardW = Math.min(280, (CW - margin*2 - totalGap) / orders.length);
+  const totalW = orders.length * cardW + totalGap;
+  let cx = (CW - totalW) / 2;
+
+  orders.forEach((ord, oi) => {
+    const cy = 8;
+
+    // Card background
+    P(cx, cy, cardW, cardH, '#1e1e2c');
+    P(cx, cy, cardW, 3, '#6878a0');
+    P(cx, cy+cardH-3, cardW, 3, '#3a4060');
+    P(cx, cy, 3, cardH, '#6878a0');
+    P(cx+cardW-3, cy, 3, cardH, '#3a4060');
+
+    // Recipe header
+    ctx.font = '18px serif';
+    ctx.textAlign = 'left';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(ord.recipe.emoji, cx + 8, cy + 16);
+    ctx.fillStyle = '#c0c8d0';
+    ctx.font = '6px "Press Start 2P"';
+    ctx.textBaseline = 'alphabetic';
+    ctx.fillText(ord.recipe.name, cx + 32, cy + 20);
+
+    // Divider
+    P(cx+6, cy+28, cardW-12, 1, '#3a4060');
+
+    // Ingredient slots
+    const needMap = {};
+    ord.recipe.need.forEach(e => { needMap[e] = (needMap[e] || 0) + 1; });
+    const ingredients = Object.keys(needMap);
+    const cols = Math.min(ingredients.length, 4);
+    const slotW = Math.floor((cardW - 12) / cols) - 3;
+    const slotH = 36;
+
+    ingredients.forEach((emoji, ii) => {
+      const col = ii % cols;
+      const row = Math.floor(ii / cols);
+      const sx = cx + 6 + col * (slotW + 3);
+      const sy = cy + 34 + row * (slotH + 4);
+      const total = needMap[emoji];
+      const have  = ord.collected[emoji] || 0;
+      const done  = have >= total;
+
+      P(sx, sy, slotW, slotH, done ? '#162a16' : '#24243a');
+      P(sx, sy, slotW, 2, done ? '#50c840' : '#3a4060');
+
+      ctx.font = '20px serif';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.globalAlpha = done ? 1 : 0.45;
+      ctx.fillText(emoji, sx + slotW/2, sy + slotH/2);
+      ctx.globalAlpha = 1;
+      ctx.textBaseline = 'alphabetic';
+
+      if (done) {
+        ctx.fillStyle = '#50c840';
+        ctx.font = '7px "Press Start 2P"';
+        ctx.fillText('✓', sx + slotW - 9, sy + slotH - 4);
+      } else if (total > 1) {
+        ctx.fillStyle = '#6878a0';
+        ctx.font = '5px "Press Start 2P"';
+        ctx.textAlign = 'left';
+        ctx.fillText(have + '/' + total, sx + 2, sy + slotH - 4);
+      }
+    });
+
+    // Order label
+    ctx.fillStyle = '#3a4060';
+    ctx.font = '5px "Press Start 2P"';
+    ctx.textAlign = 'center';
+    ctx.fillText('ORDER ' + (oi + 1), cx + cardW/2, cy + cardH - 6);
+    ctx.textAlign = 'left';
+
+    cx += cardW + 10;
+  });
+}
+
+function drawEffects() {
+  effects.forEach(ef => {
+    ctx.globalAlpha = Math.min(ef.life, 1) * 0.9;
+    ctx.fillStyle   = ef.color;
+    const big = ef.text.startsWith('★');
+    ctx.font = big ? '9px "Press Start 2P"' : '7px "Press Start 2P"';
+    ctx.textAlign = 'center';
+    ctx.fillText(ef.text, ef.x, ef.y);
+    ctx.globalAlpha = 1;
+    ctx.textAlign = 'left';
+  });
+}
+
+function drawTimerBar() {
+  const P = (x, y, w, h, c) => { ctx.fillStyle = c; ctx.fillRect(x, y, w, h); };
+  if (!cfg) return;
+  const progress = gTime / cfg.time;
+  const fillColor = progress > 0.5 ? '#40a0e0' : progress > 0.25 ? '#f0a820' : '#e05050';
+  P(0, CH - 6, CW, 6, '#1a1a28');
+  P(0, CH - 6, Math.round(CW * progress), 6, fillColor);
+}
+
+// ══════════════════════════════════════════
+//  END GAME
+// ══════════════════════════════════════════
+function endGame() {
+  running = false;
+  if (animId) cancelAnimationFrame(animId);
+  sndGameOver();
+
+  const earned = Math.floor(gScore / 50);
+  addCoins(earned);
+
+  let grade = '⭐';
+  if (gServed >= 8) grade = '🏆';
+  else if (gServed >= 4) grade = '⭐⭐';
+
+  document.getElementById('resultGrade').textContent  = grade;
+  document.getElementById('resultTitle').textContent  = gLives > 0 ? 'TIME\'S UP!' : 'GAME OVER!';
+  document.getElementById('resultSub').textContent    = cfg.label + ' · ' + gServed + ' ORDERS';
+  document.getElementById('resultScore').textContent  = gScore;
+  document.getElementById('resultCoins').textContent  = '🪙 +' + earned + ' COINS';
+  document.getElementById('saveStatus').textContent   = 'Saving score...';
+
+  showPane('paneResult');
+  submitScore();
+}
+
+function restartGame() {
+  startGame();
+}
+function quitToTitle() {
+  running = false;
+  paused  = false;
+  if (animId) cancelAnimationFrame(animId);
+  document.getElementById('pauseMenu').classList.remove('visible');
+  showPane('paneTitle');
+}
+
+// ══════════════════════════════════════════
+//  PAUSE
+// ══════════════════════════════════════════
+function togglePause() {
+  if (!running) return;
+  paused = !paused;
+  document.getElementById('pauseMenu').classList.toggle('visible', paused);
+  if (!paused) {
+    lastTime = performance.now();
+  }
+}
+
+// ══════════════════════════════════════════
+//  LEADERBOARD
+// ══════════════════════════════════════════
+let lbCurrentDiff = 'apprenti';
+
+function switchLeader(key) {
+  lbCurrentDiff = key;
+  const lbMap = {apprenti:'lbApprentil', cuisinier:'lbCuisinier', chef:'lbChef'};
+  Object.entries(lbMap).forEach(([k, id]) => {
+    const btn = document.getElementById(id);
+    if (btn) btn.classList.toggle('active', k === key);
+  });
+  loadLeader(key);
+}
+
+function loadLeader(key) {
+  const list = document.getElementById('leaderList');
+  list.innerHTML = '<div class="leader-empty">Loading...</div>';
+  const myName = localStorage.getItem('pkName') || '';
+  const rankClass = i => i === 0 ? 'gold' : i === 1 ? 'silver' : i === 2 ? 'bronze' : '';
+  fbDb.ref('kitchen_chaos/scores/' + key)
+    .orderByChild('score').limitToLast(10)
+    .once('value', snap => {
+      const rows = [];
+      snap.forEach(c => rows.push(c.val()));
+      rows.sort((a, b) => b.score - a.score);
+      if (rows.length === 0) {
+        list.innerHTML = '<div class="leader-empty">No scores yet!<br>Be the first!</div>';
+        return;
+      }
+      list.innerHTML = '';
+      rows.forEach((r, i) => {
+        const div = document.createElement('div');
+        div.className = 'leader-row' + (r.name === myName ? ' me' : '');
+        const medal = i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : (i+1)+'';
+        div.innerHTML =
+          `<span class="leader-rank ${rankClass(i)}">${medal}</span>` +
+          `<span class="leader-name">${r.name}</span>` +
+          `<span class="leader-score">${r.score}</span>`;
+        list.appendChild(div);
+      });
+    });
+}
+
+function submitScore() {
+  const name = localStorage.getItem('pkName') || 'ANON';
+  if (!diffKey) return;
+  fbDb.ref('kitchen_chaos/scores/' + diffKey).push({
+    name:  name,
+    score: gScore,
+    ts:    Date.now(),
+  }).then(() => {
+    document.getElementById('saveStatus').textContent = 'Score saved! ✓';
+  }).catch(() => {
+    document.getElementById('saveStatus').textContent = '';
+  });
+}
+
+// ══════════════════════════════════════════
+//  LEADERBOARD DIFF BUTTONS — fix button IDs
+// ══════════════════════════════════════════
+// (Button IDs set in HTML: lbApprentil, lbCuisinier, lbChef)
+
+// ══════════════════════════════════════════
+//  HELPERS
+// ══════════════════════════════════════════
+function randBetween(min, max) {
+  return min + Math.random() * (max - min);
+}
+
+// Init runs in DOMContentLoaded above
+</script>
+</body>
+</html>

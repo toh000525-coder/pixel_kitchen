@@ -7,12 +7,13 @@
 <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-database-compat.js"></script>
+<script src="menu.js"></script>
 <style>
 * { margin:0; padding:0; box-sizing:border-box; image-rendering:pixelated; }
-body { background:radial-gradient(ellipse at 50% 30%, #3a1e0a 0%, #1c0d04 100%); font-family:'Press Start 2P',monospace; width:100vw; height:100vh; overflow:hidden; }
+body { background:radial-gradient(ellipse at 50% 30%, #0c1e3a 0%, #06102a 100%); font-family:'Press Start 2P',monospace; width:100vw; height:100vh; overflow:hidden; }
 .game-content { display:flex; gap:16px; align-items:flex-start; justify-content:center; flex:1; }
 #gameWrap { position:fixed; top:50%; left:50%; transform-origin:center center; display:flex; flex-direction:column; }
-canvas { display:block; image-rendering:pixelated; image-rendering:crisp-edges; border:4px solid #8b5e2a; box-shadow:4px 4px 0 #5a2d0c, 0 8px 40px #000; }
+canvas { display:block; image-rendering:pixelated; image-rendering:crisp-edges; border:4px solid #3878c0; box-shadow:4px 4px 0 #1a3870, 0 8px 40px #000; }
 
 /* TOPBAR */
 .game-topbar { flex-shrink:0; background:transparent; display:flex; align-items:center; padding:10px 14px 6px; gap:12px; }
@@ -21,20 +22,20 @@ canvas { display:block; image-rendering:pixelated; image-rendering:crisp-edges; 
 .game-topbar-coinlbl { color:#5a4a20; font-size:.42rem; }
 
 /* GAME PANEL */
-.game-panel { width:280px; background:#1e0e04; border:4px solid #8b5e2a; box-shadow:4px 4px 0 #5a2d0c; display:flex; flex-direction:column; height:480px; overflow:hidden; position:relative; }
-.btn-mute { position:absolute; bottom:8px; right:8px; font-family:'Press Start 2P',monospace; font-size:.28rem; padding:4px 7px; background:#1e0e04; border:2px solid #5a2d0c; color:#8b5e2a; cursor:pointer; z-index:10; }
-.btn-mute:hover { border-color:#f5c842; color:#f5c842; }
+.game-panel { width:280px; background:#0a1428; border:4px solid #3878c0; box-shadow:4px 4px 0 #1a3870; display:flex; flex-direction:column; height:480px; overflow:hidden; position:relative; }
+.btn-mute { position:absolute; bottom:8px; right:8px; font-family:'Press Start 2P',monospace; font-size:.28rem; padding:4px 7px; background:#0a1428; border:2px solid #1a3870; color:#3878c0; cursor:pointer; z-index:10; }
+.btn-mute:hover { border-color:#60c8f0; color:#60c8f0; }
 .gpane { display:none; flex-direction:column; flex:1; overflow:hidden; }
 .gpane.active { display:flex; }
 
 /* TITLE PANE */
-.gp-header { background:#6b2a00; padding:8px 14px; text-align:center; border-bottom:4px solid #5a2d0c; }
+.gp-header { background:#0c2450; padding:8px 14px; text-align:center; border-bottom:4px solid #1a3870; }
 .gp-logo { font-size:30px; display:block; margin-bottom:2px; }
-.gp-title { color:#f5c842; font-size:0.7rem; letter-spacing:2px; line-height:1.6; text-shadow:2px 2px #8b3a00; }
-.gp-sub { color:#c8904a; font-size:0.42rem; margin-top:4px; line-height:1.5; }
-.diff-label { color:#c8904a; font-size:0.42rem; margin:6px 12px 4px; }
+.gp-title { color:#60c8f0; font-size:0.7rem; letter-spacing:2px; line-height:1.6; text-shadow:2px 2px #1a3060; }
+.gp-sub { color:#6098c0; font-size:0.42rem; margin-top:4px; line-height:1.5; }
+.diff-label { color:#6098c0; font-size:0.42rem; margin:6px 12px 4px; }
 .diff-grid { display:flex; flex-direction:column; gap:5px; padding:0 12px 6px; }
-.d-btn { padding:8px 12px; border:3px solid; background:#1e0e04; cursor:pointer; font-family:'Press Start 2P',monospace; text-align:left; transition:filter .12s; display:flex; align-items:center; gap:10px; }
+.d-btn { padding:8px 12px; border:3px solid; background:#0a1428; cursor:pointer; font-family:'Press Start 2P',monospace; text-align:left; transition:filter .12s; display:flex; align-items:center; gap:10px; }
 .d-btn:hover { filter:brightness(1.35); }
 .d-icon { font-size:24px; flex-shrink:0; }
 .d-texts { display:flex; flex-direction:column; gap:4px; }
@@ -45,61 +46,61 @@ canvas { display:block; image-rendering:pixelated; image-rendering:crisp-edges; 
 .d-chef      { border-color:#e05050; color:#e05050; }
 
 /* GAME HUD */
-.game-hud { display:flex; justify-content:space-around; background:#2c1608; border-bottom:3px solid #4a2808; padding:8px 6px; }
+.game-hud { display:flex; justify-content:space-around; background:#101e38; border-bottom:3px solid #1a3060; padding:8px 6px; }
 .hud-item { text-align:center; }
-.hud-val { color:#f5c842; font-size:0.85rem; display:block; }
+.hud-val { color:#60c8f0; font-size:0.85rem; display:block; }
 .hud-val.danger { color:#e05050; }
-.hud-lbl { color:#664420; font-size:0.34rem; margin-top:3px; }
-.timer-bar-wrap { height:7px; background:#1e0e04; border-bottom:2px solid #4a2808; }
-.timer-bar-fill { height:100%; background:#50c840; width:100%; transition:width .18s linear, background .4s; }
+.hud-lbl { color:#2a4a78; font-size:0.34rem; margin-top:3px; }
+.timer-bar-wrap { height:7px; background:#0a1428; border-bottom:2px solid #1a3060; }
+.timer-bar-fill { height:100%; background:#40a0e0; width:100%; transition:width .18s linear, background .4s; }
 .timer-bar-fill.warn { background:#f5c842; }
 .timer-bar-fill.crit { background:#e05050; }
 
 /* NAME INPUT */
-.name-input { background:#2c1608; border:2px solid #8b5e2a; color:#f0d090; font-family:'Press Start 2P',monospace; font-size:0.38rem; padding:7px 8px; outline:none; }
-.name-input:focus { border-color:#f5c842; }
+.name-input { background:#101e38; border:2px solid #3878c0; color:#c0d8f0; font-family:'Press Start 2P',monospace; font-size:0.38rem; padding:7px 8px; outline:none; }
+.name-input:focus { border-color:#60c8f0; }
 @keyframes nameShake { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-6px)} 75%{transform:translateX(6px)} }
 .name-error { animation:nameShake .3s; border-color:#e05050 !important; }
 
 /* RESULT PANE */
 .result-box { padding:12px 14px; text-align:center; flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:8px; }
-.result-title { color:#f5c842; font-size:0.7rem; letter-spacing:2px; }
-.result-score { color:#f5c842; font-size:1.1rem; }
-.result-sub { color:#c8904a; font-size:0.36rem; line-height:2; white-space:pre-line; }
-.save-status { font-size:.34rem; color:#50c840; min-height:1rem; text-align:center; }
-.btn-play-again { padding:10px; background:#1e0e04; border:3px solid #50c840; color:#50c840; font-family:'Press Start 2P',monospace; font-size:0.42rem; cursor:pointer; }
+.result-title { color:#60c8f0; font-size:0.7rem; letter-spacing:2px; }
+.result-score { color:#60c8f0; font-size:1.1rem; }
+.result-sub { color:#6098c0; font-size:0.36rem; line-height:2; white-space:pre-line; }
+.save-status { font-size:.34rem; color:#40c8f0; min-height:1rem; text-align:center; }
+.btn-play-again { padding:10px; background:#0a1428; border:3px solid #40a0e0; color:#60c8f0; font-family:'Press Start 2P',monospace; font-size:0.42rem; cursor:pointer; }
 .btn-play-again:hover { filter:brightness(1.3); }
-.btn-leader { padding:10px; background:#1e0e04; border:3px solid #f5c842; color:#f5c842; font-family:'Press Start 2P',monospace; font-size:0.42rem; cursor:pointer; }
+.btn-leader { padding:10px; background:#0a1428; border:3px solid #f5c842; color:#f5c842; font-family:'Press Start 2P',monospace; font-size:0.42rem; cursor:pointer; }
 .btn-leader:hover { filter:brightness(1.3); }
-.btn-back { margin:8px; padding:9px; background:#1e0e04; border:2px solid #8b5e2a; color:#c8904a; font-family:'Press Start 2P',monospace; font-size:0.42rem; cursor:pointer; flex-shrink:0; }
-.btn-back:hover { border-color:#f5c842; color:#f5c842; }
+.btn-back { margin:8px; padding:9px; background:#0a1428; border:2px solid #3878c0; color:#6098c0; font-family:'Press Start 2P',monospace; font-size:0.42rem; cursor:pointer; flex-shrink:0; }
+.btn-back:hover { border-color:#60c8f0; color:#60c8f0; }
 
 /* LEADERBOARD */
-.leader-header { background:#6b2a00; padding:12px 14px; text-align:center; border-bottom:4px solid #5a2d0c; flex-shrink:0; }
-.leader-title { color:#f5c842; font-size:0.80rem; letter-spacing:2px; }
+.leader-header { background:#0c2450; padding:12px 14px; text-align:center; border-bottom:4px solid #1a3870; flex-shrink:0; }
+.leader-title { color:#60c8f0; font-size:0.80rem; letter-spacing:2px; }
 .leader-title span { font-size:2.2rem; display:block; margin-bottom:6px; }
 .leader-list { flex:1; overflow-y:auto; padding:8px; display:flex; flex-direction:column; gap:6px; min-height:0; }
-.leader-row { display:flex; align-items:center; gap:8px; background:#2c1608; border:2px solid #4a2808; padding:8px 10px; }
-.leader-row.me { border-color:#f5c842; background:#1a1000; }
-.leader-rank { color:#664420; font-size:0.46rem; width:34px; flex-shrink:0; text-align:center; }
+.leader-row { display:flex; align-items:center; gap:8px; background:#101e38; border:2px solid #1a3060; padding:8px 10px; }
+.leader-row.me { border-color:#60c8f0; background:#0c1830; }
+.leader-rank { color:#2a4a78; font-size:0.46rem; width:34px; flex-shrink:0; text-align:center; }
 .leader-rank.gold   { color:#f5c842; text-shadow:0 0 6px #f5c84288; }
 .leader-rank.silver { color:#d0d0d0; }
 .leader-rank.bronze { color:#cd7f32; }
-.leader-name { color:#f0d090; font-size:0.46rem; flex:1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
-.leader-score { color:#f5c842; font-size:0.50rem; flex-shrink:0; }
+.leader-name { color:#c0d8f0; font-size:0.46rem; flex:1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.leader-score { color:#60c8f0; font-size:0.50rem; flex-shrink:0; }
 .leader-diff { font-size:0.36rem; flex-shrink:0; padding:3px 6px; border:1px solid; }
 .leader-diff.apprenti { color:#50c840; border-color:#50c840; }
 .leader-diff.cuisinier { color:#f5c842; border-color:#f5c842; }
 .leader-diff.chef { color:#e05050; border-color:#e05050; }
-.leader-empty { color:#c8904a; font-size:0.38rem; text-align:center; margin-top:20px; line-height:2; }
+.leader-empty { color:#6098c0; font-size:0.38rem; text-align:center; margin-top:20px; line-height:2; }
 
 /* ROTATE OVERLAY */
 @media (orientation:portrait) { #rotateMsg { display:flex !important; } }
-#rotateMsg { display:none; position:fixed; inset:0; background:#0a0500; z-index:9999; flex-direction:column; align-items:center; justify-content:center; gap:16px; }
+#rotateMsg { display:none; position:fixed; inset:0; background:#020810; z-index:9999; flex-direction:column; align-items:center; justify-content:center; gap:16px; }
 .rotate-phone { font-size:3rem; animation:rotatePulse 1.5s ease-in-out infinite; }
 @keyframes rotatePulse { 0%,100%{transform:rotate(0deg)} 50%{transform:rotate(90deg)} }
-.rotate-text { color:#f5c842; font-size:0.7rem; letter-spacing:3px; text-align:center; }
-.rotate-sub { color:#c8904a; font-size:0.38rem; }
+.rotate-text { color:#60c8f0; font-size:0.7rem; letter-spacing:3px; text-align:center; }
+.rotate-sub { color:#6098c0; font-size:0.38rem; }
 </style>
 </head>
 <body>
@@ -122,7 +123,7 @@ canvas { display:block; image-rendering:pixelated; image-rendering:crisp-edges; 
       </div>
       <div style="padding:2px 12px 0;">
         <div class="diff-label" style="margin:0 0 3px;">▶ HOW TO PLAY</div>
-        <div style="font-size:.36rem;color:#c09070;line-height:1.8;padding:0 2px;">
+        <div style="font-size:.36rem;color:#7898b8;line-height:1.8;padding:0 2px;">
           ① Flip two cards at a time<br>
           ② Match the same food items<br>
           ③ Find all pairs before time runs out!
@@ -159,7 +160,7 @@ canvas { display:block; image-rendering:pixelated; image-rendering:crisp-edges; 
       </div>
       <div class="timer-bar-wrap"><div class="timer-bar-fill" id="timerBar"></div></div>
       <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;padding:8px;">
-        <div style="font-size:.36rem;color:#c8904a;text-align:center;line-height:2.2;" id="gameMsg">Find all matching pairs!</div>
+        <div style="font-size:.36rem;color:#6098c0;text-align:center;line-height:2.2;" id="gameMsg">Find all matching pairs!</div>
         <button class="btn-back" style="margin:0;" onclick="quitGame()">✕ QUIT</button>
       </div>
     </div>
@@ -198,8 +199,8 @@ canvas { display:block; image-rendering:pixelated; image-rendering:crisp-edges; 
 
 <!-- PAUSE MENU -->
 <div id="pauseMenu" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,0.72);align-items:center;justify-content:center;">
-  <div style="background:#1e0e04;border:4px solid #8b5e2a;box-shadow:4px 4px 0 #5a2d0c,0 0 40px #000;padding:28px 32px;text-align:center;display:flex;flex-direction:column;gap:12px;min-width:220px;">
-    <div style="font-family:'Press Start 2P',monospace;font-size:0.85rem;color:#f5c842;text-shadow:2px 2px #8b3a00,0 0 20px #f5a700;letter-spacing:2px;margin-bottom:6px;">⏸ PAUSED</div>
+  <div style="background:#0a1428;border:4px solid #3878c0;box-shadow:4px 4px 0 #1a3870,0 0 40px #000;padding:28px 32px;text-align:center;display:flex;flex-direction:column;gap:12px;min-width:220px;">
+    <div style="font-family:'Press Start 2P',monospace;font-size:0.85rem;color:#60c8f0;text-shadow:2px 2px #1a3060,0 0 20px #40a0e0;letter-spacing:2px;margin-bottom:6px;">⏸ PAUSED</div>
     <button class="btn-back" onclick="resumeGame()">▶ RESUME</button>
     <button class="btn-back" onclick="restartFromMenu()">↺ RESTART</button>
     <button class="btn-back" onclick="quitFromMenu()">◀ QUIT</button>
@@ -365,21 +366,21 @@ function drawFood(type, cx, cy){
 //  BACKGROUND — pantry scene
 // ══════════════════════════════════════════════
 function drawBackground(){
-  ctx.fillStyle='#2c1608'; ctx.fillRect(0,0,620,480);
-  ctx.fillStyle='#1e0e04'; ctx.fillRect(8,8,604,464);
+  ctx.fillStyle='#101e38'; ctx.fillRect(0,0,620,480);
+  ctx.fillStyle='#0a1428'; ctx.fillRect(8,8,604,464);
   // Wall tiles
-  ctx.fillStyle='#221005';
+  ctx.fillStyle='#0e1830';
   for(let y=0;y<464;y+=32) for(let x=0;x<604;x+=32)
     ctx.fillRect(9+x,9+y,31,31);
   // Top shelf
-  ctx.fillStyle='#6b3a10'; ctx.fillRect(16,55,588,16);
-  ctx.fillStyle='#8b5e2a'; ctx.fillRect(16,52,588,6);
-  ctx.fillStyle='#3a1a00'; ctx.fillRect(16,71,588,4);
+  ctx.fillStyle='#1e3868'; ctx.fillRect(16,55,588,16);
+  ctx.fillStyle='#3878c0'; ctx.fillRect(16,52,588,6);
+  ctx.fillStyle='#0c1a40'; ctx.fillRect(16,71,588,4);
   // Bottom shelf
-  ctx.fillStyle='#6b3a10'; ctx.fillRect(16,415,588,16);
-  ctx.fillStyle='#8b5e2a'; ctx.fillRect(16,412,588,6);
-  ctx.fillStyle='#3a1a00'; ctx.fillRect(16,431,588,4);
-  // Decorative jars top shelf
+  ctx.fillStyle='#1e3868'; ctx.fillRect(16,415,588,16);
+  ctx.fillStyle='#3878c0'; ctx.fillRect(16,412,588,6);
+  ctx.fillStyle='#0c1a40'; ctx.fillRect(16,431,588,4);
+  // Decorative jars top shelf (keep colourful)
   [[45,'#e05050'],[90,'#50c840'],[135,'#5080ff'],[500,'#e050c0'],[550,'#f5c842']].forEach(([x,c])=>drawJar(x,32,c));
   // Decorative items bottom shelf
   drawJar(480,392,'#50c8c8');
@@ -388,17 +389,17 @@ function drawBackground(){
 }
 
 function drawJar(x,y,color){
-  ctx.fillStyle='#5a2d0c'; ctx.fillRect(x-1,y-4,20,5);
+  ctx.fillStyle='#1a3870'; ctx.fillRect(x-1,y-4,20,5);
   ctx.fillStyle=color+'99'; ctx.fillRect(x,y,18,18);
   ctx.fillStyle=color; ctx.fillRect(x+1,y+1,16,16);
   ctx.fillStyle='#ffffff33'; ctx.fillRect(x+2,y+2,4,10);
 }
 
 function drawBox(x,y){
-  ctx.fillStyle='#8b5e2a'; ctx.fillRect(x,y,28,22);
-  ctx.fillStyle='#6b3a10'; ctx.fillRect(x+1,y+1,26,20);
-  ctx.fillStyle='#8b5e2a'; ctx.fillRect(x+10,y,8,22);
-  ctx.fillStyle='#8b5e2a'; ctx.fillRect(x,y+8,28,6);
+  ctx.fillStyle='#3878c0'; ctx.fillRect(x,y,28,22);
+  ctx.fillStyle='#1e3868'; ctx.fillRect(x+1,y+1,26,20);
+  ctx.fillStyle='#3878c0'; ctx.fillRect(x+10,y,8,22);
+  ctx.fillStyle='#3878c0'; ctx.fillRect(x,y+8,28,6);
 }
 
 // ══════════════════════════════════════════════
@@ -429,7 +430,7 @@ function drawCard(idx){
   const card=gCards[idx];
   const {x,y,w,h,cx,cy}=getCardRect(idx);
 
-  let bgCol='#3a1a00', borderCol='#8b5e2a';
+  let bgCol='#0a1a38', borderCol='#3878c0';
   if(card.matched){ bgCol='#0e2a0e'; borderCol='#50c840'; }
   else if(card.wrong){ bgCol='#2a0e0e'; borderCol='#e05050'; }
 
@@ -450,19 +451,19 @@ function drawCard(idx){
     drawFood(card.food, cx, cy);
   } else {
     // Back — clean pixel style
-    ctx.fillStyle='#1e0e04'; ctx.fillRect(x,y,w,h);
-    ctx.fillStyle='#2c1608'; ctx.fillRect(x+3,y+3,w-6,h-6);
-    // Gold border
-    ctx.strokeStyle='#c8904a'; ctx.lineWidth=2; ctx.strokeRect(x+1,y+1,w-2,h-2);
+    ctx.fillStyle='#0a1428'; ctx.fillRect(x,y,w,h);
+    ctx.fillStyle='#101e38'; ctx.fillRect(x+3,y+3,w-6,h-6);
+    // Blue border
+    ctx.strokeStyle='#4878a8'; ctx.lineWidth=2; ctx.strokeRect(x+1,y+1,w-2,h-2);
     // Pixel L-corner brackets
     const cs=7;
-    ctx.fillStyle='#f5c842';
+    ctx.fillStyle='#60c8f0';
     ctx.fillRect(x+4,y+4,cs,2);   ctx.fillRect(x+4,y+4,2,cs);
     ctx.fillRect(x+w-4-cs,y+4,cs,2); ctx.fillRect(x+w-6,y+4,2,cs);
     ctx.fillRect(x+4,y+h-6,cs,2); ctx.fillRect(x+4,y+h-4-cs,2,cs);
     ctx.fillRect(x+w-4-cs,y+h-6,cs,2); ctx.fillRect(x+w-6,y+h-4-cs,2,cs);
     // Pixel question mark
-    drawPixelQ(cx, cy, Math.max(4,Math.floor(Math.min(w,h)/18)), '#c8904a');
+    drawPixelQ(cx, cy, Math.max(4,Math.floor(Math.min(w,h)/18)), '#4878a8');
   }
 
   ctx.restore();
@@ -514,16 +515,16 @@ function drawIdle(){
       const x=startX+col*(cardW+GAP);
       const y=startY+row*(cardH+GAP);
       const cx=x+Math.floor(cardW/2), cy=y+Math.floor(cardH/2);
-      ctx.fillStyle='#1e0e04'; ctx.fillRect(x,y,cardW,cardH);
-      ctx.fillStyle='#2c1608'; ctx.fillRect(x+3,y+3,cardW-6,cardH-6);
-      ctx.strokeStyle='#c8904a'; ctx.lineWidth=2; ctx.strokeRect(x+1,y+1,cardW-2,cardH-2);
+      ctx.fillStyle='#0a1428'; ctx.fillRect(x,y,cardW,cardH);
+      ctx.fillStyle='#101e38'; ctx.fillRect(x+3,y+3,cardW-6,cardH-6);
+      ctx.strokeStyle='#4878a8'; ctx.lineWidth=2; ctx.strokeRect(x+1,y+1,cardW-2,cardH-2);
       const cs=7;
-      ctx.fillStyle='#f5c842';
+      ctx.fillStyle='#60c8f0';
       ctx.fillRect(x+4,y+4,cs,2);        ctx.fillRect(x+4,y+4,2,cs);
       ctx.fillRect(x+cardW-4-cs,y+4,cs,2); ctx.fillRect(x+cardW-6,y+4,2,cs);
       ctx.fillRect(x+4,y+cardH-6,cs,2);  ctx.fillRect(x+4,y+cardH-4-cs,2,cs);
       ctx.fillRect(x+cardW-4-cs,y+cardH-6,cs,2); ctx.fillRect(x+cardW-6,y+cardH-4-cs,2,cs);
-      drawPixelQ(cx, cy, Math.max(4,Math.floor(Math.min(cardW,cardH)/18)), '#c8904a');
+      drawPixelQ(cx, cy, Math.max(4,Math.floor(Math.min(cardW,cardH)/18)), '#4878a8');
     }
   }
 }
@@ -807,7 +808,7 @@ function detachLeaderListener(){
 
 function submitScore(name,score,diff,pairs){
   const status=document.getElementById('saveStatus');
-  status.style.color='#c8904a'; status.textContent='Saving...';
+  status.style.color='#6098c0'; status.textContent='Saving...';
   LB_REF.push({name,score,diff,pairs,ts:Date.now()})
     .then(()=>{ status.style.color='#50c840'; status.textContent='✓ Score saved!'; })
     .catch(()=>{ status.style.color='#e05050'; status.textContent='✗ Save failed'; });

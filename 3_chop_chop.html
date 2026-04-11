@@ -7,6 +7,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-database-compat.js"></script>
+<script src="menu.js"></script>
 <style>
 * { margin:0; padding:0; box-sizing:border-box; image-rendering:pixelated; }
 body {
@@ -360,7 +361,7 @@ const DIFFS={
   medium:{rounds:10, speed:0.48,accel:0.05,perfect:.07,good:.18,pts:[100,60,20],name:'CHEF'      },
   hard:  {rounds:12, speed:0.68,accel:0.08,perfect:.05,good:.12,pts:[100,60,20],name:'SOUS CHEF' },
 };
-const FOODS=['🥕','🥦','🍅','🧅','🥔','🌽','🍋','🥝','🍓','🍄','🥑','🫑','🍆','🥒','🧄','🫛'];
+const FOODS = pkIngredientPool();
 
 // Board geometry (on 480×480 canvas)
 const BX=60, BY=230, BW=360, BH=80;   // cutting board rect
