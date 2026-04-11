@@ -49,9 +49,23 @@ body {
   width:1100px; height:620px;
   transform-origin:center center;
   display:flex;
-  flex-direction:row;
+  flex-direction:column;
   gap:0;
   overflow:hidden;
+}
+.hub-topbar {
+  height:34px; flex-shrink:0;
+  background:#110d00;
+  border-bottom:2px solid #3a2800;
+  display:flex; align-items:center;
+  padding:0 16px; gap:10px;
+}
+.hub-topbar-left  { flex:1; display:flex; align-items:center; gap:8px; }
+.hub-topbar-coin  { color:#f5c842; font-size:.40rem; letter-spacing:1px; }
+.hub-topbar-lbl   { color:#4a3400; font-size:.28rem; }
+.hub-topbar-right { color:#2a2000; font-size:.26rem; }
+.hub-body {
+  flex:1; display:flex; flex-direction:row; overflow:hidden;
 }
 
 /* ── LEFT SIDEBAR ── */
@@ -375,14 +389,6 @@ body {
   padding:3px 6px; cursor:pointer; margin-top:2px;
 }
 .hub-change:hover { border-color:#c8904a; color:#c8904a; }
-.hub-coins-box {
-  margin-top:8px; padding:6px 10px;
-  background:#1a1000; border:2px solid #4a3400;
-  display:flex; align-items:center; gap:6px; width:100%;
-}
-.hub-coins-icon { font-size:14px; }
-.hub-coins-val  { color:#f5c842; font-size:.38rem; flex:1; }
-.hub-coins-lbl  { color:#4a3400; font-size:.26rem; }
 
 /* ── ROTATE OVERLAY ── */
 #rotateMsg {
@@ -454,6 +460,17 @@ body {
 
 <div id="hubWrap">
 
+  <!-- COIN BAR -->
+  <div class="hub-topbar">
+    <div class="hub-topbar-left">
+      <span class="hub-topbar-coin">🪙 <span id="hubCoins">0</span></span>
+      <span class="hub-topbar-lbl">COINS</span>
+    </div>
+    <div class="hub-topbar-right">PIXEL KITCHEN</div>
+  </div>
+
+  <div class="hub-body">
+
   <!-- LEFT SIDEBAR -->
   <div class="hub-left">
     <canvas id="hubChef"></canvas>
@@ -463,11 +480,6 @@ body {
     <div class="hub-version">v0.2</div>
     <div class="hub-player" id="hubPlayerName"></div>
     <button class="hub-change" id="hubChangeName" onclick="showNameModal()" style="display:none;">✎ CHANGE NAME</button>
-    <div class="hub-coins-box">
-      <span class="hub-coins-icon">🪙</span>
-      <span class="hub-coins-val" id="hubCoins">0</span>
-      <span class="hub-coins-lbl">COINS</span>
-    </div>
     <button id="hubMute" onclick="toggleHubMute()">♪ ON</button>
   </div>
 
@@ -546,13 +558,13 @@ body {
       <div>
         <div class="card-name" style="color:var(--gold);font-size:.52rem;">PIXEL SHOP</div>
         <div style="font-size:.32rem;color:var(--sub);margin-top:4px;">Spend coins on themes, decorations & more</div>
-        <div style="font-size:.32rem;color:var(--gold);margin-top:4px;">Balance: 🪙 <span id="shopCoins">0</span></div>
       </div>
       <div class="card-tag tag-soon" style="margin-left:auto;flex-shrink:0;">COMING SOON</div>
     </div>
 
   </div>
 
+  </div><!-- .hub-body -->
 </div>
 
 <!-- ROTATE OVERLAY -->
@@ -774,9 +786,7 @@ function updateHubPlayerName(){
 function updateHubCoins(){
   const n = parseInt(localStorage.getItem('pkCoins')||'0');
   const el = document.getElementById('hubCoins');
-  const el2 = document.getElementById('shopCoins');
   if(el) el.textContent = n.toLocaleString();
-  if(el2) el2.textContent = n.toLocaleString();
 }
 updateHubCoins();
 
