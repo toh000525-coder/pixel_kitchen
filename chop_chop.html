@@ -134,8 +134,10 @@ canvas { display:block; border:4px solid #4a7a28; box-shadow:4px 4px 0 #1a3a08,0
         </div>
       </button>
     </div>
-    <button class="btn-gold" onclick="openLeaderFromTitle()" style="margin:0 12px 6px;">🏆 LEADERBOARD</button>
-    <button class="btn-back" onclick="location.href='index.html?from=game'">← BACK TO HUB</button>
+    <div style="display:flex;gap:0;margin:0 8px 8px;">
+      <button class="btn-back" style="flex:1;" onclick="location.href='index.html?from=game'">◀ HUB</button>
+      <button class="btn-back" style="flex:1;" onclick="openLeaderFromTitle()">🏆 RANKS</button>
+    </div>
   </div>
 
   <!-- GAME HUD PANE -->
