@@ -430,7 +430,7 @@ canvas { display:block; }
 // ══════════════════════════════════════════
 //  FIREBASE
 // ══════════════════════════════════════════
-firebase.initializeApp({
+const FB_CONFIG = {
   apiKey:"AIzaSyAJ3C969-IHJxptn3rcuudOrDxzTzlFHYg",
   authDomain:"pixel-kitchen-e6b18.firebaseapp.com",
   databaseURL:"https://pixel-kitchen-e6b18-default-rtdb.asia-southeast1.firebasedatabase.app",
@@ -438,8 +438,10 @@ firebase.initializeApp({
   storageBucket:"pixel-kitchen-e6b18.firebasestorage.app",
   messagingSenderId:"631692992106",
   appId:"1:631692992106:web:384cf6c3a2ff3096a7b413"
-},'recipe');
-const LB_REF = firebase.app('recipe').database().ref('recipe_rush/scores');
+};
+let fbApp;
+try { fbApp=firebase.app('recipe'); } catch(e) { fbApp=firebase.initializeApp(FB_CONFIG,'recipe'); }
+const LB_REF = firebase.database(fbApp).ref('recipe_rush/scores');
 let _lbQ=null, _lbL=null;
 function detachLeader(){ if(_lbQ&&_lbL){ _lbQ.off('value',_lbL); _lbQ=null; _lbL=null; } }
 

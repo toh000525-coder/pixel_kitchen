@@ -788,7 +788,7 @@ function toggleMute(){
 // ══════════════════════════════════════════════
 //  FIREBASE
 // ══════════════════════════════════════════════
-firebase.initializeApp({
+const FB_CONFIG = {
   apiKey:"AIzaSyAJ3C969-IHJxptn3rcuudOrDxzTzlFHYg",
   authDomain:"pixel-kitchen-e6b18.firebaseapp.com",
   databaseURL:"https://pixel-kitchen-e6b18-default-rtdb.asia-southeast1.firebasedatabase.app",
@@ -796,8 +796,10 @@ firebase.initializeApp({
   storageBucket:"pixel-kitchen-e6b18.firebasestorage.app",
   messagingSenderId:"631692992106",
   appId:"1:631692992106:web:384cf6c3a2ff3096a7b413"
-},'pantry');
-const db2=firebase.app('pantry').database();
+};
+let fbApp2;
+try { fbApp2=firebase.app('pantry'); } catch(e) { fbApp2=firebase.initializeApp(FB_CONFIG,'pantry'); }
+const db2=firebase.database(fbApp2);
 const LB_REF=db2.ref('leaderboard_pantry');
 
 let _lbListener=null, _lbQuery=null;

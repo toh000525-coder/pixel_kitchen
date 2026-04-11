@@ -1650,7 +1650,7 @@ canvas.addEventListener('touchstart',function(e){
 // ══════════════════════════════════════════════
 //  FIREBASE LEADERBOARD
 // ══════════════════════════════════════════════
-const fbApp = firebase.initializeApp({
+const FB_CONFIG = {
   apiKey:"AIzaSyAJ3C969-IHJxptn3rcuudOrDxzTzlFHYg",
   authDomain:"pixel-kitchen-e6b18.firebaseapp.com",
   databaseURL:"https://pixel-kitchen-e6b18-default-rtdb.asia-southeast1.firebasedatabase.app",
@@ -1658,8 +1658,10 @@ const fbApp = firebase.initializeApp({
   storageBucket:"pixel-kitchen-e6b18.firebasestorage.app",
   messagingSenderId:"631692992106",
   appId:"1:631692992106:web:384cf6c3a2ff3096a7b413"
-});
-const db = firebase.database();
+};
+let fbApp;
+try { fbApp = firebase.app('scene'); } catch(e) { fbApp = firebase.initializeApp(FB_CONFIG,'scene'); }
+const db = firebase.database(fbApp);
 const LB_REF = db.ref('leaderboard');
 
 let lastScore=0, lastDiff='', lastCorrect=0;
