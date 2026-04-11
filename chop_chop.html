@@ -245,9 +245,9 @@ const CW=480, CH=480;
 //  GAME CONFIG
 // ══════════════════════════════════════════
 const DIFFS={
-  easy:  {rounds:8,  speed:1.0,accel:0.10,perfect:.10,good:.25,pts:[100,60,20],name:'APPRENTICE'},
-  medium:{rounds:10, speed:1.4,accel:0.13,perfect:.07,good:.18,pts:[100,60,20],name:'CHEF'      },
-  hard:  {rounds:12, speed:1.9,accel:0.17,perfect:.05,good:.12,pts:[100,60,20],name:'SOUS CHEF' },
+  easy:  {rounds:8,  speed:0.55,accel:0.05,perfect:.10,good:.25,pts:[100,60,20],name:'APPRENTICE'},
+  medium:{rounds:10, speed:0.80,accel:0.08,perfect:.07,good:.18,pts:[100,60,20],name:'CHEF'      },
+  hard:  {rounds:12, speed:1.15,accel:0.11,perfect:.05,good:.12,pts:[100,60,20],name:'SOUS CHEF' },
 };
 const FOODS=['🥕','🥦','🍅','🧅','🥔','🌽','🍋','🥝','🍓','🍄','🥑','🫑','🍆','🥒','🧄','🫛'];
 
@@ -373,14 +373,88 @@ function onChop(){
 const RES_COL={perfect:'#7edd8a',good:'#f5c842',ok:'#ff9b6a',miss:'#ff6b6b'};
 const RES_TXT={perfect:'PERFECT!',good:'GOOD!',ok:'OK...',miss:'MISS!'};
 
+function drawBackground(){
+  // Wall base
+  ctx.fillStyle='#1e3a18'; ctx.fillRect(0,0,CW,CH);
+
+  // Wall tile pattern (brick offset rows)
+  const TW=40, TH=30;
+  ctx.fillStyle='#243d1a';
+  for(let row=0; row*TH<320; row++){
+    const xOff=(row%2===0)?0:TW/2;
+    for(let col=-1; col*TW<CW+TW; col++){
+      ctx.fillRect(col*TW+xOff+1, row*TH+1, TW-2, TH-2);
+    }
+  }
+
+  // Counter surface below cutting board
+  ctx.fillStyle='#4a3a28'; ctx.fillRect(0,310,CW,CH-310);
+  ctx.fillStyle='#5a4838'; ctx.fillRect(0,310,CW,5);
+  ctx.fillStyle='#6a5848'; ctx.fillRect(0,310,CW,2);
+  ctx.strokeStyle='#3a2a18'; ctx.lineWidth=1;
+  for(let x=60;x<CW;x+=60){ ctx.beginPath(); ctx.moveTo(x,316); ctx.lineTo(x,CH); ctx.stroke(); }
+  for(let y=340;y<CH;y+=40){ ctx.beginPath(); ctx.moveTo(0,y); ctx.lineTo(CW,y); ctx.stroke(); }
+
+  // Hanging lamp (center top)
+  const lampX=CW/2;
+  ctx.strokeStyle='#1a1008'; ctx.lineWidth=3;
+  ctx.beginPath(); ctx.moveTo(lampX,0); ctx.lineTo(lampX,32); ctx.stroke();
+  // Warm glow cone
+  const glow=ctx.createRadialGradient(lampX,56,0,lampX,56,105);
+  glow.addColorStop(0,'rgba(255,220,80,0.22)');
+  glow.addColorStop(0.4,'rgba(255,180,40,0.08)');
+  glow.addColorStop(1,'rgba(0,0,0,0)');
+  ctx.fillStyle=glow; ctx.fillRect(lampX-105,0,210,160);
+  // Lamp shade
+  ctx.fillStyle='#b89020';
+  ctx.beginPath(); ctx.moveTo(lampX-22,32); ctx.lineTo(lampX+22,32); ctx.lineTo(lampX+15,56); ctx.lineTo(lampX-15,56); ctx.closePath(); ctx.fill();
+  ctx.fillStyle='#c8a030'; ctx.fillRect(lampX-22,32,44,5);
+  // Bulb
+  ctx.fillStyle='#ffe06e'; ctx.beginPath(); ctx.arc(lampX,56,5,0,Math.PI*2); ctx.fill();
+  ctx.fillStyle='#fff8d0'; ctx.beginPath(); ctx.arc(lampX,56,2,0,Math.PI*2); ctx.fill();
+
+  // Left shelf + herb pot
+  const shelfY=222;
+  ctx.fillStyle='#5a3a10'; ctx.fillRect(0,shelfY,58,8);
+  ctx.fillStyle='#3a2008'; ctx.fillRect(0,shelfY+8,58,3);
+  const hpX=28;
+  // Pot body (trapezoid)
+  ctx.fillStyle='#8a3a18';
+  ctx.beginPath(); ctx.moveTo(hpX-13,shelfY); ctx.lineTo(hpX+13,shelfY); ctx.lineTo(hpX+9,shelfY-22); ctx.lineTo(hpX-9,shelfY-22); ctx.closePath(); ctx.fill();
+  ctx.fillStyle='#aa4a28'; ctx.fillRect(hpX-15,shelfY-4,30,6);
+  ctx.fillStyle='#281808'; ctx.fillRect(hpX-13,shelfY-4,26,5);
+  // Pixel basil leaves
+  ctx.fillStyle='#1a9930';
+  [[-1,-26],[7,-30],[-7,-30],[3,-40],[-3,-40],[0,-50]].forEach(([dx,dy])=>{ ctx.fillRect(hpX+dx-4,shelfY+dy-4,9,9); });
+  ctx.fillStyle='#22bb40';
+  [[-1,-28],[5,-33],[-5,-33],[0,-46]].forEach(([dx,dy])=>{ ctx.fillRect(hpX+dx-2,shelfY+dy-2,5,5); });
+
+  // Right shelf + two spice jars
+  const rShelfY=215;
+  ctx.fillStyle='#5a3a10'; ctx.fillRect(420,rShelfY,60,8);
+  ctx.fillStyle='#3a2008'; ctx.fillRect(420,rShelfY+8,60,3);
+  // Jar 1 — paprika (red-orange)
+  const s1x=434, jt=rShelfY;
+  ctx.fillStyle='#aa2822'; ctx.fillRect(s1x-8,jt-30,16,30);
+  ctx.fillStyle='#cc3030'; ctx.fillRect(s1x-8,jt-30,16,5);
+  ctx.fillStyle='#888';    ctx.fillRect(s1x-5,jt-37,10,8);
+  ctx.fillStyle='#bbb';    ctx.fillRect(s1x-4,jt-40,8,4);
+  ctx.fillStyle='#f5e0c0'; ctx.fillRect(s1x-6,jt-23,12,14);
+  ctx.fillStyle='#cc3030'; ctx.fillRect(s1x-4,jt-21,8,10);
+  // Jar 2 — herbs (teal)
+  const s2x=457;
+  ctx.fillStyle='#1a6666'; ctx.fillRect(s2x-8,jt-25,16,25);
+  ctx.fillStyle='#208888'; ctx.fillRect(s2x-8,jt-25,16,5);
+  ctx.fillStyle='#888';    ctx.fillRect(s2x-5,jt-32,10,8);
+  ctx.fillStyle='#bbb';    ctx.fillRect(s2x-4,jt-35,8,4);
+  ctx.fillStyle='#f5e0c0'; ctx.fillRect(s2x-6,jt-19,12,12);
+  ctx.fillStyle='#1a7070'; ctx.fillRect(s2x-4,jt-17,8,8);
+}
+
 function draw(){
   ctx.clearRect(0,0,CW,CH);
 
-  // Background
-  ctx.fillStyle='#1a2e0a'; ctx.fillRect(0,0,CW,CH);
-  ctx.strokeStyle='#1f3510'; ctx.lineWidth=1;
-  for(let x=0;x<CW;x+=40){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,CH);ctx.stroke();}
-  for(let y=0;y<CH;y+=40){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(CW,y);ctx.stroke();}
+  drawBackground();
 
   drawBoard();
   drawZones();
@@ -411,22 +485,38 @@ function drawBoard(){
 
 function drawZones(){
   if(!cfg) return;
-  const zh=16, zx=BX, zy=ZONE_Y-zh/2, zw=BW;
-  // Miss (full bar)
-  ctx.fillStyle='#3a1010'; ctx.fillRect(zx,zy,zw,zh);
-  // OK
-  const okFrac=0.84;
-  ctx.fillStyle='#2a1a00'; ctx.fillRect(zx+zw*(1-okFrac)/2,zy,zw*okFrac,zh);
-  // Good
-  const gw=zw*cfg.good*2;
-  ctx.fillStyle='#2a2a00'; ctx.fillRect(CW/2-gw/2,zy,gw,zh);
-  // Perfect
-  const pw=Math.max(zw*cfg.perfect*2,14);
-  ctx.fillStyle='#0a3015'; ctx.fillRect(CW/2-pw/2,zy,pw,zh);
-  // Center mark
-  ctx.strokeStyle='#7edd8a66'; ctx.lineWidth=2; ctx.setLineDash([3,3]);
+  const zh=22, zx=BX, zy=ZONE_Y-zh/2, zw=BW;
+  // MISS — full bar, bright red
+  ctx.fillStyle='#cc2020'; ctx.fillRect(zx,zy,zw,zh);
+  // OK — inner 84%, orange
+  const okHW=zw*0.42;
+  ctx.fillStyle='#cc7700'; ctx.fillRect(CW/2-okHW,zy,okHW*2,zh);
+  // GOOD — yellow-green
+  const goodHW=zw*cfg.good;
+  ctx.fillStyle='#aaaa00'; ctx.fillRect(CW/2-goodHW,zy,goodHW*2,zh);
+  // PERFECT — bright green
+  const perfHW=Math.max(zw*cfg.perfect,10);
+  ctx.fillStyle='#0aaa30'; ctx.fillRect(CW/2-perfHW,zy,perfHW*2,zh);
+  // PERFECT border highlight
+  ctx.strokeStyle='#7edd8a'; ctx.lineWidth=2;
+  ctx.strokeRect(CW/2-perfHW+1,zy+1,perfHW*2-2,zh-2);
+  // Zone dividers
+  ctx.strokeStyle='rgba(255,255,255,0.18)'; ctx.lineWidth=1;
+  [CW/2-okHW,CW/2-goodHW,CW/2-perfHW,CW/2+perfHW,CW/2+goodHW,CW/2+okHW].forEach(x=>{
+    ctx.beginPath(); ctx.moveTo(x,zy); ctx.lineTo(x,zy+zh); ctx.stroke();
+  });
+  // Labels inside bar
+  ctx.font='6px "Press Start 2P",monospace'; ctx.textBaseline='middle'; ctx.textAlign='center';
+  const midY=zy+zh/2;
+  ctx.fillStyle='#ffcccc';
+  ctx.fillText('MISS',(zx+CW/2-okHW)/2,midY);
+  ctx.fillText('MISS',(CW/2+okHW+zx+zw)/2,midY);
+  if(okHW-goodHW>24){ ctx.fillStyle='#ffcc77'; ctx.fillText('OK',(CW/2-okHW+CW/2-goodHW)/2,midY); ctx.fillText('OK',(CW/2+goodHW+CW/2+okHW)/2,midY); }
+  if(goodHW-perfHW>24){ ctx.fillStyle='#ffff88'; ctx.fillText('GOOD',(CW/2-goodHW+CW/2-perfHW)/2,midY); ctx.fillText('GOOD',(CW/2+perfHW+CW/2+goodHW)/2,midY); }
+  ctx.fillStyle='#aaffbb'; ctx.fillText('PERF!',CW/2,midY);
+  // Center guide line through board
+  ctx.strokeStyle='#7edd8a'; ctx.lineWidth=2;
   ctx.beginPath(); ctx.moveTo(CW/2,BY); ctx.lineTo(CW/2,BY+BH); ctx.stroke();
-  ctx.setLineDash([]);
 }
 
 function drawFood(x,y,scale){
