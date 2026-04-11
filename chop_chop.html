@@ -382,6 +382,7 @@ function drawBoard(){
 }
 
 function drawZones(){
+  if(!cfg) return;
   const zh=16, zx=BX, zy=ZONE_Y-zh/2, zw=BW;
   // Miss (full bar)
   ctx.fillStyle='#3a1010'; ctx.fillRect(zx,zy,zw,zh);
@@ -500,6 +501,7 @@ function drawRoundDots(){
 // ══════════════════════════════════════════
 let lastTs=0;
 function loop(ts){
+  try {
   const dt=Math.min((ts-lastTs)/16.67,3);
   lastTs=ts;
   t+=dt*0.016;
@@ -532,6 +534,7 @@ function loop(ts){
   }
 
   draw();
+  } catch(e){ console.error('loop err',e); }
   requestAnimationFrame(loop);
 }
 requestAnimationFrame(ts=>{lastTs=ts; requestAnimationFrame(loop);});
