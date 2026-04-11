@@ -603,11 +603,10 @@ function scaleHub(){
   const wrap = document.getElementById('hubWrap');
   if(!wrap) return;
   const W=1100, H=620;
-  const scaleX = window.innerWidth  / W;
-  const scaleY = window.innerHeight / H;
-  const scale  = Math.min(scaleX, scaleY);
+  const vw = window.visualViewport ? window.visualViewport.width  : window.innerWidth;
+  const vh = window.visualViewport ? window.visualViewport.height : window.innerHeight;
+  const scale  = Math.min(vw/W, vh/H);
   wrap.style.transform = `scale(${scale})`;
-  // Collapse layout box to visual size so mobile Safari doesn't overflow
   const mh = W * (1 - scale) / 2;
   const mv = H * (1 - scale) / 2;
   wrap.style.margin = `-${mv}px -${mh}px`;
@@ -616,16 +615,30 @@ function scaleSplash(){
   const wrap = document.getElementById('spWrap');
   if(!wrap) return;
   const W=500, H=480;
-  const scaleX = window.innerWidth  / W;
-  const scaleY = window.innerHeight / H;
-  const scale  = Math.min(scaleX, scaleY, 1);
+  const vw = window.visualViewport ? window.visualViewport.width  : window.innerWidth;
+  const vh = window.visualViewport ? window.visualViewport.height : window.innerHeight;
+  const scale  = Math.min(vw/W, vh/H, 1);
   wrap.style.transform = `scale(${scale})`;
   const mh = W * (1 - scale) / 2;
   const mv = H * (1 - scale) / 2;
   wrap.style.margin = `-${mv}px -${mh}px`;
 }
-document.addEventListener('DOMContentLoaded', ()=>{ scaleHub(); scaleSplash(); });
-window.addEventListener('resize', ()=>{ scaleHub(); scaleSplash(); });
+function checkRotate(){
+  const overlay = document.getElementById('rotateMsg');
+  if(!overlay) return;
+  const vw = window.visualViewport ? window.visualViewport.width  : window.innerWidth;
+  const vh = window.visualViewport ? window.visualViewport.height : window.innerHeight;
+  overlay.style.display = (vw < vh) ? 'flex' : '';
+}
+function onResize(){
+  checkRotate();
+  scaleHub();
+  scaleSplash();
+}
+document.addEventListener('DOMContentLoaded', onResize);
+window.addEventListener('resize', onResize);
+window.addEventListener('orientationchange', ()=>{ setTimeout(onResize, 100); });
+if(window.visualViewport) window.visualViewport.addEventListener('resize', onResize);
 
 // ══════════════════════════════════════════
 //  SPLASH SCREEN
