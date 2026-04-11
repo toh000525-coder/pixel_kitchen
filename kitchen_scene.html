@@ -246,8 +246,7 @@ canvas { display:block; image-rendering:pixelated; image-rendering:crisp-edges; 
         <div class="hud-item"><span class="hud-val" id="hudTimer">2:30</span><div class="hud-lbl">TIME</div></div>
         <div class="hud-item"><span class="hud-val" id="hudScore">0</span><div class="hud-lbl">SCORE</div></div>
         <div class="hud-item"><span class="hud-val" id="hudProg">1/10</span><div class="hud-lbl">DISH</div></div>
-        <div class="hud-item"><span class="hud-val" id="pauseBtn" style="cursor:pointer;" onclick="togglePause()">⏸</span><div class="hud-lbl">PAUSE</div></div>
-        <div class="hud-item"><span class="hud-val" style="cursor:pointer;font-size:0.55rem;" onclick="confirmQuit()">✕</span><div class="hud-lbl">QUIT</div></div>
+        <div class="hud-item"><span class="hud-val" id="pauseBtn" style="cursor:pointer;" onclick="openPauseMenu()">⏸</span><div class="hud-lbl">PAUSE</div></div>
       </div>
       <div class="timer-bar-wrap"><div class="timer-bar-fill" id="timerBar"></div></div>
       <div class="dish-card" id="dishCard">
@@ -260,10 +259,6 @@ canvas { display:block; image-rendering:pixelated; image-rendering:crisp-edges; 
       </div>
       <div class="ingr-grid" id="ingrGrid"></div>
       <div class="ingr-feedback" id="ingrFb"></div>
-      <div id="pauseOverlay" style="display:none;position:absolute;inset:0;background:rgba(0,0,0,0.55);z-index:50;align-items:center;justify-content:center;flex-direction:column;gap:10px;">
-        <div style="font-family:'Press Start 2P',monospace;font-size:0.9rem;color:#7edd8a;text-shadow:0 0 16px #7edd8a;">PAUSED</div>
-        <div style="font-family:'Press Start 2P',monospace;font-size:0.34rem;color:#c8904a;">TAP ⏸ TO RESUME</div>
-      </div>
     </div>
 
     <!-- RESULT PANE -->
@@ -298,6 +293,16 @@ canvas { display:block; image-rendering:pixelated; image-rendering:crisp-edges; 
   </div><!-- .game-panel -->
 </div><!-- .game-content -->
 </div><!-- #gameWrap -->
+
+<!-- PAUSE MENU -->
+<div id="pauseMenu" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,0.72);align-items:center;justify-content:center;">
+  <div style="background:#1e0e04;border:4px solid #8b5e2a;box-shadow:4px 4px 0 #5a2d0c,0 0 40px #000;padding:28px 32px;text-align:center;display:flex;flex-direction:column;gap:12px;min-width:220px;">
+    <div style="font-family:'Press Start 2P',monospace;font-size:0.85rem;color:#f5c842;text-shadow:2px 2px #8b3a00,0 0 20px #f5a700;letter-spacing:2px;margin-bottom:6px;">⏸ PAUSED</div>
+    <button class="btn-back" onclick="resumeGame()">▶ RESUME</button>
+    <button class="btn-back" onclick="restartFromMenu()">↺ RESTART</button>
+    <button class="btn-back" onclick="quitFromMenu()">◀ QUIT</button>
+  </div>
+</div>
 
 <!-- CELEBRATION OVERLAY -->
 <div id="celebrate">
@@ -1203,12 +1208,24 @@ let gCombo=0, gBestCombo=0, gCorrect=0;
 let gPicked=new Set(), gGrid=[];
 let paused=false;
 
-function togglePause(){
+function openPauseMenu(){
   if(gState!=='playing') return;
-  paused=!paused;
-  document.getElementById('pauseBtn').textContent=paused?'▶':'⏸';
-  const overlay=document.getElementById('pauseOverlay');
-  if(overlay) overlay.style.display=paused?'flex':'none';
+  paused=true;
+  document.getElementById('pauseMenu').style.display='flex';
+}
+function resumeGame(){
+  paused=false;
+  document.getElementById('pauseMenu').style.display='none';
+}
+function restartFromMenu(){
+  document.getElementById('pauseMenu').style.display='none';
+  paused=false;
+  _doStartGame(gDiff);
+}
+function quitFromMenu(){
+  document.getElementById('pauseMenu').style.display='none';
+  paused=false;
+  showTitle();
 }
 
 function shuffleArr(a){
@@ -1248,8 +1265,7 @@ function _doStartGame(diff){
   resetKitchen(); intense=false; boiling=false; stageText=''; vegsOn=true;
   speechText='BONNE CHANCE!';
   paused=false;
-  document.getElementById('pauseBtn').textContent='⏸';
-  const po=document.getElementById('pauseOverlay'); if(po) po.style.display='none';
+  document.getElementById('pauseMenu').style.display='none';
   updateHUD();
   showPane('paneGame');
   showDish();

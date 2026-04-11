@@ -174,7 +174,7 @@ canvas { display:block; border:4px solid #4a7a28; box-shadow:4px 4px 0 #1a3a08,0
         <div class="hud-lbl">LIVES</div>
       </div>
       <div class="hud-item">
-        <span class="hud-val" id="pauseBtn" style="cursor:pointer;" onclick="togglePause()">⏸</span>
+        <span class="hud-val" id="pauseBtn" style="cursor:pointer;" onclick="openPauseMenu()">⏸</span>
         <div class="hud-lbl">PAUSE</div>
       </div>
     </div>
@@ -212,6 +212,16 @@ canvas { display:block; border:4px solid #4a7a28; box-shadow:4px 4px 0 #1a3a08,0
 </div><!-- .game-panel -->
 </div><!-- .game-content -->
 </div><!-- #gameWrap -->
+
+<!-- PAUSE MENU -->
+<div id="pauseMenu" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,0.72);align-items:center;justify-content:center;">
+  <div style="background:#1e0e04;border:4px solid #8b5e2a;box-shadow:4px 4px 0 #5a2d0c,0 0 40px #000;padding:28px 32px;text-align:center;display:flex;flex-direction:column;gap:12px;min-width:220px;">
+    <div style="font-family:'Press Start 2P',monospace;font-size:0.85rem;color:#f5c842;text-shadow:2px 2px #8b3a00,0 0 20px #f5a700;letter-spacing:2px;margin-bottom:6px;">⏸ PAUSED</div>
+    <button class="btn-back" onclick="resumeGame()">▶ RESUME</button>
+    <button class="btn-back" onclick="restartFromMenu()">↺ RESTART</button>
+    <button class="btn-back" onclick="quitFromMenu()">◀ QUIT</button>
+  </div>
+</div>
 
 <!-- ROTATE OVERLAY -->
 <div id="rotateMsg">
@@ -300,10 +310,23 @@ const ZONE_Y=BY+32;                    // precision zone bar center
 let cfg, diffKey;
 let round,score,lives,combo,bestCombo,coinsEarned;
 let paused=false;
-function togglePause(){
+function openPauseMenu(){
   if(phase==='idle'||phase==='next') return;
-  paused=!paused;
-  document.getElementById('pauseBtn').textContent=paused?'▶':'⏸';
+  paused=true;
+  document.getElementById('pauseMenu').style.display='flex';
+}
+function resumeGame(){
+  paused=false;
+  document.getElementById('pauseMenu').style.display='none';
+}
+function restartFromMenu(){
+  document.getElementById('pauseMenu').style.display='none';
+  replayGame();
+}
+function quitFromMenu(){
+  document.getElementById('pauseMenu').style.display='none';
+  paused=false; phase='idle';
+  showPane('paneTitle');
 }
 let phase='idle'; // 'swing'|'cut'|'next'|'idle'
 let t=0;
@@ -331,7 +354,7 @@ function showPane(id){
 function startGame(diff){
   diffKey=diff; cfg=DIFFS[diff];
   round=0; score=0; lives=3; combo=0; bestCombo=0; coinsEarned=0; paused=false;
-  document.getElementById('pauseBtn').textContent='⏸';
+  document.getElementById('pauseMenu').style.display='none';
   showPane('paneGame');
   nextRound();
 }
@@ -525,16 +548,6 @@ function draw(){
   }
 
   drawRoundDots();
-
-  if(paused){
-    ctx.fillStyle='rgba(0,0,0,0.55)';
-    ctx.fillRect(0,0,CW,CH);
-    ctx.font='18px "Press Start 2P",monospace';
-    ctx.fillStyle='#7edd8a'; ctx.textAlign='center'; ctx.textBaseline='middle';
-    ctx.shadowColor='#7edd8a'; ctx.shadowBlur=16;
-    ctx.fillText('PAUSED',CW/2,CH/2);
-    ctx.shadowBlur=0;
-  }
 }
 
 function drawBoard(){
