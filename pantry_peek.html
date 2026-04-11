@@ -462,7 +462,10 @@ function drawFrame(){
 
 function startRenderLoop(){
   if(rafId) cancelAnimationFrame(rafId);
-  function loop(){ drawFrame(); rafId=requestAnimationFrame(loop); }
+  function loop(){
+    try { drawFrame(); } catch(e){ console.error('drawFrame err',e); }
+    rafId=requestAnimationFrame(loop);
+  }
   loop();
 }
 
@@ -549,10 +552,12 @@ function startGame(diff){
 }
 
 function gameTick(){
-  if(!gPlaying) return;
-  gTimer--;
-  updateHUD();
-  if(gTimer<=0){ gTimer=0; endGame(false); }
+  try {
+    if(!gPlaying) return;
+    gTimer--;
+    updateHUD();
+    if(gTimer<=0){ gTimer=0; endGame(false); }
+  } catch(e){ console.error('gameTick err',e); }
 }
 
 function updateHUD(){

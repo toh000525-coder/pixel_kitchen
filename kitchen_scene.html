@@ -1064,7 +1064,7 @@ function draw(){
   drawStageLabel(stageText);
   tick++;
 }
-setInterval(draw,125);
+setInterval(()=>{ try{ draw(); }catch(e){ console.error('draw err',e); } },125);
 
 // ══════════════════════════════════════════════
 //  COOKING STAGES
@@ -1458,7 +1458,7 @@ function initAudio(){
 
 function toggleMute(){
   muted=!muted;
-  if(masterGain) masterGain.gain.setTargetAtTime(muted?0:0.35,actx.currentTime,0.1);
+  if(masterGain && actx) masterGain.gain.setTargetAtTime(muted?0:0.35,actx.currentTime,0.1);
   document.getElementById('muteBtn').textContent=muted?'🔇':'🔊';
 }
 
