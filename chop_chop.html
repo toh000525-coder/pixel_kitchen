@@ -14,12 +14,18 @@ body {
   font-family:'Press Start 2P',monospace;
   width:100vw; height:100vh; overflow:hidden;
 }
-.layout { display:flex; gap:16px; align-items:flex-start; }
-#gameWrap { position:fixed; top:50%; left:50%; transform-origin:center center; }
+.game-content { display:flex; gap:16px; align-items:flex-start; }
+#gameWrap { position:fixed; top:50%; left:50%; transform-origin:center center; display:flex; flex-direction:column; }
 canvas { display:block; border:4px solid #4a7a28; box-shadow:4px 4px 0 #1a3a08,0 8px 40px #000; }
 
+/* TOPBAR */
+.game-topbar { height:34px; flex-shrink:0; background:#110d00; border-bottom:2px solid #1e3a08; display:flex; align-items:center; padding:0 14px; gap:8px; }
+.game-topbar-brand { font-size:.28rem; letter-spacing:2px; color:#2a5a18; flex:1; }
+.game-topbar-coins { color:#f5c842; font-size:.36rem; }
+.game-topbar-coinlbl { color:#3a3000; font-size:.24rem; }
+
 /* PANEL */
-.game-panel { width:280px; background:#1e0e04; border:4px solid #4a7a28; box-shadow:4px 4px 0 #1a3a08; display:flex; flex-direction:column; height:480px; overflow:hidden; }
+.game-panel { width:280px; background:#1e0e04; border:4px solid #4a7a28; box-shadow:4px 4px 0 #1a3a08; display:flex; flex-direction:column; height:480px; overflow:hidden; position:relative; }
 .gpane { display:none; flex-direction:column; flex:1; overflow:hidden; }
 .gpane.active { display:flex; }
 
@@ -27,7 +33,10 @@ canvas { display:block; border:4px solid #4a7a28; box-shadow:4px 4px 0 #1a3a08,0
 .gp-header { background:#1a3a08; padding:10px 14px; text-align:center; border-bottom:4px solid #0d1c04; flex-shrink:0; }
 .gp-logo { font-size:34px; display:block; margin-bottom:4px; }
 .gp-title { color:#7edd8a; font-size:.70rem; letter-spacing:2px; line-height:1.6; text-shadow:2px 2px #0a1a04; }
-.gp-sub { color:#5aaa60; font-size:.38rem; margin-top:6px; line-height:1.8; }
+.gp-rules { padding:6px 12px 8px; border-bottom:2px solid #0d1c04; flex-shrink:0; }
+.gp-rules p { color:#5aaa60; font-size:.28rem; line-height:2.2; margin:0; }
+.btn-mute { position:absolute; bottom:8px; right:8px; font-family:'Press Start 2P',monospace; font-size:.28rem; padding:4px 7px; background:#0d1c04; border:2px solid #1a3a08; color:#2a5a18; cursor:pointer; z-index:10; }
+.btn-mute:hover { border-color:#5aaa60; color:#5aaa60; }
 .diff-label { color:#5aaa60; font-size:.40rem; margin:8px 12px 4px; }
 .diff-grid { display:flex; flex-direction:column; gap:5px; padding:0 12px 8px; }
 .d-btn { padding:8px 12px; border:3px solid; background:#0d1c04; cursor:pointer; font-family:'Press Start 2P',monospace; text-align:left; transition:filter .12s; display:flex; align-items:center; gap:10px; }
@@ -97,7 +106,12 @@ canvas { display:block; border:4px solid #4a7a28; box-shadow:4px 4px 0 #1a3a08,0
 <body>
 
 <div id="gameWrap">
-<div class="layout">
+<div class="game-topbar">
+  <span class="game-topbar-brand">PIXEL KITCHEN</span>
+  <span class="game-topbar-coins">🪙 <span id="topbarCoins">0</span></span>
+  <span class="game-topbar-coinlbl">COINS</span>
+</div>
+<div class="game-content">
 
 <canvas id="gameCanvas" width="480" height="480"></canvas>
 
@@ -108,7 +122,11 @@ canvas { display:block; border:4px solid #4a7a28; box-shadow:4px 4px 0 #1a3a08,0
     <div class="gp-header">
       <span class="gp-logo">🔪</span>
       <div class="gp-title">CHOP<br>CHOP!</div>
-      <div class="gp-sub">Slice at the<br>PERFECT spot!</div>
+    </div>
+    <div class="gp-rules">
+      <p>▸ Watch the knife swing left-right</p>
+      <p>▸ Tap when blade is at center</p>
+      <p>▸ PERFECT = max pts + 10 🪙</p>
     </div>
     <div class="diff-label">▶ SELECT DIFFICULTY</div>
     <div class="diff-grid">
@@ -186,8 +204,9 @@ canvas { display:block; border:4px solid #4a7a28; box-shadow:4px 4px 0 #1a3a08,0
     <button class="btn-back" id="leaderBackBtn" onclick="showPane('paneResult')">← BACK</button>
   </div>
 
+  <button class="btn-mute" id="muteBtn" onclick="toggleMute()">♪ ON</button>
 </div><!-- .game-panel -->
-</div><!-- .layout -->
+</div><!-- .game-content -->
 </div><!-- #gameWrap -->
 
 <!-- ROTATE OVERLAY -->
@@ -217,7 +236,7 @@ function detachLeader(){ if(_lbQ&&_lbL) _lbQ.off('value',_lbL); }
 // ══════════════════════════════════════════
 //  SCALING
 // ══════════════════════════════════════════
-const GAME_W=776, GAME_H=480;
+const GAME_W=776, GAME_H=514;
 function scaleGame(){
   const wrap=document.getElementById('gameWrap');
   const vw=window.visualViewport?window.visualViewport.width:window.innerWidth;
@@ -232,8 +251,18 @@ function checkRotate(){
   const vh=window.visualViewport?window.visualViewport.height:window.innerHeight;
   el.style.display=(vw<vh)?'flex':'';
 }
+function updateTopbarCoins(){
+  const n=parseInt(localStorage.getItem('pkCoins')||'0');
+  const el=document.getElementById('topbarCoins');
+  if(el) el.textContent=n.toLocaleString();
+}
+let muted=false;
+function toggleMute(){
+  muted=!muted;
+  document.getElementById('muteBtn').textContent=muted?'♪ OFF':'♪ ON';
+}
 function onResize(){ scaleGame(); checkRotate(); }
-document.addEventListener('DOMContentLoaded',onResize);
+document.addEventListener('DOMContentLoaded',()=>{ onResize(); updateTopbarCoins(); });
 window.addEventListener('resize',onResize);
 window.addEventListener('orientationchange',()=>setTimeout(onResize,100));
 if(window.visualViewport) window.visualViewport.addEventListener('resize',onResize);
@@ -326,6 +355,7 @@ function endGame(){
   // Save coins
   const prevCoins=parseInt(localStorage.getItem('pkCoins')||'0');
   localStorage.setItem('pkCoins', prevCoins+coinsEarned);
+  updateTopbarCoins();
   document.getElementById('resultCoins').textContent=coinsEarned>0?`🪙 +${coinsEarned} COINS`:'';
   showPane('paneResult');
   submitScore();

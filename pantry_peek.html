@@ -10,13 +10,20 @@
 <style>
 * { margin:0; padding:0; box-sizing:border-box; image-rendering:pixelated; }
 body { background:radial-gradient(ellipse at 50% 30%, #3a1e0a 0%, #1c0d04 100%); font-family:'Press Start 2P',monospace; width:100vw; height:100vh; overflow:hidden; }
-h1 { color:#f5c842; font-size:1rem; letter-spacing:3px; margin-bottom:12px; text-shadow:2px 2px #8b3a00,0 0 20px #f5a700; }
-.layout { display:flex; gap:16px; align-items:flex-start; }
-#gameWrap { position:fixed; top:50%; left:50%; transform-origin:center center; }
+.game-content { display:flex; gap:16px; align-items:flex-start; }
+#gameWrap { position:fixed; top:50%; left:50%; transform-origin:center center; display:flex; flex-direction:column; }
 canvas { display:block; image-rendering:pixelated; image-rendering:crisp-edges; border:4px solid #8b5e2a; box-shadow:4px 4px 0 #5a2d0c, 0 8px 40px #000; }
 
+/* TOPBAR */
+.game-topbar { height:34px; flex-shrink:0; background:#110d00; border-bottom:2px solid #3a2800; display:flex; align-items:center; padding:0 14px; gap:8px; }
+.game-topbar-brand { font-size:.28rem; letter-spacing:2px; color:#5a4010; flex:1; }
+.game-topbar-coins { color:#f5c842; font-size:.36rem; }
+.game-topbar-coinlbl { color:#4a3400; font-size:.24rem; }
+
 /* GAME PANEL */
-.game-panel { width:280px; background:#1e0e04; border:4px solid #8b5e2a; box-shadow:4px 4px 0 #5a2d0c; display:flex; flex-direction:column; height:480px; overflow:hidden; }
+.game-panel { width:280px; background:#1e0e04; border:4px solid #8b5e2a; box-shadow:4px 4px 0 #5a2d0c; display:flex; flex-direction:column; height:480px; overflow:hidden; position:relative; }
+.btn-mute { position:absolute; bottom:8px; right:8px; font-family:'Press Start 2P',monospace; font-size:.28rem; padding:4px 7px; background:#1e0e04; border:2px solid #5a2d0c; color:#8b5e2a; cursor:pointer; z-index:10; }
+.btn-mute:hover { border-color:#f5c842; color:#f5c842; }
 .gpane { display:none; flex-direction:column; flex:1; overflow:hidden; }
 .gpane.active { display:flex; }
 
@@ -97,8 +104,12 @@ canvas { display:block; image-rendering:pixelated; image-rendering:crisp-edges; 
 </head>
 <body>
 <div id="gameWrap">
-<h1>★ PIXEL KITCHEN ★</h1>
-<div class="layout">
+<div class="game-topbar">
+  <span class="game-topbar-brand">PIXEL KITCHEN</span>
+  <span class="game-topbar-coins">🪙 <span id="topbarCoins">0</span></span>
+  <span class="game-topbar-coinlbl">COINS</span>
+</div>
+<div class="game-content">
   <canvas id="gameCanvas" width="620" height="480"></canvas>
   <div class="game-panel">
 
@@ -179,11 +190,10 @@ canvas { display:block; image-rendering:pixelated; image-rendering:crisp-edges; 
       <button class="btn-back" onclick="showTitle()">◀ BACK</button>
     </div>
 
-  </div>
-</div>
-</div>
-
-<button id="muteBtn" onclick="toggleMute()" style="position:fixed;bottom:14px;right:14px;font-family:'Press Start 2P',monospace;font-size:0.75rem;padding:12px 16px;background:#1e0e04;border:3px solid #8b5e2a;color:#f5c842;cursor:pointer;z-index:999;box-shadow:3px 3px 0 #5a2d0c;">🔊</button>
+    <button class="btn-mute" id="muteBtn" onclick="toggleMute()">♪ ON</button>
+  </div><!-- .game-panel -->
+</div><!-- .game-content -->
+</div><!-- #gameWrap -->
 
 <div id="rotateMsg">
   <span class="rotate-phone">📱</span>
@@ -195,7 +205,7 @@ canvas { display:block; image-rendering:pixelated; image-rendering:crisp-edges; 
 // ══════════════════════════════════════════════
 //  SCALING
 // ══════════════════════════════════════════════
-const GAME_W=936, GAME_H=530;
+const GAME_W=936, GAME_H=564;
 function scaleGame(){
   const wrap=document.getElementById('gameWrap');
   if(!wrap) return;
@@ -211,8 +221,13 @@ function checkRotate(){
   const vh=window.visualViewport?window.visualViewport.height:window.innerHeight;
   el.style.display=(vw<vh)?'flex':'';
 }
+function updateTopbarCoins(){
+  const n=parseInt(localStorage.getItem('pkCoins')||'0');
+  const el=document.getElementById('topbarCoins');
+  if(el) el.textContent=n.toLocaleString();
+}
 function onResize(){ scaleGame(); checkRotate(); }
-document.addEventListener('DOMContentLoaded',onResize);
+document.addEventListener('DOMContentLoaded',()=>{ onResize(); updateTopbarCoins(); });
 window.addEventListener('resize',onResize);
 window.addEventListener('orientationchange',()=>setTimeout(onResize,100));
 if(window.visualViewport) window.visualViewport.addEventListener('resize',onResize);
@@ -732,7 +747,7 @@ function stopBGMusic(){ bgPlaying=false; bgBar=0; if(bgTimeout){clearTimeout(bgT
 function toggleMute(){
   muted=!muted;
   if(masterGain) masterGain.gain.setTargetAtTime(muted?0:0.35,actx.currentTime,0.1);
-  document.getElementById('muteBtn').textContent=muted?'🔇':'🔊';
+  document.getElementById('muteBtn').textContent=muted?'♪ OFF':'♪ ON';
 }
 
 // ══════════════════════════════════════════════
