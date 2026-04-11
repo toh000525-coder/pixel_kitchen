@@ -14,7 +14,7 @@ body {
   font-family:'Press Start 2P',monospace;
   width:100vw; height:100vh; overflow:hidden;
 }
-.game-content { display:flex; gap:16px; align-items:flex-start; }
+.game-content { display:flex; gap:16px; align-items:flex-start; justify-content:center; flex:1; }
 #gameWrap { position:fixed; top:50%; left:50%; transform-origin:center center; display:flex; flex-direction:column; }
 canvas { display:block; border:4px solid #4a7a28; box-shadow:4px 4px 0 #1a3a08,0 8px 40px #000; }
 
@@ -236,7 +236,7 @@ function detachLeader(){ if(_lbQ&&_lbL) _lbQ.off('value',_lbL); }
 // ══════════════════════════════════════════
 //  SCALING
 // ══════════════════════════════════════════
-const GAME_W=776, GAME_H=514;
+const GAME_W=936, GAME_H=564;
 function scaleGame(){
   const wrap=document.getElementById('gameWrap');
   const vw=window.visualViewport?window.visualViewport.width:window.innerWidth;

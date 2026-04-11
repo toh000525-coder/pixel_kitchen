@@ -10,7 +10,7 @@
 <style>
 * { margin:0; padding:0; box-sizing:border-box; image-rendering:pixelated; }
 body { background:radial-gradient(ellipse at 50% 30%, #3a1e0a 0%, #1c0d04 100%); font-family:'Press Start 2P',monospace; width:100vw; height:100vh; overflow:hidden; }
-.game-content { display:flex; gap:16px; align-items:flex-start; }
+.game-content { display:flex; gap:16px; align-items:flex-start; justify-content:center; flex:1; }
 #gameWrap { position:fixed; top:50%; left:50%; transform-origin:center center; display:flex; flex-direction:column; }
 canvas { display:block; image-rendering:pixelated; image-rendering:crisp-edges; border:4px solid #8b5e2a; box-shadow:4px 4px 0 #5a2d0c, 0 8px 40px #000; }
 
@@ -309,8 +309,8 @@ canvas { display:block; image-rendering:pixelated; image-rendering:crisp-edges; 
 // ══════════════════════════════════════════════
 //  RESPONSIVE SCALING
 // ══════════════════════════════════════════════
-const GAME_W = 932;
-const GAME_H = 564; // +34px for topbar
+const GAME_W = 936;
+const GAME_H = 564;
 
 function scaleGame(){
   const wrap = document.getElementById('gameWrap');

@@ -124,10 +124,10 @@ PERFECT = +10, GOOD = +5, OK = +2, MISS = +0
         └── .btn-mute (position:absolute, bottom:8px right:8px)
 ```
 
-GAME_H = canvas height + ~40px for topbar. Current values:
-- chop_chop: GAME_W=776, GAME_H=514
-- pantry_peek: GAME_W=936, GAME_H=564
-- kitchen_scene: GAME_W=932, GAME_H=564
+All game pages use the SAME dimensions so screen size is consistent across pages:
+- **Standard: GAME_W=936, GAME_H=564** (all three games)
+- `.game-content` must have `justify-content:center; flex:1` so smaller canvases centre
+- Hub (index.html) stays at 1100×620 — it's a lobby, different layout
 
 ### Topbar style (approved, do not change sizes)
 ```css
