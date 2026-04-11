@@ -1,0 +1,598 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Chop Chop!</title>
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-database-compat.js"></script>
+<style>
+* { margin:0; padding:0; box-sizing:border-box; image-rendering:pixelated; }
+body {
+  background:radial-gradient(ellipse at 50% 30%, #1a2e0a 0%, #0d1c04 100%);
+  font-family:'Press Start 2P',monospace;
+  width:100vw; height:100vh; overflow:hidden;
+}
+.layout { display:flex; gap:16px; align-items:flex-start; }
+#gameWrap { position:fixed; top:50%; left:50%; transform-origin:center center; }
+canvas { display:block; border:4px solid #4a7a28; box-shadow:4px 4px 0 #1a3a08,0 8px 40px #000; }
+
+/* PANEL */
+.game-panel { width:280px; background:#1e0e04; border:4px solid #4a7a28; box-shadow:4px 4px 0 #1a3a08; display:flex; flex-direction:column; height:480px; overflow:hidden; }
+.gpane { display:none; flex-direction:column; flex:1; overflow:hidden; }
+.gpane.active { display:flex; }
+
+/* TITLE */
+.gp-header { background:#1a3a08; padding:10px 14px; text-align:center; border-bottom:4px solid #0d1c04; flex-shrink:0; }
+.gp-logo { font-size:34px; display:block; margin-bottom:4px; }
+.gp-title { color:#7edd8a; font-size:.70rem; letter-spacing:2px; line-height:1.6; text-shadow:2px 2px #0a1a04; }
+.gp-sub { color:#5aaa60; font-size:.38rem; margin-top:6px; line-height:1.8; }
+.diff-label { color:#5aaa60; font-size:.40rem; margin:8px 12px 4px; }
+.diff-grid { display:flex; flex-direction:column; gap:5px; padding:0 12px 8px; }
+.d-btn { padding:8px 12px; border:3px solid; background:#0d1c04; cursor:pointer; font-family:'Press Start 2P',monospace; text-align:left; transition:filter .12s; display:flex; align-items:center; gap:10px; }
+.d-btn:hover { filter:brightness(1.35); }
+.d-icon { font-size:22px; flex-shrink:0; }
+.d-texts { display:flex; flex-direction:column; gap:4px; }
+.d-name { font-size:.55rem; color:inherit; }
+.d-info { font-size:.35rem; color:#888; }
+.d-easy   { border-color:#50c840; color:#50c840; }
+.d-medium { border-color:#f5c842; color:#f5c842; }
+.d-hard   { border-color:#e05050; color:#e05050; }
+
+/* HUD */
+.game-hud { display:flex; justify-content:space-around; background:#0d1c04; border-bottom:3px solid #1a3a08; padding:7px 6px; flex-shrink:0; }
+.hud-item { text-align:center; }
+.hud-val { color:#7edd8a; font-size:.80rem; display:block; }
+.hud-lbl { color:#1a3a08; font-size:.32rem; margin-top:3px; }
+.hud-hint { flex:1; display:flex; align-items:center; justify-content:center; }
+.hud-hint-txt { color:#1a3a08; font-size:.30rem; text-align:center; line-height:2; }
+
+/* RESULT */
+.result-box { padding:12px 14px; text-align:center; flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:8px; }
+.result-title { color:#7edd8a; font-size:.70rem; letter-spacing:2px; }
+.result-score { color:#7edd8a; font-size:1.1rem; }
+.result-sub { color:#5aaa60; font-size:.34rem; line-height:2; white-space:pre-line; }
+.save-status { font-size:.32rem; color:#50c840; min-height:1rem; text-align:center; }
+.btn-green { padding:10px; background:#0d1c04; border:3px solid #50c840; color:#50c840; font-family:'Press Start 2P',monospace; font-size:.40rem; cursor:pointer; width:100%; }
+.btn-green:hover { filter:brightness(1.3); }
+.btn-gold  { padding:10px; background:#0d1c04; border:3px solid #f5c842; color:#f5c842; font-family:'Press Start 2P',monospace; font-size:.40rem; cursor:pointer; width:100%; }
+.btn-gold:hover { filter:brightness(1.3); }
+.btn-back  { margin:8px; padding:8px; background:#0d1c04; border:2px solid #2a4a10; color:#5aaa60; font-family:'Press Start 2P',monospace; font-size:.38rem; cursor:pointer; flex-shrink:0; }
+.btn-back:hover { border-color:#7edd8a; color:#7edd8a; }
+
+/* LEADERBOARD */
+.leader-header { background:#1a3a08; padding:10px 14px; text-align:center; border-bottom:4px solid #0d1c04; flex-shrink:0; }
+.leader-title { color:#7edd8a; font-size:.70rem; letter-spacing:2px; }
+.leader-title span { font-size:2rem; display:block; margin-bottom:4px; }
+.leader-list { flex:1; overflow-y:auto; padding:8px; display:flex; flex-direction:column; gap:6px; min-height:0; }
+.leader-row { display:flex; align-items:center; gap:8px; background:#0d1c04; border:2px solid #1a3a08; padding:7px 10px; }
+.leader-row.me { border-color:#7edd8a; background:#0a1200; }
+.leader-rank { color:#2a4a10; font-size:.44rem; width:30px; flex-shrink:0; text-align:center; }
+.leader-rank.gold   { color:#f5c842; }
+.leader-rank.silver { color:#c0c0c0; }
+.leader-rank.bronze { color:#cd7f32; }
+.leader-name { flex:1; color:#aae0b0; font-size:.40rem; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.leader-score { color:#7edd8a; font-size:.50rem; flex-shrink:0; }
+.leader-diff { font-size:.28rem; flex-shrink:0; padding:2px 4px; border:1px solid; }
+.leader-diff.easy   { color:#50c840; border-color:#50c840; }
+.leader-diff.medium { color:#f5c842; border-color:#f5c842; }
+.leader-diff.hard   { color:#e05050; border-color:#e05050; }
+.leader-empty { color:#2a4a10; font-size:.36rem; text-align:center; padding:20px; line-height:2; }
+</style>
+</head>
+<body>
+
+<div id="gameWrap">
+<div class="layout">
+
+<canvas id="gameCanvas" width="480" height="480"></canvas>
+
+<div class="game-panel">
+
+  <!-- TITLE PANE -->
+  <div class="gpane active" id="paneTitle">
+    <div class="gp-header">
+      <span class="gp-logo">🔪</span>
+      <div class="gp-title">CHOP<br>CHOP!</div>
+      <div class="gp-sub">Slice at the<br>PERFECT spot!</div>
+    </div>
+    <div class="diff-label">▶ SELECT DIFFICULTY</div>
+    <div class="diff-grid">
+      <button class="d-btn d-easy" onclick="startGame('easy')">
+        <span class="d-icon">🥕</span>
+        <div class="d-texts">
+          <span class="d-name">APPRENTICE</span>
+          <span class="d-info">Slow knife · 8 rounds</span>
+        </div>
+      </button>
+      <button class="d-btn d-medium" onclick="startGame('medium')">
+        <span class="d-icon">🥦</span>
+        <div class="d-texts">
+          <span class="d-name">CHEF</span>
+          <span class="d-info">Medium · 10 rounds</span>
+        </div>
+      </button>
+      <button class="d-btn d-hard" onclick="startGame('hard')">
+        <span class="d-icon">🌶️</span>
+        <div class="d-texts">
+          <span class="d-name">SOUS CHEF</span>
+          <span class="d-info">Fast knife · 12 rounds</span>
+        </div>
+      </button>
+    </div>
+    <button class="btn-back" onclick="location.href='index.html?from=game'">← BACK TO HUB</button>
+  </div>
+
+  <!-- GAME HUD PANE -->
+  <div class="gpane" id="paneGame">
+    <div class="game-hud">
+      <div class="hud-item">
+        <span class="hud-val" id="hudScore">0</span>
+        <div class="hud-lbl">SCORE</div>
+      </div>
+      <div class="hud-item">
+        <span class="hud-val" id="hudRound">1/8</span>
+        <div class="hud-lbl">ROUND</div>
+      </div>
+      <div class="hud-item">
+        <span class="hud-val" id="hudLives">❤❤❤</span>
+        <div class="hud-lbl">LIVES</div>
+      </div>
+    </div>
+    <div class="hud-hint">
+      <div class="hud-hint-txt">TAP CANVAS<br>TO CHOP!</div>
+    </div>
+  </div>
+
+  <!-- RESULT PANE -->
+  <div class="gpane" id="paneResult">
+    <div class="result-box">
+      <div class="result-title" id="resultTitle">WELL DONE!</div>
+      <div class="result-score" id="resultScore">0</div>
+      <div class="result-sub" id="resultSub"></div>
+      <div class="save-status" id="saveStatus"></div>
+      <button class="btn-green" onclick="replayGame()">▶ PLAY AGAIN</button>
+      <button class="btn-gold"  onclick="showLeader()">🏆 LEADERBOARD</button>
+      <button class="btn-back"  onclick="location.href='index.html?from=game'" style="margin:4px 8px;width:calc(100% - 16px);">← HUB</button>
+    </div>
+  </div>
+
+  <!-- LEADERBOARD PANE -->
+  <div class="gpane" id="paneLeader">
+    <div class="leader-header">
+      <div class="leader-title"><span>🏆</span>LEADERBOARD</div>
+    </div>
+    <div class="leader-list" id="leaderList">
+      <div class="leader-empty">Loading...</div>
+    </div>
+    <button class="btn-back" onclick="showPane('paneResult')">← BACK</button>
+  </div>
+
+</div><!-- .game-panel -->
+</div><!-- .layout -->
+</div><!-- #gameWrap -->
+
+<script>
+// ══════════════════════════════════════════
+//  FIREBASE
+// ══════════════════════════════════════════
+firebase.initializeApp({
+  apiKey:"AIzaSyAJ3C969-IHJxptn3rcuudOrDxzTzlFHYg",
+  authDomain:"pixel-kitchen-e6b18.firebaseapp.com",
+  databaseURL:"https://pixel-kitchen-e6b18-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId:"pixel-kitchen-e6b18",
+  storageBucket:"pixel-kitchen-e6b18.firebasestorage.app",
+  messagingSenderId:"631692992106",
+  appId:"1:631692992106:web:384cf6c3a2ff3096a7b413"
+},'chop');
+const LB_REF = firebase.app('chop').database().ref('chop_chop/scores');
+let _lbQ=null, _lbL=null;
+function detachLeader(){ if(_lbQ&&_lbL) _lbQ.off('value',_lbL); }
+
+// ══════════════════════════════════════════
+//  SCALING
+// ══════════════════════════════════════════
+const GAME_W=776, GAME_H=480;
+function scaleGame(){
+  const wrap=document.getElementById('gameWrap');
+  const vw=window.visualViewport?window.visualViewport.width:window.innerWidth;
+  const vh=window.visualViewport?window.visualViewport.height:window.innerHeight;
+  const scale=Math.min((vw-8)/GAME_W,(vh-8)/GAME_H);
+  wrap.style.transform=`translate(-50%,-50%) scale(${scale})`;
+}
+document.addEventListener('DOMContentLoaded',scaleGame);
+window.addEventListener('resize',scaleGame);
+if(window.visualViewport) window.visualViewport.addEventListener('resize',scaleGame);
+
+// ══════════════════════════════════════════
+//  CANVAS
+// ══════════════════════════════════════════
+const canvas=document.getElementById('gameCanvas');
+const ctx=canvas.getContext('2d');
+ctx.imageSmoothingEnabled=false;
+const CW=480, CH=480;
+
+// ══════════════════════════════════════════
+//  GAME CONFIG
+// ══════════════════════════════════════════
+const DIFFS={
+  easy:  {rounds:8,  speed:1.0,accel:0.10,perfect:.10,good:.25,pts:[100,60,20],name:'APPRENTICE'},
+  medium:{rounds:10, speed:1.4,accel:0.13,perfect:.07,good:.18,pts:[100,60,20],name:'CHEF'      },
+  hard:  {rounds:12, speed:1.9,accel:0.17,perfect:.05,good:.12,pts:[100,60,20],name:'SOUS CHEF' },
+};
+const FOODS=['🥕','🥦','🍅','🧅','🥔','🌽','🍋','🥝','🍓','🍄','🥑','🫑','🍆','🥒','🧄','🫛'];
+
+// Board geometry (on 480×480 canvas)
+const BX=60, BY=230, BW=360, BH=80;   // cutting board rect
+const FOOD_X=CW/2, FOOD_Y=BY-4;       // food sits on top of board
+const ZONE_Y=BY+32;                    // precision zone bar center
+
+// ══════════════════════════════════════════
+//  STATE
+// ══════════════════════════════════════════
+let cfg, diffKey;
+let round,score,lives,combo,bestCombo;
+let phase='idle'; // 'swing'|'cut'|'next'|'idle'
+let t=0;
+let knifeRaw=0;   // -1..+1  (0=center)
+let cutRaw=0;
+let cutResult=null;
+let currentFood='🥕';
+let foodBounce=0;  // 0→1 pop-in
+let resultFade=0;
+let cutTimer=0;
+let halves=[];
+let sparks=[];
+
+// ══════════════════════════════════════════
+//  PANE HELPER
+// ══════════════════════════════════════════
+function showPane(id){
+  document.querySelectorAll('.gpane').forEach(p=>p.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+// ══════════════════════════════════════════
+//  GAME FLOW
+// ══════════════════════════════════════════
+function startGame(diff){
+  diffKey=diff; cfg=DIFFS[diff];
+  round=0; score=0; lives=3; combo=0; bestCombo=0;
+  showPane('paneGame');
+  nextRound();
+}
+function replayGame(){ startGame(diffKey); }
+
+function nextRound(){
+  round++;
+  if(round>cfg.rounds){ endGame(); return; }
+  currentFood=FOODS[Math.floor(Math.random()*FOODS.length)];
+  foodBounce=0; t=0; knifeRaw=0;
+  cutRaw=0; cutResult=null; resultFade=0;
+  halves=[]; sparks=[];
+  phase='swing';
+  updateHUD();
+}
+
+function updateHUD(){
+  document.getElementById('hudScore').textContent=score;
+  document.getElementById('hudRound').textContent=`${round}/${cfg.rounds}`;
+  document.getElementById('hudLives').textContent='❤'.repeat(lives)+'🖤'.repeat(3-lives);
+}
+
+function endGame(){
+  phase='idle';
+  const pct=score/(cfg.rounds*cfg.pts[0]);
+  const title=pct>=.9?'MASTERCHEF!':pct>=.65?'WELL DONE!':pct>=.4?'KEEP GOING!':'NEEDS WORK...';
+  document.getElementById('resultTitle').textContent=title;
+  document.getElementById('resultScore').textContent=score;
+  document.getElementById('resultSub').textContent=
+    `ROUNDS: ${cfg.rounds}   BEST COMBO: ×${bestCombo}\nDIFFICULTY: ${cfg.name}`;
+  document.getElementById('saveStatus').textContent='';
+  showPane('paneResult');
+  submitScore();
+}
+
+// ══════════════════════════════════════════
+//  CHOP INPUT
+// ══════════════════════════════════════════
+canvas.addEventListener('click',onChop);
+canvas.addEventListener('touchend',e=>{e.preventDefault();onChop();},{passive:false});
+
+function onChop(){
+  if(phase!=='swing') return;
+  phase='cut';
+  cutRaw=knifeRaw;
+  const off=Math.abs(cutRaw);
+
+  if(off<cfg.perfect){
+    cutResult='perfect'; combo++; bestCombo=Math.max(bestCombo,combo);
+    score+=cfg.pts[0]+Math.min((combo-1)*15,45);
+  } else if(off<cfg.good){
+    cutResult='good'; combo++; bestCombo=Math.max(bestCombo,combo);
+    score+=cfg.pts[1];
+  } else if(off<0.42){
+    cutResult='ok'; combo=0; score+=cfg.pts[2];
+  } else {
+    cutResult='miss'; combo=0; lives=Math.max(0,lives-1);
+  }
+  updateHUD();
+
+  // Sparks for good cuts
+  if(cutResult==='perfect'||cutResult==='good'){
+    const sx=FOOD_X+cutRaw*(BW/2);
+    for(let i=0;i<20;i++) sparks.push({
+      x:sx,y:FOOD_Y-20,
+      dx:(Math.random()-.5)*8,dy:(Math.random()-.5)*7-2,
+      life:1,col:cutResult==='perfect'?'#7edd8a':'#f5c842',sz:2+Math.random()*3
+    });
+  }
+
+  // Two food halves fly apart
+  halves=[
+    {ox:0,oy:0,dx:-2.5,dy:-2.0,drot:-.05,rot:0,alpha:1},
+    {ox:0,oy:0,dx: 2.5,dy:-2.0,drot: .05,rot:0,alpha:1},
+  ];
+
+  resultFade=0;
+  cutTimer=65;
+}
+
+// ══════════════════════════════════════════
+//  DRAW
+// ══════════════════════════════════════════
+const RES_COL={perfect:'#7edd8a',good:'#f5c842',ok:'#ff9b6a',miss:'#ff6b6b'};
+const RES_TXT={perfect:'PERFECT!',good:'GOOD!',ok:'OK...',miss:'MISS!'};
+
+function draw(){
+  ctx.clearRect(0,0,CW,CH);
+
+  // Background
+  ctx.fillStyle='#1a2e0a'; ctx.fillRect(0,0,CW,CH);
+  ctx.strokeStyle='#1f3510'; ctx.lineWidth=1;
+  for(let x=0;x<CW;x+=40){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,CH);ctx.stroke();}
+  for(let y=0;y<CH;y+=40){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(CW,y);ctx.stroke();}
+
+  drawBoard();
+  drawZones();
+
+  if(phase==='swing'){
+    drawFood(FOOD_X,FOOD_Y,foodBounce);
+    drawKnife();
+    drawPrompt();
+  }
+  if(phase==='cut'||phase==='next'){
+    drawSparks();
+    drawHalves();
+    drawResultBanner();
+  }
+
+  drawRoundDots();
+}
+
+function drawBoard(){
+  ctx.fillStyle='#0a1400'; ctx.fillRect(BX+4,BY+4,BW,BH);
+  ctx.fillStyle='#5a3a10'; ctx.fillRect(BX,BY,BW,BH);
+  ctx.strokeStyle='#6a4818'; ctx.lineWidth=2;
+  for(let y=BY+14;y<BY+BH-4;y+=14){
+    ctx.beginPath(); ctx.moveTo(BX+6,y); ctx.lineTo(BX+BW-6,y); ctx.stroke();
+  }
+  ctx.strokeStyle='#3a2008'; ctx.lineWidth=4; ctx.strokeRect(BX,BY,BW,BH);
+}
+
+function drawZones(){
+  const zh=16, zx=BX, zy=ZONE_Y-zh/2, zw=BW;
+  // Miss (full bar)
+  ctx.fillStyle='#3a1010'; ctx.fillRect(zx,zy,zw,zh);
+  // OK
+  const okFrac=0.84;
+  ctx.fillStyle='#2a1a00'; ctx.fillRect(zx+zw*(1-okFrac)/2,zy,zw*okFrac,zh);
+  // Good
+  const gw=zw*cfg.good*2;
+  ctx.fillStyle='#2a2a00'; ctx.fillRect(CW/2-gw/2,zy,gw,zh);
+  // Perfect
+  const pw=Math.max(zw*cfg.perfect*2,14);
+  ctx.fillStyle='#0a3015'; ctx.fillRect(CW/2-pw/2,zy,pw,zh);
+  // Center mark
+  ctx.strokeStyle='#7edd8a66'; ctx.lineWidth=2; ctx.setLineDash([3,3]);
+  ctx.beginPath(); ctx.moveTo(CW/2,BY); ctx.lineTo(CW/2,BY+BH); ctx.stroke();
+  ctx.setLineDash([]);
+}
+
+function drawFood(x,y,scale){
+  const s=Math.min(scale,1);
+  ctx.save();
+  ctx.translate(x,y);
+  ctx.scale(s,s);
+  ctx.font='72px serif';
+  ctx.textAlign='center'; ctx.textBaseline='bottom';
+  ctx.fillText(currentFood,0,0);
+  ctx.restore();
+}
+
+function drawKnife(){
+  const kx=FOOD_X+knifeRaw*(BW/2);
+  const ky=BY-44;
+  // Dashed guide line
+  ctx.strokeStyle='#ffffff33'; ctx.lineWidth=2; ctx.setLineDash([4,4]);
+  ctx.beginPath(); ctx.moveTo(kx,BY-80); ctx.lineTo(kx,BY+BH); ctx.stroke();
+  ctx.setLineDash([]);
+  // Knife emoji, pointing down
+  ctx.save();
+  ctx.translate(kx,ky);
+  ctx.rotate(Math.PI/2);
+  ctx.font='38px serif';
+  ctx.textAlign='center'; ctx.textBaseline='middle';
+  ctx.fillText('🔪',0,0);
+  ctx.restore();
+}
+
+function drawHalves(){
+  halves.forEach((h,i)=>{
+    ctx.save();
+    ctx.translate(FOOD_X+h.ox, FOOD_Y+h.oy);
+    ctx.rotate(h.rot);
+    ctx.globalAlpha=Math.max(0,h.alpha);
+    // Clip to left or right of cut line
+    const cutOffsetPx=cutRaw*(BW/2); // cut position relative to FOOD_X
+    ctx.beginPath();
+    if(i===0){ ctx.rect(-200,-120, 200+cutOffsetPx, 200); }
+    else      { ctx.rect(cutOffsetPx,-120, 200, 200); }
+    ctx.clip();
+    ctx.font='72px serif';
+    ctx.textAlign='center'; ctx.textBaseline='bottom';
+    ctx.fillText(currentFood,0,0);
+    ctx.restore();
+  });
+}
+
+function drawSparks(){
+  sparks.forEach(s=>{
+    ctx.save(); ctx.globalAlpha=s.life;
+    ctx.fillStyle=s.col;
+    ctx.fillRect(s.x-s.sz/2,s.y-s.sz/2,s.sz,s.sz);
+    ctx.restore();
+  });
+}
+
+function drawResultBanner(){
+  if(!cutResult||resultFade<=0) return;
+  const col=RES_COL[cutResult];
+  ctx.save();
+  ctx.globalAlpha=Math.min(resultFade,1);
+  ctx.font='26px "Press Start 2P",monospace';
+  ctx.textAlign='center'; ctx.textBaseline='middle';
+  ctx.shadowColor=col; ctx.shadowBlur=18;
+  ctx.fillStyle=col;
+  ctx.fillText(RES_TXT[cutResult],CW/2,BY-90);
+  if((cutResult==='perfect'||cutResult==='good')&&combo>1){
+    ctx.font='13px "Press Start 2P",monospace';
+    ctx.fillStyle='#ffd97d'; ctx.shadowColor='#ffd97d'; ctx.shadowBlur=10;
+    ctx.fillText(`×${combo} COMBO!`,CW/2,BY-62);
+  }
+  ctx.restore();
+}
+
+function drawPrompt(){
+  ctx.save();
+  ctx.globalAlpha=0.4+0.4*Math.sin(t*5);
+  ctx.font='10px "Press Start 2P",monospace';
+  ctx.fillStyle='#5aaa60'; ctx.textAlign='center';
+  ctx.fillText('— TAP TO CHOP! —',CW/2,CH-22);
+  ctx.restore();
+}
+
+function drawRoundDots(){
+  if(!cfg) return;
+  const n=cfg.rounds,sz=8,gap=5;
+  const tw=n*sz+(n-1)*gap;
+  let x=CW/2-tw/2;
+  for(let i=0;i<n;i++){
+    ctx.fillStyle=i<round-1?'#7edd8a':i===round-1?'#b0ffb8':'#1a3a08';
+    ctx.fillRect(x,18,sz,sz);
+    x+=sz+gap;
+  }
+}
+
+// ══════════════════════════════════════════
+//  GAME LOOP
+// ══════════════════════════════════════════
+let lastTs=0;
+function loop(ts){
+  const dt=Math.min((ts-lastTs)/16.67,3);
+  lastTs=ts;
+  t+=dt*0.016;
+
+  if(phase==='swing'){
+    foodBounce=Math.min(foodBounce+0.07*dt,1);
+    const spd=cfg.speed+(round-1)*cfg.accel;
+    knifeRaw=Math.sin(t*spd*Math.PI*2);
+  }
+
+  if(phase==='cut'){
+    resultFade=Math.min(resultFade+0.08*dt,1);
+    cutTimer-=dt;
+
+    halves.forEach(h=>{
+      h.ox+=h.dx*dt; h.oy+=h.dy*dt;
+      h.dy+=0.25*dt; h.rot+=h.drot*dt;
+      h.alpha-=0.018*dt;
+    });
+    sparks.forEach(s=>{
+      s.x+=s.dx*dt; s.y+=s.dy*dt;
+      s.dy+=0.12*dt; s.life-=0.03*dt;
+    });
+    sparks=sparks.filter(s=>s.life>0);
+
+    if(cutTimer<=0){
+      phase='next';
+      setTimeout(()=>{ lives<=0?endGame():nextRound(); },500);
+    }
+  }
+
+  draw();
+  requestAnimationFrame(loop);
+}
+requestAnimationFrame(ts=>{lastTs=ts; requestAnimationFrame(loop);});
+
+// ══════════════════════════════════════════
+//  SCORE SUBMIT
+// ══════════════════════════════════════════
+function submitScore(){
+  const name=localStorage.getItem('pkName');
+  if(!name||score<=0) return;
+  document.getElementById('saveStatus').textContent='Saving...';
+  LB_REF.orderByChild('name_diff').equalTo(`${name}_${diffKey}`)
+    .limitToFirst(1).once('value').then(snap=>{
+      let key=null,old=0;
+      snap.forEach(c=>{key=c.key;old=c.val().score;});
+      if(score<=old){
+        document.getElementById('saveStatus').textContent='(previous score was higher)';
+        return null;
+      }
+      const ref=key?LB_REF.child(key):LB_REF.push();
+      return ref.set({name,score,diff:diffKey,name_diff:`${name}_${diffKey}`,ts:Date.now()});
+    }).then(r=>{
+      if(r!==null) document.getElementById('saveStatus').textContent='✓ Score saved!';
+    }).catch(()=>{
+      document.getElementById('saveStatus').textContent='✗ Save failed';
+    });
+}
+
+// ══════════════════════════════════════════
+//  LEADERBOARD
+// ══════════════════════════════════════════
+function showLeader(){
+  showPane('paneLeader');
+  const list=document.getElementById('leaderList');
+  list.innerHTML='<div class="leader-empty">Loading...</div>';
+  detachLeader();
+  _lbQ=LB_REF.orderByChild('score').limitToLast(10);
+  _lbL=_lbQ.on('value',snap=>{
+    const rows=[];
+    snap.forEach(c=>rows.push(c.val()));
+    rows.sort((a,b)=>b.score-a.score);
+    if(!rows.length){
+      list.innerHTML='<div class="leader-empty">No scores yet!<br>Be the first to chop!</div>';
+      return;
+    }
+    list.innerHTML='';
+    rows.forEach((r,i)=>{
+      const rc=i===0?'gold':i===1?'silver':i===2?'bronze':'';
+      const rs=i===0?'1ST':i===1?'2ND':i===2?'3RD':`#${i+1}`;
+      const d=document.createElement('div');
+      d.className='leader-row'+(r.name===localStorage.getItem('pkName')?' me':'');
+      d.innerHTML=`<span class="leader-rank ${rc}">${rs}</span>
+        <span class="leader-name">${r.name}</span>
+        <span class="leader-score">${r.score}</span>
+        <span class="leader-diff ${r.diff||'easy'}">${(r.diff||'easy').toUpperCase()}</span>`;
+      list.appendChild(d);
+    });
+  },()=>{
+    list.innerHTML='<div class="leader-empty">Failed to load.<br>Check connection.</div>';
+  });
+}
+</script>
+</body>
+</html>
