@@ -296,7 +296,7 @@ body {
 @keyframes spStarTwinkle { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.1;transform:scale(.3)} }
 /* main content */
 .sp-content {
-  display:flex; flex-direction:column; align-items:center; gap:14px;
+  display:flex; flex-direction:column; align-items:center; gap:10px;
   z-index:2;
   animation:spContentIn .5s steps(8) .1s both;
 }
@@ -331,7 +331,9 @@ body {
 
 /* splash content wrapper — scaled by JS */
 #spWrap {
-  display:flex; flex-direction:column; align-items:center;
+  width:500px; height:480px;
+  display:flex; flex-direction:column; align-items:center; justify-content:center;
+  gap:8px;
   transform-origin:center center;
   z-index:2;
 }
@@ -608,7 +610,7 @@ function scaleHub(){
 function scaleSplash(){
   const wrap = document.getElementById('spWrap');
   if(!wrap) return;
-  const W=520, H=420;
+  const W=500, H=480;
   const scaleX = window.innerWidth  / W;
   const scaleY = window.innerHeight / H;
   const scale  = Math.min(scaleX, scaleY, 1);
