@@ -327,7 +327,14 @@ body {
   animation:spBlink .85s step-end 1.2s infinite both;
 }
 @keyframes spBlink { 0%,100%{opacity:1} 50%{opacity:0} }
-.sp-version { position:absolute; bottom:20px; color:var(--gold); font-size:.40rem; letter-spacing:2px; z-index:2; text-shadow:0 0 8px #ffd97d66; }
+.sp-version { color:var(--gold); font-size:.40rem; letter-spacing:2px; text-shadow:0 0 8px #ffd97d66; margin-top:8px; }
+
+/* splash content wrapper — scaled by JS */
+#spWrap {
+  display:flex; flex-direction:column; align-items:center;
+  transform-origin:center center;
+  z-index:2;
+}
 
 /* ── NAME MODAL ── */
 #nameModal {
@@ -410,15 +417,16 @@ body {
   <div class="sp-bar top"></div>
   <div class="sp-bar bot"></div>
 
-  <div class="sp-content">
-    <canvas id="spChef"></canvas>
-    <div class="sp-title">TINY<br><span>KITCHEN</span></div>
-    <div class="sp-foods">🍜 &nbsp;🍰 &nbsp;🍓 &nbsp;🧁 &nbsp;🍳</div>
-    <div class="sp-tagline">★ &nbsp;PIXEL ARCADE &nbsp;★</div>
-    <div class="sp-press">▶ &nbsp;PRESS START &nbsp;◀</div>
+  <div id="spWrap">
+    <div class="sp-content">
+      <canvas id="spChef"></canvas>
+      <div class="sp-title">TINY<br><span>KITCHEN</span></div>
+      <div class="sp-foods">🍜 &nbsp;🍰 &nbsp;🍓 &nbsp;🧁 &nbsp;🍳</div>
+      <div class="sp-tagline">★ &nbsp;PIXEL ARCADE &nbsp;★</div>
+      <div class="sp-press">▶ &nbsp;PRESS START &nbsp;◀</div>
+    </div>
+    <div class="sp-version">v0.2</div>
   </div>
-
-  <div class="sp-version">v0.2</div>
 </div>
 
 <!-- NAME MODAL -->
@@ -597,8 +605,17 @@ function scaleHub(){
   const scale  = Math.min(scaleX, scaleY);
   wrap.style.transform = `scale(${scale})`;
 }
-document.addEventListener('DOMContentLoaded', scaleHub);
-window.addEventListener('resize', scaleHub);
+function scaleSplash(){
+  const wrap = document.getElementById('spWrap');
+  if(!wrap) return;
+  const W=520, H=420;
+  const scaleX = window.innerWidth  / W;
+  const scaleY = window.innerHeight / H;
+  const scale  = Math.min(scaleX, scaleY, 1);
+  wrap.style.transform = `scale(${scale})`;
+}
+document.addEventListener('DOMContentLoaded', ()=>{ scaleHub(); scaleSplash(); });
+window.addEventListener('resize', ()=>{ scaleHub(); scaleSplash(); });
 
 // ══════════════════════════════════════════
 //  SPLASH SCREEN
