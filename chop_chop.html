@@ -697,13 +697,10 @@ function submitScore(){
 // ══════════════════════════════════════════
 //  LEADERBOARD
 // ══════════════════════════════════════════
-function openLeaderFromTitle(){
-  document.getElementById('leaderBackBtn').onclick=()=>showPane('paneTitle');
-  showLeader();
-}
+function openLeaderFromTitle(){ showLeader('paneTitle'); }
 
-function showLeader(){
-  document.getElementById('leaderBackBtn').onclick=()=>showPane('paneResult');
+function showLeader(returnPane='paneResult'){
+  document.getElementById('leaderBackBtn').onclick=()=>showPane(returnPane);
   showPane('paneLeader');
   const list=document.getElementById('leaderList');
   list.innerHTML='<div class="leader-empty">Loading...</div>';
