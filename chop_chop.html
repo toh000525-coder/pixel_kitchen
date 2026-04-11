@@ -79,6 +79,18 @@ canvas { display:block; border:4px solid #4a7a28; box-shadow:4px 4px 0 #1a3a08,0
 .leader-diff.medium { color:#f5c842; border-color:#f5c842; }
 .leader-diff.hard   { color:#e05050; border-color:#e05050; }
 .leader-empty { color:#2a4a10; font-size:.36rem; text-align:center; padding:20px; line-height:2; }
+
+/* ROTATE OVERLAY */
+#rotateMsg {
+  display:none; position:fixed; inset:0; z-index:99999;
+  background:#0d1c04;
+  flex-direction:column; align-items:center; justify-content:center; gap:24px;
+}
+@media (orientation:portrait) { #rotateMsg { display:flex; } }
+.rotate-phone { font-size:52px; animation:rotatePhone 2s steps(2) infinite; }
+@keyframes rotatePhone { 0%,40%{transform:rotate(0deg)} 60%,100%{transform:rotate(90deg)} }
+.rotate-text { color:#7edd8a; font-size:.50rem; letter-spacing:2px; text-align:center; line-height:2.4; }
+.rotate-sub  { color:#2a4a10; font-size:.32rem; letter-spacing:2px; }
 </style>
 </head>
 <body>
@@ -173,6 +185,13 @@ canvas { display:block; border:4px solid #4a7a28; box-shadow:4px 4px 0 #1a3a08,0
 </div><!-- .layout -->
 </div><!-- #gameWrap -->
 
+<!-- ROTATE OVERLAY -->
+<div id="rotateMsg">
+  <span class="rotate-phone">📱</span>
+  <div class="rotate-text">ROTATE YOUR<br>DEVICE</div>
+  <div class="rotate-sub">LANDSCAPE MODE ONLY</div>
+</div>
+
 <script>
 // ══════════════════════════════════════════
 //  FIREBASE
@@ -201,9 +220,18 @@ function scaleGame(){
   const scale=Math.min((vw-8)/GAME_W,(vh-8)/GAME_H);
   wrap.style.transform=`translate(-50%,-50%) scale(${scale})`;
 }
-document.addEventListener('DOMContentLoaded',scaleGame);
-window.addEventListener('resize',scaleGame);
-if(window.visualViewport) window.visualViewport.addEventListener('resize',scaleGame);
+function checkRotate(){
+  const el=document.getElementById('rotateMsg');
+  if(!el) return;
+  const vw=window.visualViewport?window.visualViewport.width:window.innerWidth;
+  const vh=window.visualViewport?window.visualViewport.height:window.innerHeight;
+  el.style.display=(vw<vh)?'flex':'';
+}
+function onResize(){ scaleGame(); checkRotate(); }
+document.addEventListener('DOMContentLoaded',onResize);
+window.addEventListener('resize',onResize);
+window.addEventListener('orientationchange',()=>setTimeout(onResize,100));
+if(window.visualViewport) window.visualViewport.addEventListener('resize',onResize);
 
 // ══════════════════════════════════════════
 //  CANVAS
