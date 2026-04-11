@@ -16,7 +16,39 @@ body {
 }
 .game-content { display:flex; gap:16px; align-items:flex-start; justify-content:center; flex:1; }
 #gameWrap { position:fixed; top:50%; left:50%; transform-origin:center center; display:flex; flex-direction:column; }
-canvas { display:block; border:4px solid #4a7a28; box-shadow:4px 4px 0 #1a3a08,0 8px 40px #000; }
+/* CANVAS WRAP */
+.canvas-wrap { display:flex; flex-direction:column; align-items:center; gap:8px; }
+.canvas-label {
+  font-size:.42rem; letter-spacing:3px; color:#50c840;
+  text-shadow:0 0 12px #50c84066, 2px 2px #0a1a04;
+  animation:labelPulse 2s ease-in-out infinite;
+}
+@keyframes labelPulse { 0%,100%{opacity:1} 50%{opacity:.55} }
+
+.canvas-frame {
+  position:relative;
+  padding:6px;
+  background:#0d1c04;
+  border:3px solid #3a6a1a;
+  box-shadow:0 0 0 1px #1a3a08, 4px 4px 0 #0a1000, 0 0 32px #1a5a0888;
+}
+canvas { display:block; }
+
+/* pixel L-corner brackets */
+.px-corner { position:absolute; width:14px; height:14px; }
+.px-corner.tl { top:-1px;  left:-1px;  border-top:3px solid #7edd8a; border-left:3px solid #7edd8a; }
+.px-corner.tr { top:-1px;  right:-1px; border-top:3px solid #7edd8a; border-right:3px solid #7edd8a; }
+.px-corner.bl { bottom:-1px; left:-1px;  border-bottom:3px solid #7edd8a; border-left:3px solid #7edd8a; }
+.px-corner.br { bottom:-1px; right:-1px; border-bottom:3px solid #7edd8a; border-right:3px solid #7edd8a; }
+
+/* bottom info strip */
+.canvas-footer {
+  display:flex; gap:14px; align-items:center;
+  background:#0d1c04; border:2px solid #1a3a08;
+  padding:5px 14px;
+  box-shadow:2px 2px 0 #0a1000;
+}
+.cf-item { font-size:.30rem; color:#3a7a28; letter-spacing:1px; }
 
 /* TOPBAR */
 .game-topbar { flex-shrink:0; background:transparent; display:flex; align-items:center; padding:10px 14px 6px; gap:12px; }
@@ -25,16 +57,32 @@ canvas { display:block; border:4px solid #4a7a28; box-shadow:4px 4px 0 #1a3a08,0
 .game-topbar-coinlbl { color:#5a4a20; font-size:.42rem; }
 
 /* PANEL */
-.game-panel { width:280px; background:#1e0e04; border:4px solid #4a7a28; box-shadow:4px 4px 0 #1a3a08; display:flex; flex-direction:column; height:480px; overflow:hidden; position:relative; }
+.game-panel { width:280px; background:#1e0e04; border:4px solid #4a7a28; box-shadow:4px 4px 0 #1a3a08, inset 0 0 0 1px #2a5a18; display:flex; flex-direction:column; height:480px; overflow:hidden; position:relative; }
+/* scanline overlay */
+.game-panel::after { content:''; position:absolute; inset:0; pointer-events:none; z-index:99;
+  background:repeating-linear-gradient(0deg,transparent,transparent 3px,rgba(0,0,0,.08) 3px,rgba(0,0,0,.08) 4px); }
 .gpane { display:none; flex-direction:column; flex:1; overflow:hidden; }
 .gpane.active { display:flex; }
 
 /* TITLE */
-.gp-header { background:#1a3a08; padding:10px 14px; text-align:center; border-bottom:4px solid #0d1c04; flex-shrink:0; }
-.gp-logo { font-size:34px; display:block; margin-bottom:4px; }
-.gp-title { color:#7edd8a; font-size:.70rem; letter-spacing:2px; line-height:1.6; text-shadow:2px 2px #0a1a04; }
-.gp-rules { padding:6px 12px 8px; border-bottom:2px solid #0d1c04; flex-shrink:0; }
-.gp-rules p { color:#5aaa60; font-size:.28rem; line-height:2.2; margin:0; }
+.gp-header { background:#1a3a08; padding:10px 14px; text-align:center; border-bottom:4px solid #0d1c04; flex-shrink:0; position:relative; overflow:hidden; }
+/* top accent bar */
+.gp-header::before { content:''; position:absolute; top:0; left:0; right:0; height:3px;
+  background:linear-gradient(90deg,transparent,#7edd8a,#f5c842,#7edd8a,transparent); }
+/* decorative dots below header */
+.gp-header::after { content:'◆  ◆  ◆'; position:absolute; bottom:-10px; left:50%; transform:translateX(-50%);
+  font-size:6px; color:#2a5a18; letter-spacing:3px; white-space:nowrap; }
+@keyframes knifeWobble { 0%,100%{transform:rotate(-8deg) scale(1)} 50%{transform:rotate(8deg) scale(1.15)} }
+.gp-logo { font-size:34px; display:inline-block; margin-bottom:4px; animation:knifeWobble 1.4s ease-in-out infinite; }
+.gp-title { color:#7edd8a; font-size:.70rem; letter-spacing:2px; line-height:1.6; text-shadow:2px 2px #0a1a04, 0 0 12px #3a8a4088; }
+.gp-sub { color:#5aaa60; font-size:0.38rem; margin-top:4px; line-height:1.5; }
+/* pixel divider */
+.px-div { text-align:center; color:#2a5a18; font-size:.28rem; letter-spacing:4px; margin:4px 0 0; flex-shrink:0; }
+/* HOW TO PLAY block accent */
+.how-block { padding:6px 12px 4px; border-left:3px solid #50c840; margin:10px 10px 0; background:#0d1c0488; }
+/* Score glow pulse */
+@keyframes scorePulse { 0%,100%{text-shadow:2px 2px #0a1a04} 50%{text-shadow:2px 2px #0a1a04,0 0 24px #7edd8a88} }
+.result-score { animation:scorePulse 1.6s ease-in-out infinite; }
 .btn-mute { position:absolute; bottom:8px; right:8px; font-family:'Press Start 2P',monospace; font-size:.28rem; padding:4px 7px; background:#0d1c04; border:2px solid #1a3a08; color:#2a5a18; cursor:pointer; z-index:10; }
 .btn-mute:hover { border-color:#5aaa60; color:#5aaa60; }
 .diff-label { color:#5aaa60; font-size:.40rem; margin:8px 12px 4px; }
@@ -56,7 +104,7 @@ canvas { display:block; border:4px solid #4a7a28; box-shadow:4px 4px 0 #1a3a08,0
 .hud-lbl { color:#1a3a08; font-size:.32rem; margin-top:3px; }
 .hud-hint { flex:1; display:flex; align-items:center; justify-content:center; cursor:pointer; border-top:2px solid #1a3a08; user-select:none; -webkit-user-select:none; transition:background .08s; }
 .hud-hint:active { background:#1a3a08; }
-.hud-hint-txt { color:#2a5a18; font-size:.38rem; text-align:center; line-height:2.2; pointer-events:none; }
+.hud-hint-txt { color:#4a8a38; font-size:.55rem; text-align:center; line-height:2.4; pointer-events:none; text-shadow:0 0 10px #2a5a1866; }
 
 /* RESULT */
 .result-box { padding:12px 14px; text-align:center; flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:8px; }
@@ -113,7 +161,17 @@ canvas { display:block; border:4px solid #4a7a28; box-shadow:4px 4px 0 #1a3a08,0
 </div>
 <div class="game-content">
 
-<canvas id="gameCanvas" width="480" height="480"></canvas>
+<div class="canvas-wrap">
+  <div class="canvas-label">🔪 CHOP ZONE 🔪</div>
+  <div class="canvas-frame">
+    <canvas id="gameCanvas" width="480" height="480"></canvas>
+    <!-- pixel corner brackets -->
+    <div class="px-corner tl"></div>
+    <div class="px-corner tr"></div>
+    <div class="px-corner bl"></div>
+    <div class="px-corner br"></div>
+  </div>
+</div>
 
 <div class="game-panel">
 
@@ -122,12 +180,17 @@ canvas { display:block; border:4px solid #4a7a28; box-shadow:4px 4px 0 #1a3a08,0
     <div class="gp-header">
       <span class="gp-logo">🔪</span>
       <div class="gp-title">CHOP<br>CHOP!</div>
+      <div class="gp-sub">Slice at the perfect moment!</div>
     </div>
-    <div class="gp-rules">
-      <p>▸ Watch the knife swing left-right</p>
-      <p>▸ Tap when blade is at center</p>
-      <p>▸ PERFECT = max pts + 10 🪙</p>
+    <div class="how-block">
+      <div class="diff-label" style="margin:0 0 4px;padding:0;">▶ HOW TO PLAY</div>
+      <div style="font-size:.36rem;color:#7edd8a;line-height:2;padding:0 2px;">
+        ① Watch the knife swing left-right<br>
+        ② Tap when the blade hits center<br>
+        ③ PERFECT = max pts + 10 🪙
+      </div>
     </div>
+    <div class="px-div">─────────────────</div>
     <div class="diff-label">▶ SELECT DIFFICULTY</div>
     <div class="diff-grid">
       <button class="d-btn d-easy" onclick="startGame('easy')">
@@ -152,7 +215,7 @@ canvas { display:block; border:4px solid #4a7a28; box-shadow:4px 4px 0 #1a3a08,0
         </div>
       </button>
     </div>
-    <div style="display:flex;gap:0;margin:0 8px 8px;">
+    <div style="display:flex;gap:6px;padding:4px 12px 6px;">
       <button class="btn-back" style="flex:1;" onclick="location.href='index.html?from=game'">◀ HUB</button>
       <button class="btn-back" style="flex:1;" onclick="openLeaderFromTitle()">🏆 RANKS</button>
     </div>
@@ -505,6 +568,66 @@ function drawBackground(){
   [[-1,-26],[7,-30],[-7,-30],[3,-40],[-3,-40],[0,-50]].forEach(([dx,dy])=>{ ctx.fillRect(hpX+dx-4,shelfY+dy-4,9,9); });
   ctx.fillStyle='#22bb40';
   [[-1,-28],[5,-33],[-5,-33],[0,-46]].forEach(([dx,dy])=>{ ctx.fillRect(hpX+dx-2,shelfY+dy-2,5,5); });
+
+  // ── LEFT WALL: magnetic knife strip ──
+  const stripX=4, stripY=80, stripH=110;
+  ctx.fillStyle='#3a2808'; ctx.fillRect(stripX,stripY,14,stripH);
+  ctx.fillStyle='#4a3818'; ctx.fillRect(stripX+2,stripY+2,10,stripH-4);
+  // screws
+  ctx.fillStyle='#666'; [[stripX+7,stripY+6],[stripX+7,stripY+stripH-6]].forEach(([sx,sy])=>{
+    ctx.fillRect(sx-2,sy-2,4,4); ctx.fillStyle='#888'; ctx.fillRect(sx-1,sy-1,2,2); ctx.fillStyle='#666';
+  });
+  // 3 hanging knives (blade points right)
+  [[stripY+20,18,'#c8c8d0'],[stripY+52,22,'#b8b8c0'],[stripY+84,16,'#d0d0d8']].forEach(([ky,bl,col])=>{
+    ctx.fillStyle='#4a3010'; ctx.fillRect(stripX+14,ky-3,10,6); // handle
+    ctx.fillStyle='#2a1a08'; ctx.fillRect(stripX+14,ky-1,10,2); // handle grain
+    ctx.fillStyle=col; ctx.fillRect(stripX+24,ky-2,bl,4);       // blade
+    ctx.fillStyle='#e8e8f0'; ctx.fillRect(stripX+24,ky-1,bl,1); // blade shine
+    ctx.fillStyle=col; ctx.fillRect(stripX+24+bl,ky,3,2);       // tip
+  });
+
+  // ── LEFT WALL: chalk score board ──
+  const cbX=4, cbY=210, cbW=50, cbH=36;
+  ctx.fillStyle='#3a2808'; ctx.fillRect(cbX-2,cbY-2,cbW+4,cbH+4); // wood frame
+  ctx.fillStyle='#1a2a18'; ctx.fillRect(cbX,cbY,cbW,cbH);           // chalkboard
+  ctx.fillStyle='#3a5a30'; ctx.fillRect(cbX+2,cbY+2,cbW-4,cbH-4);  // inner green
+  // chalk text pixels "BEST"
+  ctx.fillStyle='#d0e8c8';
+  [[3,4],[5,4],[4,4],[3,5],[5,5],[3,6],[4,6],[5,6],[3,7],[5,7]].forEach(([dx,dy])=>ctx.fillRect(cbX+dx*4,cbY+dy*3,3,2)); // simplified pixel B
+  ctx.fillStyle='#a0c898'; ctx.fillRect(cbX+6,cbY+cbH-8,cbW-12,1); // chalk line
+
+  // ── FLOOR: checkerboard tiles ──
+  const floorY=350;
+  for(let fy=floorY; fy<CH; fy+=20){
+    for(let fx=0; fx<CW; fx+=20){
+      const chk=((fx/20)+(fy/20))%2===0;
+      ctx.fillStyle=chk?'#3a2a18':'#2a1e10';
+      ctx.fillRect(fx,fy,20,20);
+      ctx.fillStyle=chk?'#2e2010':'#221608';
+      ctx.fillRect(fx,fy,20,1); ctx.fillRect(fx,fy,1,20);
+    }
+  }
+
+  // ── COUNTER: pixel mixing bowl ──
+  const bwX=80, bwY=328;
+  ctx.fillStyle='#c8c0a8'; ctx.fillRect(bwX-18,bwY,36,18);
+  ctx.fillStyle='#e0d8c0'; ctx.fillRect(bwX-16,bwY,32,5);
+  ctx.fillStyle='#b0a890'; ctx.fillRect(bwX-20,bwY-4,40,6);
+  ctx.fillStyle='#d0c8b0'; ctx.fillRect(bwX-20,bwY-4,40,3);
+  // bowl contents (colorful veggies)
+  [[0,'#e05050'],[8,'#f5c842'],[-8,'#50c840']].forEach(([ox,col])=>{
+    ctx.fillStyle=col; ctx.fillRect(bwX+ox-4,bwY+2,8,6);
+  });
+
+  // ── STEAM above cutting board ──
+  const st=Math.sin(Date.now()/400);
+  [[CW/2-40,228],[CW/2,222],[CW/2+40,228]].forEach(([sx,sy],i)=>{
+    const wobble=Math.sin(Date.now()/500+i*1.2)*3;
+    ctx.fillStyle='rgba(255,255,255,0.06)';
+    ctx.fillRect(sx+wobble-4,sy-14,8,10);
+    ctx.fillStyle='rgba(255,255,255,0.04)';
+    ctx.fillRect(sx+wobble-3,sy-24,6,10);
+  });
 
   // Right shelf + two spice jars
   const rShelfY=215;

@@ -62,23 +62,25 @@ body {
 .hub-topbar-coin  { color:#f5c842; font-size:.72rem; }
 .hub-topbar-lbl   { color:#5a4a20; font-size:.42rem; }
 .hub-body {
-  flex:1; display:flex; flex-direction:row; overflow:hidden;
+  display:flex; flex-direction:row; overflow:hidden; flex-shrink:0;
 }
 
 /* ── LEFT SIDEBAR ── */
 .hub-left {
   width:260px;
   flex-shrink:0;
+  align-self:stretch;
   background:var(--bg2);
   border:3px solid var(--border);
   box-shadow:4px 4px 0 var(--shadow), inset 0 0 0 1px var(--bg3);
   display:flex;
   flex-direction:column;
   align-items:center;
-  justify-content:center;
-  gap:12px;
-  padding:24px 20px;
+  justify-content:flex-start;
+  gap:10px;
+  padding:20px 20px 14px;
   position:relative;
+  overflow:hidden;
 }
 
 /* top accent line on sidebar */
@@ -120,22 +122,20 @@ body {
 
 .hub-version {
   color:var(--gold);
-  font-size:.40rem;
+  font-size:.44rem;
   letter-spacing:2px;
-  position:absolute;
-  bottom:36px;
   text-shadow:0 0 8px #ffd97d66;
+  text-align:center;
+  margin-top:8px;
 }
 #hubMute {
   font-family:'Press Start 2P',monospace;
-  font-size:.30rem;
+  font-size:.38rem;
   background:var(--bg3);
   color:var(--sub);
   border:2px solid var(--border);
-  padding:5px 9px;
+  padding:7px 14px;
   cursor:pointer;
-  position:absolute;
-  bottom:12px;
   transition:filter .12s;
   letter-spacing:1px;
 }
@@ -144,6 +144,7 @@ body {
 /* ── RIGHT CONTENT ── */
 .hub-right {
   flex:1;
+  min-height:0;
   display:flex;
   flex-direction:column;
   padding:16px 16px 16px 20px;
@@ -161,6 +162,7 @@ body {
 /* ── GAME GRID ── */
 .game-grid {
   flex:1;
+  min-height:0;
   display:grid;
   grid-template-columns:1fr 1fr;
   grid-template-rows:1fr 1fr 1fr;
@@ -246,6 +248,7 @@ body {
   padding:12px 14px;
   margin:0 0 6px;
   overflow:hidden;
+  flex-shrink:0;
 }
 .shop-card.soon { cursor:default; opacity:.75; }
 
@@ -379,11 +382,11 @@ body {
 }
 .nm-btn:hover { filter:brightness(1.3); }
 /* player name in sidebar */
-.hub-player { color:#f0d090; font-size:.32rem; line-height:2; }
+.hub-player { color:#f0d090; font-size:.46rem; line-height:2; text-align:center; margin-top:auto; }
 .hub-change {
-  font-family:'Press Start 2P',monospace; font-size:.26rem;
+  font-family:'Press Start 2P',monospace; font-size:.36rem;
   background:none; border:1px solid #664420; color:#664420;
-  padding:3px 6px; cursor:pointer; margin-top:2px;
+  padding:6px 12px; cursor:pointer; margin-top:6px; text-align:center;
 }
 .hub-change:hover { border-color:#c8904a; color:#c8904a; }
 
@@ -472,10 +475,10 @@ body {
     <div class="hub-title">TINY<br><span>KITCHEN</span></div>
     <div class="hub-divider-v"></div>
     <div class="hub-sub">★ PIXEL ARCADE ★</div>
-    <div class="hub-version">v0.2</div>
     <div class="hub-player" id="hubPlayerName"></div>
     <button class="hub-change" id="hubChangeName" onclick="showNameModal()" style="display:none;">✎ CHANGE NAME</button>
     <button id="hubMute" onclick="toggleHubMute()">♪ ON</button>
+    <div class="hub-version">v0.2</div>
   </div>
 
   <!-- RIGHT: GAME SELECT -->
@@ -485,7 +488,7 @@ body {
     <div class="game-grid">
 
       <!-- 1. Ingredient Match -->
-      <div class="game-card" onclick="location.href='kitchen_scene.html'">
+      <div class="game-card" onclick="location.href='1_kitchen_scene.html'">
         <div class="card-stripe" style="background:var(--gold);"></div>
         <div class="card-icon">🥗</div>
         <div class="card-name" style="color:var(--gold);">DISH DETECTIVE</div>
@@ -496,7 +499,7 @@ body {
       </div>
 
       <!-- 2. Pantry Peek -->
-      <div class="game-card" onclick="location.href='pantry_peek.html'">
+      <div class="game-card" onclick="location.href='2_pantry_peek.html'">
         <div class="card-stripe" style="background:var(--blue);"></div>
         <div class="card-icon">🃏</div>
         <div class="card-name" style="color:var(--blue);">PANTRY PEEK</div>
@@ -508,7 +511,7 @@ body {
       </div>
 
       <!-- 3. Chop Chop -->
-      <div class="game-card" onclick="location.href='chop_chop.html'">
+      <div class="game-card" onclick="location.href='3_chop_chop.html'">
         <div class="card-stripe" style="background:var(--orange);"></div>
         <div class="card-icon">🔪</div>
         <div class="card-name" style="color:var(--orange);">CHOP CHOP!</div>
@@ -624,6 +627,14 @@ body {
 // ══════════════════════════════════════════
 //  RESPONSIVE SCALING
 // ══════════════════════════════════════════
+function fixHubLayout(){
+  const wrap   = document.getElementById('hubWrap');
+  const topbar = wrap && wrap.querySelector('.hub-topbar');
+  const body   = wrap && wrap.querySelector('.hub-body');
+  if(!topbar || !body) return;
+  const bodyH = 620 - topbar.offsetHeight;
+  body.style.height = bodyH + 'px';
+}
 function scaleHub(){
   const wrap = document.getElementById('hubWrap');
   if(!wrap) return;
@@ -657,6 +668,7 @@ function checkRotate(){
 }
 function onResize(){
   checkRotate();
+  fixHubLayout();
   scaleHub();
   scaleSplash();
 }
