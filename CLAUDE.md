@@ -106,11 +106,46 @@ PERFECT = +10, GOOD = +5, OK = +2, MISS = +0
 ### Hub layout
 ```
 #hubWrap (1100×620, flex column)
-├── .hub-topbar (34px — coin balance bar, spans full width)
+├── .hub-topbar (transparent, no border — ★ PIXEL KITCHEN ★ right + 🪙 coins left)
 └── .hub-body (flex row, remaining height)
     ├── .hub-left (260px sidebar)
     └── .hub-right (flex:1 game grid)
 ```
+
+### Game page layout (all 3 games)
+```
+#gameWrap (GAME_W × GAME_H, flex column)
+├── .game-topbar (transparent, no border — ★ PIXEL KITCHEN ★ left + 🪙 coins right)
+└── .game-content (flex row)
+    ├── canvas
+    └── .game-panel (position:relative)
+        ├── paneTitle: header + rules + difficulty + [◀ HUB][🏆 RANKS]
+        ├── paneGame / paneResult / paneLeader
+        └── .btn-mute (position:absolute, bottom:8px right:8px)
+```
+
+GAME_H = canvas height + ~40px for topbar. Current values:
+- chop_chop: GAME_W=776, GAME_H=514
+- pantry_peek: GAME_W=936, GAME_H=564
+- kitchen_scene: GAME_W=932, GAME_H=564
+
+### ★ PIXEL KITCHEN ★ title style (approved, do not change)
+```css
+/* Topbar — transparent background, no border */
+.game-topbar {
+  flex-shrink:0; background:transparent;
+  display:flex; align-items:center;
+  padding:10px 14px 6px; gap:12px;
+}
+/* Brand text */
+.game-topbar-brand {
+  font-size:1rem; letter-spacing:3px;
+  color:#f5c842;
+  text-shadow:2px 2px #8b3a00, 0 0 20px #f5a700;
+  flex:1;
+}
+```
+HTML: `<span class="game-topbar-brand">★ PIXEL KITCHEN ★</span>`
 
 ### Game panel standard structure (all games)
 Title pane bottom: side-by-side `[◀ HUB]` and `[🏆 RANKS]` buttons using `btn-back` class.
