@@ -173,6 +173,10 @@ canvas { display:block; border:4px solid #4a7a28; box-shadow:4px 4px 0 #1a3a08,0
         <span class="hud-val" id="hudLives">❤❤❤</span>
         <div class="hud-lbl">LIVES</div>
       </div>
+      <div class="hud-item">
+        <span class="hud-val" id="pauseBtn" style="cursor:pointer;" onclick="togglePause()">⏸</span>
+        <div class="hud-lbl">PAUSE</div>
+      </div>
     </div>
     <div class="hud-hint" id="chopBtn">
       <div class="hud-hint-txt">🔪<br>TAP HERE<br>TO CHOP!</div>
@@ -295,6 +299,12 @@ const ZONE_Y=BY+32;                    // precision zone bar center
 // ══════════════════════════════════════════
 let cfg, diffKey;
 let round,score,lives,combo,bestCombo,coinsEarned;
+let paused=false;
+function togglePause(){
+  if(phase==='idle'||phase==='next') return;
+  paused=!paused;
+  document.getElementById('pauseBtn').textContent=paused?'▶':'⏸';
+}
 let phase='idle'; // 'swing'|'cut'|'next'|'idle'
 let t=0;
 let knifeRaw=0;   // -1..+1  (0=center)
@@ -320,7 +330,8 @@ function showPane(id){
 // ══════════════════════════════════════════
 function startGame(diff){
   diffKey=diff; cfg=DIFFS[diff];
-  round=0; score=0; lives=3; combo=0; bestCombo=0; coinsEarned=0;
+  round=0; score=0; lives=3; combo=0; bestCombo=0; coinsEarned=0; paused=false;
+  document.getElementById('pauseBtn').textContent='⏸';
   showPane('paneGame');
   nextRound();
 }
@@ -369,7 +380,7 @@ chopBtn.addEventListener('click',onChop);
 chopBtn.addEventListener('touchend',e=>{e.preventDefault();onChop();},{passive:false});
 
 function onChop(){
-  if(phase!=='swing') return;
+  if(phase!=='swing'||paused) return;
   phase='cut';
   cutRaw=knifeRaw;
   const off=Math.abs(cutRaw);
@@ -514,6 +525,16 @@ function draw(){
   }
 
   drawRoundDots();
+
+  if(paused){
+    ctx.fillStyle='rgba(0,0,0,0.55)';
+    ctx.fillRect(0,0,CW,CH);
+    ctx.font='18px "Press Start 2P",monospace';
+    ctx.fillStyle='#7edd8a'; ctx.textAlign='center'; ctx.textBaseline='middle';
+    ctx.shadowColor='#7edd8a'; ctx.shadowBlur=16;
+    ctx.fillText('PAUSED',CW/2,CH/2);
+    ctx.shadowBlur=0;
+  }
 }
 
 function drawBoard(){
@@ -665,32 +686,35 @@ function loop(ts){
   try {
   const dt=Math.min((ts-lastTs)/16.67,3);
   lastTs=ts;
-  t+=dt*0.016;
 
-  if(phase==='swing'){
-    foodBounce=Math.min(foodBounce+0.07*dt,1);
-    const spd=cfg.speed+(round-1)*cfg.accel;
-    knifeRaw=Math.sin(t*spd*Math.PI*2);
-  }
+  if(!paused){
+    t+=dt*0.016;
 
-  if(phase==='cut'){
-    resultFade=Math.min(resultFade+0.08*dt,1);
-    cutTimer-=dt;
+    if(phase==='swing'){
+      foodBounce=Math.min(foodBounce+0.07*dt,1);
+      const spd=cfg.speed+(round-1)*cfg.accel;
+      knifeRaw=Math.sin(t*spd*Math.PI*2);
+    }
 
-    halves.forEach(h=>{
-      h.ox+=h.dx*dt; h.oy+=h.dy*dt;
-      h.dy+=0.25*dt; h.rot+=h.drot*dt;
-      h.alpha-=0.018*dt;
-    });
-    sparks.forEach(s=>{
-      s.x+=s.dx*dt; s.y+=s.dy*dt;
-      s.dy+=0.12*dt; s.life-=0.03*dt;
-    });
-    sparks=sparks.filter(s=>s.life>0);
+    if(phase==='cut'){
+      resultFade=Math.min(resultFade+0.08*dt,1);
+      cutTimer-=dt;
 
-    if(cutTimer<=0){
-      phase='next';
-      setTimeout(()=>{ lives<=0?endGame():nextRound(); },500);
+      halves.forEach(h=>{
+        h.ox+=h.dx*dt; h.oy+=h.dy*dt;
+        h.dy+=0.25*dt; h.rot+=h.drot*dt;
+        h.alpha-=0.018*dt;
+      });
+      sparks.forEach(s=>{
+        s.x+=s.dx*dt; s.y+=s.dy*dt;
+        s.dy+=0.12*dt; s.life-=0.03*dt;
+      });
+      sparks=sparks.filter(s=>s.life>0);
+
+      if(cutTimer<=0){
+        phase='next';
+        setTimeout(()=>{ lives<=0?endGame():nextRound(); },500);
+      }
     }
   }
 

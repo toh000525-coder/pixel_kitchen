@@ -155,6 +155,7 @@ canvas { display:block; image-rendering:pixelated; image-rendering:crisp-edges; 
         <div class="hud-item"><span class="hud-val" id="hudTimer">1:30</span><div class="hud-lbl">TIME</div></div>
         <div class="hud-item"><span class="hud-val" id="hudPairs">0/6</span><div class="hud-lbl">PAIRS</div></div>
         <div class="hud-item"><span class="hud-val" id="hudScore">0</span><div class="hud-lbl">SCORE</div></div>
+        <div class="hud-item"><span class="hud-val" id="pauseBtn" style="cursor:pointer;" onclick="togglePause()">⏸</span><div class="hud-lbl">PAUSE</div></div>
       </div>
       <div class="timer-bar-wrap"><div class="timer-bar-fill" id="timerBar"></div></div>
       <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;padding:8px;">
@@ -252,6 +253,7 @@ let gDiff='apprenti', gConfig=CONFIGS.apprenti;
 let gCards=[], gFirstFlip=null, gLocked=false;
 let gTimer=0, gTimerMax=0, gScore=0, gPairs=0, gTotalPairs=0;
 let gPlaying=false;
+let paused=false;
 let gameLoopId=null, rafId=null;
 
 // Pixel-art question mark centered at (cx,cy), pixel size ps
@@ -464,14 +466,25 @@ function drawFrame(){
   drawBackground();
   for(let i=0;i<gCards.length;i++) drawCard(i);
   // Animate flips
-  for(let i=0;i<gCards.length;i++){
-    const card=gCards[i];
-    if(card._animTo!==undefined){
-      const spd=0.09;
-      const d=card._animTo-card.flipProg;
-      if(Math.abs(d)<=spd){ card.flipProg=card._animTo; delete card._animTo; }
-      else card.flipProg+=Math.sign(d)*spd;
+  if(!paused){
+    for(let i=0;i<gCards.length;i++){
+      const card=gCards[i];
+      if(card._animTo!==undefined){
+        const spd=0.09;
+        const d=card._animTo-card.flipProg;
+        if(Math.abs(d)<=spd){ card.flipProg=card._animTo; delete card._animTo; }
+        else card.flipProg+=Math.sign(d)*spd;
+      }
     }
+  }
+  if(paused){
+    ctx.fillStyle='rgba(0,0,0,0.55)';
+    ctx.fillRect(0,0,canvas.width,canvas.height);
+    ctx.font='18px "Press Start 2P",monospace';
+    ctx.fillStyle='#7edd8a'; ctx.textAlign='center'; ctx.textBaseline='middle';
+    ctx.shadowColor='#7edd8a'; ctx.shadowBlur=16;
+    ctx.fillText('PAUSED',canvas.width/2,canvas.height/2);
+    ctx.shadowBlur=0;
   }
 }
 
@@ -558,7 +571,8 @@ function startGame(diff){
   document.getElementById('hudPairs').textContent=`0/${gConfig.pairs}`;
   document.getElementById('gameMsg').textContent='Find all matching pairs!';
   showPane('paneGame');
-  gPlaying=true;
+  gPlaying=true; paused=false;
+  document.getElementById('pauseBtn').textContent='⏸';
 
   if(gameLoopId) clearInterval(gameLoopId);
   gameLoopId=setInterval(gameTick,1000);
@@ -566,9 +580,15 @@ function startGame(diff){
   initAudio(); startBGMusic();
 }
 
+function togglePause(){
+  if(!gPlaying) return;
+  paused=!paused;
+  document.getElementById('pauseBtn').textContent=paused?'▶':'⏸';
+}
+
 function gameTick(){
   try {
-    if(!gPlaying) return;
+    if(!gPlaying||paused) return;
     gTimer--;
     updateHUD();
     if(gTimer<=0){ gTimer=0; endGame(false); }
@@ -591,7 +611,7 @@ function updateHUD(){
 //  CLICK — flip logic
 // ══════════════════════════════════════════════
 canvas.addEventListener('click',function(e){
-  if(!gPlaying||gLocked) return;
+  if(!gPlaying||gLocked||paused) return;
   initAudio();
   const rect=canvas.getBoundingClientRect();
   const mx=(e.clientX-rect.left)*(canvas.width/rect.width);

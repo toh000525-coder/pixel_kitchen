@@ -246,6 +246,7 @@ canvas { display:block; image-rendering:pixelated; image-rendering:crisp-edges; 
         <div class="hud-item"><span class="hud-val" id="hudTimer">2:30</span><div class="hud-lbl">TIME</div></div>
         <div class="hud-item"><span class="hud-val" id="hudScore">0</span><div class="hud-lbl">SCORE</div></div>
         <div class="hud-item"><span class="hud-val" id="hudProg">1/10</span><div class="hud-lbl">DISH</div></div>
+        <div class="hud-item"><span class="hud-val" id="pauseBtn" style="cursor:pointer;" onclick="togglePause()">⏸</span><div class="hud-lbl">PAUSE</div></div>
         <div class="hud-item"><span class="hud-val" style="cursor:pointer;font-size:0.55rem;" onclick="confirmQuit()">✕</span><div class="hud-lbl">QUIT</div></div>
       </div>
       <div class="timer-bar-wrap"><div class="timer-bar-fill" id="timerBar"></div></div>
@@ -259,6 +260,10 @@ canvas { display:block; image-rendering:pixelated; image-rendering:crisp-edges; 
       </div>
       <div class="ingr-grid" id="ingrGrid"></div>
       <div class="ingr-feedback" id="ingrFb"></div>
+      <div id="pauseOverlay" style="display:none;position:absolute;inset:0;background:rgba(0,0,0,0.55);z-index:50;align-items:center;justify-content:center;flex-direction:column;gap:10px;">
+        <div style="font-family:'Press Start 2P',monospace;font-size:0.9rem;color:#7edd8a;text-shadow:0 0 16px #7edd8a;">PAUSED</div>
+        <div style="font-family:'Press Start 2P',monospace;font-size:0.34rem;color:#c8904a;">TAP ⏸ TO RESUME</div>
+      </div>
     </div>
 
     <!-- RESULT PANE -->
@@ -1196,6 +1201,15 @@ let timeLeft=0, gTimerInt=null;
 let gScore=0, gDishIdx=0, gDishes=[], gGolden=new Set();
 let gCombo=0, gBestCombo=0, gCorrect=0;
 let gPicked=new Set(), gGrid=[];
+let paused=false;
+
+function togglePause(){
+  if(gState!=='playing') return;
+  paused=!paused;
+  document.getElementById('pauseBtn').textContent=paused?'▶':'⏸';
+  const overlay=document.getElementById('pauseOverlay');
+  if(overlay) overlay.style.display=paused?'flex':'none';
+}
 
 function shuffleArr(a){
   for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}
@@ -1233,6 +1247,9 @@ function _doStartGame(diff){
   gGolden=new Set(shuffleArr([0,1,2,3,4,5,6,7,8,9]).slice(0,2));
   resetKitchen(); intense=false; boiling=false; stageText=''; vegsOn=true;
   speechText='BONNE CHANCE!';
+  paused=false;
+  document.getElementById('pauseBtn').textContent='⏸';
+  const po=document.getElementById('pauseOverlay'); if(po) po.style.display='none';
   updateHUD();
   showPane('paneGame');
   showDish();
@@ -1244,7 +1261,7 @@ function _doStartGame(diff){
 function startGTimer(){
   clearInterval(gTimerInt);
   gTimerInt=setInterval(()=>{
-    if(gState!=='playing') return;
+    if(gState!=='playing'||paused) return;
     timeLeft=Math.max(0,timeLeft-0.1);
     updateTimerUI();
     intense=timeLeft<30;
@@ -1304,7 +1321,7 @@ function renderGrid(){
 
 // ── SELECT ──
 function selectIngr(id,tile){
-  if(gState!=='playing'||gPicked.has(id)||tile.classList.contains('locked')) return;
+  if(gState!=='playing'||paused||gPicked.has(id)||tile.classList.contains('locked')) return;
   const dish=gDishes[gDishIdx];
   if(dish.ok.includes(id)){
     gPicked.add(id);
