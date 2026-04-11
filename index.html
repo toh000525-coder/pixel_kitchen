@@ -51,6 +51,7 @@ body {
   display:flex;
   flex-direction:row;
   gap:0;
+  overflow:hidden;
 }
 
 /* ── LEFT SIDEBAR ── */
@@ -606,6 +607,10 @@ function scaleHub(){
   const scaleY = window.innerHeight / H;
   const scale  = Math.min(scaleX, scaleY);
   wrap.style.transform = `scale(${scale})`;
+  // Collapse layout box to visual size so mobile Safari doesn't overflow
+  const mh = W * (1 - scale) / 2;
+  const mv = H * (1 - scale) / 2;
+  wrap.style.margin = `-${mv}px -${mh}px`;
 }
 function scaleSplash(){
   const wrap = document.getElementById('spWrap');
@@ -615,6 +620,9 @@ function scaleSplash(){
   const scaleY = window.innerHeight / H;
   const scale  = Math.min(scaleX, scaleY, 1);
   wrap.style.transform = `scale(${scale})`;
+  const mh = W * (1 - scale) / 2;
+  const mv = H * (1 - scale) / 2;
+  wrap.style.margin = `-${mv}px -${mh}px`;
 }
 document.addEventListener('DOMContentLoaded', ()=>{ scaleHub(); scaleSplash(); });
 window.addEventListener('resize', ()=>{ scaleHub(); scaleSplash(); });
