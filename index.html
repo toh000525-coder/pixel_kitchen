@@ -459,6 +459,10 @@ body {
   line-height:2.4;
 }
 .rotate-sub { color:var(--sub); font-size:.32rem; letter-spacing:2px; }
+/* Page transitions */
+@keyframes pkPageIn  { from{opacity:0;transform:translateY(6px)} to{opacity:1;transform:none} }
+@keyframes pkPageOut { to{opacity:0;transform:translateY(-6px)} }
+body { animation: pkPageIn 0.22s ease-out both; }
 </style>
 </head>
 <body>
@@ -552,7 +556,7 @@ body {
     <div class="game-grid">
 
       <!-- 1. Ingredient Match -->
-      <div class="game-card" onclick="location.href='1_kitchen_scene.html'">
+      <div class="game-card" onclick="goTo('1_kitchen_scene.html')">
         <div class="card-stripe" style="background:var(--gold);"></div>
         <div class="card-icon">🍳</div>
         <div class="card-name" style="color:var(--gold);">DISH DETECTIVE</div>
@@ -563,7 +567,7 @@ body {
       </div>
 
       <!-- 2. Pantry Peek -->
-      <div class="game-card" onclick="location.href='2_pantry_peek.html'">
+      <div class="game-card" onclick="goTo('2_pantry_peek.html')">
         <div class="card-stripe" style="background:var(--blue);"></div>
         <div class="card-icon">🥕</div>
         <div class="card-name" style="color:var(--blue);">PANTRY PEEK</div>
@@ -574,7 +578,7 @@ body {
       </div>
 
       <!-- 3. Chop Chop -->
-      <div class="game-card" onclick="location.href='3_chop_chop.html'">
+      <div class="game-card" onclick="goTo('3_chop_chop.html')">
         <div class="card-stripe" style="background:var(--orange);"></div>
         <div class="card-icon">🔪</div>
         <div class="card-name" style="color:var(--orange);">CHOP CHOP!</div>
@@ -585,7 +589,7 @@ body {
       </div>
 
       <!-- 4. Recipe Rush -->
-      <div class="game-card" onclick="location.href='4_recipe_rush.html'">
+      <div class="game-card" onclick="goTo('4_recipe_rush.html')">
         <div class="card-stripe" style="background:var(--green);"></div>
         <div class="card-icon">📋</div>
         <div class="card-name" style="color:var(--green);">RECIPE RUSH</div>
@@ -596,7 +600,7 @@ body {
       </div>
 
       <!-- 5. Plate Perfect -->
-      <div class="game-card" onclick="location.href='6_plate_perfect.html'">
+      <div class="game-card" onclick="goTo('6_plate_perfect.html')">
         <div class="card-stripe" style="background:var(--pink);"></div>
         <div class="card-icon">🍽️</div>
         <div class="card-name" style="color:var(--pink);">PLATE PERFECT</div>
@@ -607,7 +611,7 @@ body {
       </div>
 
       <!-- 6. Kitchen Chaos -->
-      <div class="game-card" onclick="location.href='5_kitchen_chaos.html'">
+      <div class="game-card" onclick="goTo('5_kitchen_chaos.html')">
         <div class="card-stripe" style="background:var(--red);"></div>
         <div class="card-icon">🌶️</div>
         <div class="card-name" style="color:var(--red);">KITCHEN CHAOS</div>
@@ -1065,6 +1069,22 @@ function _hubStart(){
 }
 document.addEventListener('click',_hubStart);
 document.addEventListener('keydown',_hubStart);
+
+function goTo(url){
+  document.body.style.animation='pkPageOut 0.18s ease-in both';
+  setTimeout(()=>location.href=url,190);
+}
+
+function _hubClick(){
+  if(!hActx||hMuted) return;
+  const t=hActx.currentTime;
+  const o=hActx.createOscillator(), g=hActx.createGain();
+  o.connect(g); g.connect(hActx.destination);
+  o.type='square'; o.frequency.value=660;
+  g.gain.setValueAtTime(0.09,t); g.gain.exponentialRampToValueAtTime(0.001,t+0.05);
+  o.start(t); o.stop(t+0.06);
+}
+document.addEventListener('click',e=>{ if(e.target.closest('button')&&e.target.id!=='muteBtn') _hubClick(); });
 
 </script>
 </body>
