@@ -414,10 +414,11 @@ canvas { display:block; }
 
 <!-- PAUSE MENU -->
 <div id="pauseMenu" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(200,150,80,0.45);align-items:center;justify-content:center;">
-  <div style="background:#fff8ee;border:4px solid #e8913a;box-shadow:4px 4px 0 #c07020,0 0 40px rgba(200,100,20,0.3);padding:28px 32px;text-align:center;display:flex;flex-direction:column;gap:12px;min-width:220px;">
+  <div style="background:#fff8ee;border:4px solid #e8913a;box-shadow:4px 4px 0 #c07020,0 0 40px rgba(200,100,20,0.3);padding:28px 32px;text-align:center;display:flex;flex-direction:column;gap:12px;min-width:240px;">
     <div style="font-family:'Press Start 2P',monospace;font-size:0.85rem;color:#c85a1a;text-shadow:2px 2px #f5dcc0;letter-spacing:2px;margin-bottom:6px;">⏸ PAUSED</div>
-    <button class="btn-back" onclick="resumeGame()">▶ RESUME</button>
-    <button class="btn-back" onclick="quitFromMenu()">◀ QUIT</button>
+    <button style="font-family:'Press Start 2P',monospace;font-size:.38rem;background:#f5e8d8;border:2px solid #e8913a;color:#8a6030;cursor:pointer;padding:10px 16px;width:100%;text-align:center;letter-spacing:1px;" onclick="resumeGame()">▶ RESUME</button>
+    <button style="font-family:'Press Start 2P',monospace;font-size:.38rem;background:#f5e8d8;border:2px solid #e8913a;color:#8a6030;cursor:pointer;padding:10px 16px;width:100%;text-align:center;letter-spacing:1px;" onclick="replayGame()">↺ RESTART</button>
+    <button style="font-family:'Press Start 2P',monospace;font-size:.38rem;background:#f5e8d8;border:2px solid #e8913a;color:#8a6030;cursor:pointer;padding:10px 16px;width:100%;text-align:center;letter-spacing:1px;" onclick="quitFromMenu()">◀ QUIT</button>
   </div>
 </div>
 
@@ -551,6 +552,7 @@ function startGame(diff){
   document.getElementById('pauseMenu').style.display='none';
   stopIdleCanvas();
   showPane('paneGame');
+  stopBGMusic(); startBGMusic();
   nextRound();
 }
 
@@ -739,6 +741,7 @@ function onRoundComplete(){
 
 function endGame(){
   phase='result';
+  stopBGMusic();
   stopIdleCanvas();
   drawKitchenBg(); // static bg
 
@@ -1196,12 +1199,55 @@ function playRoundClear(){
   const freqs=[523,659,784,1047];
   freqs.forEach((f,i)=>setTimeout(()=>playTone(f,0.10,'triangle',0.10),i*90));
 }
+// ── BGM: "Rush Hour" — G major, BPM 148 ──
+let bgPlaying=false,bgTimer=null,bgStep=0;
+function beep(freq,start,dur,vol=0.1,type='triangle',atk=0.005,rel=0.06){
+  if(!actx) return;
+  const o=actx.createOscillator(),g=actx.createGain();
+  o.type=type; o.frequency.value=freq;
+  g.gain.setValueAtTime(0,start);
+  g.gain.linearRampToValueAtTime(vol,start+atk);
+  g.gain.setValueAtTime(vol,Math.max(start+atk+0.001,start+dur-rel));
+  g.gain.linearRampToValueAtTime(0.0001,start+dur);
+  o.connect(g); g.connect(masterGain);
+  o.start(start); o.stop(start+dur+0.02);
+}
+const RR_K8=60/148/2;
+const RR_MEL=[784,659,523,392, 523,587,659,784, 880,784,659,523, 659,784,659,0];
+const RR_BAS=[196,0,262,0, 196,0,220,0, 220,0,196,0, 174,0,196,0];
+let rrBar=0;
+function scheduleRRBar(t){
+  if(!actx||!bgPlaying) return;
+  const off=(rrBar%2)*8;
+  for(let i=0;i<8;i++){
+    const st=t+i*RR_K8;
+    const m=RR_MEL[off+i], b=RR_BAS[off+i];
+    if(m) beep(m,st,RR_K8*0.55,0.06,'square',0.004,0.03);
+    if(b) beep(b,st,RR_K8*0.65,0.07,'triangle',0.004,0.05);
+    if(i===0||i===4) beep(80,st,0.05,0.10,'sine',0.002,0.04);
+    if(i===2||i===6) beep(220,st,0.02,0.04,'square',0.002,0.018);
+  }
+  rrBar++;
+  const barDur=8*RR_K8;
+  bgTimer=setTimeout(()=>scheduleRRBar(t+barDur),(barDur-0.25)*1000);
+}
+function startBGMusic(){
+  initAudio();
+  if(!actx||bgPlaying) return;
+  bgPlaying=true; rrBar=0; scheduleRRBar(actx.currentTime+0.1);
+}
+function stopBGMusic(){
+  bgPlaying=false; rrBar=0;
+  if(bgTimer){clearTimeout(bgTimer);bgTimer=null;}
+}
+
 function toggleMute(){
   muted=!muted;
   localStorage.setItem('pkMuted',muted?'1':'0');
   document.getElementById('muteBtn').textContent=muted?'🔇':'🔊';
+  if(masterGain) masterGain.gain.value=muted?0:0.30;
 }
-document.addEventListener('click',function onFirstClick(){ initAudio(); },{once:true});
+document.addEventListener('click',function onFirstClick(){ initAudio(); startBGMusic(); },{once:true});
 
 </script>
 </body>

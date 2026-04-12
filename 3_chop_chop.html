@@ -286,11 +286,11 @@ canvas { display:block; }
 
 <!-- PAUSE MENU -->
 <div id="pauseMenu" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,0.72);align-items:center;justify-content:center;">
-  <div style="background:#1e0e04;border:4px solid #8b5e2a;box-shadow:4px 4px 0 #5a2d0c,0 0 40px #000;padding:28px 32px;text-align:center;display:flex;flex-direction:column;gap:12px;min-width:220px;">
+  <div style="background:#1e0e04;border:4px solid #c87020;box-shadow:4px 4px 0 #5a2d0c,0 0 40px #000;padding:28px 32px;text-align:center;display:flex;flex-direction:column;gap:12px;min-width:240px;">
     <div style="font-family:'Press Start 2P',monospace;font-size:0.85rem;color:#f5c842;text-shadow:2px 2px #8b3a00,0 0 20px #f5a700;letter-spacing:2px;margin-bottom:6px;">⏸ PAUSED</div>
-    <button class="btn-back" onclick="resumeGame()">▶ RESUME</button>
-    <button class="btn-back" onclick="restartFromMenu()">↺ RESTART</button>
-    <button class="btn-back" onclick="quitFromMenu()">◀ QUIT</button>
+    <button style="font-family:'Press Start 2P',monospace;font-size:.38rem;background:#0d1c04;border:2px solid #50c840;color:#50c840;cursor:pointer;padding:10px 16px;width:100%;text-align:center;letter-spacing:1px;" onclick="resumeGame()">▶ RESUME</button>
+    <button style="font-family:'Press Start 2P',monospace;font-size:.38rem;background:#0d1c04;border:2px solid #50c840;color:#50c840;cursor:pointer;padding:10px 16px;width:100%;text-align:center;letter-spacing:1px;" onclick="restartFromMenu()">↺ RESTART</button>
+    <button style="font-family:'Press Start 2P',monospace;font-size:.38rem;background:#0d1c04;border:2px solid #50c840;color:#50c840;cursor:pointer;padding:10px 16px;width:100%;text-align:center;letter-spacing:1px;" onclick="quitFromMenu()">◀ QUIT</button>
   </div>
 </div>
 
@@ -346,11 +346,79 @@ function updateTopbarCoins(){
   if(el) el.textContent=n.toLocaleString();
 }
 let muted=localStorage.getItem('pkMuted')==='1';
+let actx=null, masterGain=null, bgPlaying=false, bgTimer=null, ccBar=0;
+
+function initAudio(){
+  if(actx) return;
+  actx=new(window.AudioContext||window.webkitAudioContext)();
+  masterGain=actx.createGain();
+  masterGain.gain.value=muted?0:0.26;
+  masterGain.connect(actx.destination);
+}
+function beep(freq,start,dur,vol=0.1,type='triangle',atk=0.005,rel=0.06){
+  if(!actx) return;
+  const o=actx.createOscillator(),g=actx.createGain();
+  o.type=type; o.frequency.value=freq;
+  g.gain.setValueAtTime(0,start);
+  g.gain.linearRampToValueAtTime(vol,start+atk);
+  g.gain.setValueAtTime(vol,Math.max(start+atk+0.001,start+dur-rel));
+  g.gain.linearRampToValueAtTime(0.0001,start+dur);
+  o.connect(g); g.connect(masterGain);
+  o.start(start); o.stop(start+dur+0.02);
+}
+
+// ── BGM: "Chop Beat" — C major, BPM 168 ──
+const CC_K8=60/168/2;
+const CC_MEL=[
+  523,659,784,659, 523,440,392,440,
+  523,587,659,587, 523,440,523,0,
+  784,659,523,392, 330,392,523,659,
+  523,659,784,880, 784,659,523,0,
+];
+const CC_BAS=[
+  130,0,196,0, 130,0,196,0,
+  174,0,196,0, 174,0,130,0,
+  196,0,130,0, 110,0,130,0,
+  130,0,196,0, 174,0,130,0,
+];
+function scheduleBar(t){
+  if(!actx||!bgPlaying) return;
+  const off=(ccBar%4)*8;
+  for(let i=0;i<8;i++){
+    const st=t+i*CC_K8;
+    const m=CC_MEL[off+i], b=CC_BAS[off+i];
+    if(m) beep(m,st,CC_K8*0.55,0.06,'square',0.004,0.03);
+    if(b) beep(b,st,CC_K8*0.65,0.07,'triangle',0.004,0.05);
+    if(i===0||i===4) beep(80,st,0.05,0.10,'sine',0.002,0.04);
+    if(i===2||i===6) beep(220,st,0.02,0.04,'square',0.002,0.018);
+  }
+  ccBar++;
+  const barDur=8*CC_K8;
+  bgTimer=setTimeout(()=>scheduleBar(t+barDur),(barDur-0.25)*1000);
+}
+function startBGMusic(){
+  if(!actx||bgPlaying) return;
+  bgPlaying=true; ccBar=0; scheduleBar(actx.currentTime+0.1);
+}
+function stopBGMusic(){
+  bgPlaying=false; ccBar=0;
+  if(bgTimer){clearTimeout(bgTimer);bgTimer=null;}
+}
+
+// ── SFX ──
+function sndPerfect(){const t=actx?.currentTime||0;beep(523,t,0.07,0.14,'square',0.005,0.04);beep(659,t+0.07,0.07,0.12,'square',0.005,0.04);beep(784,t+0.14,0.12,0.10,'square',0.005,0.06);}
+function sndGood(){const t=actx?.currentTime||0;beep(523,t,0.07,0.12,'square',0.005,0.04);beep(659,t+0.08,0.10,0.10,'square',0.005,0.06);}
+function sndOk(){const t=actx?.currentTime||0;beep(440,t,0.08,0.08,'triangle',0.005,0.06);}
+function sndMiss(){const t=actx?.currentTime||0;beep(220,t,0.12,0.18,'sawtooth',0.005,0.08);beep(196,t+0.1,0.15,0.14,'sawtooth',0.005,0.10);}
+function sndGameOver(){const t=actx?.currentTime||0;[330,262,220,196].forEach((f,i)=>beep(f,t+i*0.12,0.15,0.16,'sawtooth',0.005,0.10));}
+
 function toggleMute(){
   muted=!muted;
   localStorage.setItem('pkMuted',muted?'1':'0');
   document.getElementById('muteBtn').textContent=muted?'🔇':'🔊';
+  if(masterGain) masterGain.gain.value=muted?0:0.26;
 }
+document.addEventListener('click',function onFirstClick(){ initAudio(); startBGMusic(); },{once:true});
 function onResize(){ scaleGame(); checkRotate(); }
 document.addEventListener('DOMContentLoaded',()=>{ onResize(); updateTopbarCoins(); const b=document.getElementById('muteBtn');if(b)b.textContent=muted?'🔇':'🔊'; });
 window.addEventListener('resize',onResize);
@@ -432,6 +500,7 @@ function startGame(diff){
   round=0; score=0; lives=3; combo=0; bestCombo=0; coinsEarned=0; paused=false;
   document.getElementById('pauseMenu').style.display='none';
   showPane('paneGame');
+  stopBGMusic(); startBGMusic();
   nextRound();
 }
 function replayGame(){ startGame(diffKey); }
@@ -455,6 +524,7 @@ function updateHUD(){
 
 function endGame(){
   phase='idle';
+  stopBGMusic(); sndGameOver();
   const pct=score/(cfg.rounds*cfg.pts[0]);
   const title=pct>=.9?'MASTERCHEF!':pct>=.65?'WELL DONE!':pct>=.4?'KEEP GOING!':'NEEDS WORK...';
   document.getElementById('resultTitle').textContent=title;
@@ -487,16 +557,16 @@ function onChop(){
   if(off<cfg.perfect){
     cutResult='perfect'; combo++; bestCombo=Math.max(bestCombo,combo);
     score+=cfg.pts[0]+Math.min((combo-1)*15,45);
-    coinsEarned+=10;
+    coinsEarned+=10; sndPerfect();
   } else if(off<cfg.good){
     cutResult='good'; combo++; bestCombo=Math.max(bestCombo,combo);
     score+=cfg.pts[1];
-    coinsEarned+=5;
+    coinsEarned+=5; sndGood();
   } else if(off<0.42){
     cutResult='ok'; combo=0; score+=cfg.pts[2];
-    coinsEarned+=2;
+    coinsEarned+=2; sndOk();
   } else {
-    cutResult='miss'; combo=0; lives=Math.max(0,lives-1);
+    cutResult='miss'; combo=0; lives=Math.max(0,lives-1); sndMiss();
   }
   updateHUD();
 

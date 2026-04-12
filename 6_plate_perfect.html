@@ -94,9 +94,9 @@ canvas { display:block; border:3px solid #00c8d7; box-shadow:0 0 18px #003a5088;
 .btn-mute:hover { border-color:#00c8d7; color:#bde8f0; }
 #pauseMenu { display:none; position:fixed; inset:0; z-index:9000; background:#08040299; align-items:center; justify-content:center; }
 #pauseMenu.visible { display:flex; }
-.pause-box { background:#070e18; border:4px solid #00c8d7; box-shadow:6px 6px 0 #050d1e; padding:30px 28px; display:flex; flex-direction:column; gap:14px; align-items:center; min-width:280px; }
-.pause-title { color:#bde8f0; font-size:.80rem; letter-spacing:4px; }
-.pause-btn { font-family:'Press Start 2P',monospace; font-size:.38rem; padding:11px 24px; background:#070e18; border:3px solid #00c8d7; color:#4a8aaa; cursor:pointer; width:100%; text-align:center; }
+.pause-box { background:#070e18; border:4px solid #00c8d7; box-shadow:6px 6px 0 #050d1e; padding:28px 32px; display:flex; flex-direction:column; gap:12px; align-items:center; min-width:240px; text-align:center; }
+.pause-title { color:#bde8f0; font-size:.85rem; letter-spacing:2px; margin-bottom:6px; }
+.pause-btn { font-family:'Press Start 2P',monospace; font-size:.38rem; padding:10px 16px; background:#070e18; border:2px solid #00c8d7; color:#4a8aaa; cursor:pointer; width:100%; text-align:center; letter-spacing:1px; }
 .pause-btn:hover { filter:brightness(1.5); color:#bde8f0; }
 #rotateMsg { display:none; position:fixed; inset:0; z-index:99999; background:#030a10; flex-direction:column; align-items:center; justify-content:center; gap:24px; }
 @media (orientation:portrait) { #rotateMsg { display:flex; } }
@@ -201,9 +201,10 @@ canvas { display:block; border:3px solid #00c8d7; box-shadow:0 0 18px #003a5088;
 
 <div id="pauseMenu">
   <div class="pause-box">
-    <div class="pause-title">PAUSED</div>
+    <div class="pause-title">⏸ PAUSED</div>
     <button class="pause-btn" onclick="togglePause()">▶ RESUME</button>
-    <button class="pause-btn" onclick="quitToTitle()">✕ QUIT</button>
+    <button class="pause-btn" onclick="restartGame()">↺ RESTART</button>
+    <button class="pause-btn" onclick="quitToTitle()">◀ QUIT</button>
   </div>
 </div>
 <div id="rotateMsg">
@@ -339,6 +340,7 @@ window.addEventListener('resize',onResize);
 window.addEventListener('orientationchange',()=>setTimeout(onResize,100));
 if (window.visualViewport) window.visualViewport.addEventListener('resize',onResize);
 document.addEventListener('DOMContentLoaded',()=>{ onResize(); refreshCoins(); showPane('paneTitle'); const b=document.getElementById('muteBtn');if(b)b.textContent=muted?'🔇':'🔊'; });
+document.addEventListener('click',function onFirstClick(){ getAudio(); startBGMusic(); },{once:true});
 
 // ══════ COINS ══════
 function getCoins(){return parseInt(localStorage.getItem('pkCoins')||'0');}
@@ -359,6 +361,29 @@ function sndWrong()   {playTone(160,0.18,'sawtooth',0.20);}
 function sndDish()    {playTone(523,0.06);setTimeout(()=>playTone(659,0.06),70);setTimeout(()=>playTone(784,0.06),140);setTimeout(()=>playTone(1047,0.20),210);}
 function sndGameOver(){playTone(220,0.15,'sawtooth',0.2);setTimeout(()=>playTone(160,0.25,'sawtooth',0.2),120);}
 function sndDraw()    {playTone(440,0.03,'sine',0.06);}
+
+// ── BGM: "Elegant Plating" — F major, BPM 96 ──
+let bgPlaying=false, bgTimer=null, bgStep=0;
+const PP_K8=60000/96/2;
+const PP_MEL=[349,440,523,440, 349,330,294,330, 392,440,349,294, 523,440,392,0];
+const PP_BAS=[130,0,196,0, 174,0,130,0, 196,0,220,0, 130,0,174,0];
+function bgmTick(){
+  if(!bgPlaying) return;
+  const s=bgStep%16;
+  if(PP_MEL[s]) playTone(PP_MEL[s], PP_K8/1000*0.60, 'sine', 0.060);
+  if(PP_BAS[s]) playTone(PP_BAS[s], PP_K8/1000*0.75, 'triangle', 0.060);
+  if(s%8===0||s%8===4) playTone(120, 0.06, 'sine', 0.07);
+  bgStep++;
+  bgTimer=setTimeout(bgmTick, PP_K8);
+}
+function startBGMusic(){
+  if(bgPlaying) return;
+  bgPlaying=true; bgStep=0; bgmTick();
+}
+function stopBGMusic(){
+  bgPlaying=false;
+  if(bgTimer){clearTimeout(bgTimer);bgTimer=null;}
+}
 
 function toggleMute(){
   muted=!muted;
@@ -413,6 +438,7 @@ function startGame(){
   updateHUD();
   document.getElementById('diffBadge').textContent='— '+cfg.label+' —';
   buildLivesRow(); showPane('paneGame');
+  stopBGMusic(); startBGMusic();
   if(animId)cancelAnimationFrame(animId);
   lastTime=performance.now();
   animId=requestAnimationFrame(gameLoop);
@@ -862,6 +888,7 @@ function drawTimerBar(){
 function endGame(){
   running=false; dragging=null;
   if(animId)cancelAnimationFrame(animId);
+  stopBGMusic();
   sndGameOver();
   const earned=Math.floor(gScore/50); addCoins(earned);
   let grade='⭐';

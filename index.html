@@ -399,17 +399,17 @@ body {
   display:flex; flex-direction:column; gap:14px;
   align-items:center; min-width:290px; max-width:360px;
 }
-.nm-title { color:#f5c842; font-size:.65rem; letter-spacing:2px; text-shadow:2px 2px #8b3a00; }
-.nm-sub   { color:#c8904a; font-size:.32rem; text-align:center; line-height:2; }
+.nm-title { color:#f5c842; font-size:.80rem; letter-spacing:2px; text-shadow:2px 2px #8b3a00; }
+.nm-sub   { color:#c8904a; font-size:.44rem; text-align:center; line-height:2; }
 .nm-input {
   background:#2c1608; border:2px solid #8b5e2a; color:#f0d090;
-  font-family:'Press Start 2P',monospace; font-size:.40rem;
+  font-family:'Press Start 2P',monospace; font-size:.50rem;
   padding:10px 12px; outline:none; width:100%; text-align:center;
 }
 .nm-input:focus { border-color:#f5c842; }
 .nm-err { color:#ff7070; font-size:.30rem; min-height:.8rem; text-align:center; }
 .nm-btn {
-  font-family:'Press Start 2P',monospace; font-size:.42rem;
+  font-family:'Press Start 2P',monospace; font-size:.52rem;
   background:#1e0e04; border:3px solid #50c840; color:#50c840;
   padding:10px 20px; cursor:pointer; width:100%;
 }
@@ -482,7 +482,7 @@ body {
       <div class="sp-tagline">★ &nbsp;PIXEL ARCADE &nbsp;★</div>
       <div class="sp-press">▶ &nbsp;PRESS START &nbsp;◀</div>
     </div>
-    <div class="sp-version">v0.2</div>
+    <div class="sp-version">v1.0</div>
   </div>
 </div>
 
@@ -889,52 +889,60 @@ function initHubFirebase(){
 }
 
 const RANK_GAMES = [
-  { icon:'🍳', name:'DISH DETECTIVE',  path:'flat',  ref:'leaderboard' },
-  { icon:'🥕', name:'PANTRY PEEK',     path:'flat',  ref:'leaderboard_pantry' },
-  { icon:'🔪', name:'CHOP CHOP!',      path:'flat',  ref:'chop_chop/scores' },
-  { icon:'📋', name:'RECIPE RUSH',     path:'flat',  ref:'recipe_rush/scores' },
-  { icon:'🍽️',name:'PLATE PERFECT',   path:'sub',   ref:'plate_perfect/scores' },
-  { icon:'🌶️',name:'KITCHEN CHAOS',   path:'sub',   ref:'kitchen_chaos/scores' },
+  { icon:'🍳', name:'DISH DETECTIVE', ref:'leaderboard',        diffs:['apprenti','cuisinier','chef'], flat:true },
+  { icon:'🥕', name:'PANTRY PEEK',    ref:'leaderboard_pantry', diffs:['apprenti','cuisinier','chef'], flat:true },
+  { icon:'🔪', name:'CHOP CHOP!',     ref:'chop_chop/scores',   diffs:['easy','medium','hard'],        flat:true },
+  { icon:'📋', name:'RECIPE RUSH',    ref:'recipe_rush/scores', diffs:['apprenti','cuisinier','chef'], flat:true },
+  { icon:'🍽️',name:'PLATE PERFECT', ref:'plate_perfect/scores',diffs:['apprenti','cuisinier','chef'], flat:false },
+  { icon:'🌶️',name:'KITCHEN CHAOS', ref:'kitchen_chaos/scores',diffs:['apprenti','cuisinier','chef'], flat:false },
 ];
 
-function fetchFlat(path){
-  return hubDb.ref(path).orderByChild('score').get().then(snap=>{
-    const rows=[];
-    snap.forEach(c=>rows.push(c.val()));
-    rows.sort((a,b)=>b.score-a.score);
-    return rows;
-  }).catch(()=>[]);
+// Fetch all entries at a path, sorted by score desc
+function fetchPath(path){
+  return new Promise((resolve)=>{
+    hubDb.ref(path).orderByChild('score').once('value', snap=>{
+      const rows=[];
+      snap.forEach(c=>rows.push(c.val()));
+      rows.sort((a,b)=>b.score-a.score);
+      resolve(rows);
+    }, ()=>resolve([]));
+  });
 }
 
-function findRank(rows, playerName){
-  const idx = rows.findIndex(r=>r.name===playerName);
+// Find player's rank (1-based) in a sorted row list
+function rankIn(rows, name){
+  const idx=rows.findIndex(r=>r.name===name);
   return idx===-1 ? null : idx+1;
 }
 
-async function bestSubRank(base, name){
-  const diffs=['apprenti','cuisinier','chef'];
-  const snaps = await Promise.all(diffs.map(d=>fetchFlat(base+'/'+d)));
-  let best=null, bestScore=0;
-  snaps.forEach(rows=>{
-    const idx=rows.findIndex(r=>r.name===name);
-    if(idx!==-1){
-      const rank=idx+1;
-      if(best===null||rank<best||(rank===best&&(rows[idx].score||0)>bestScore)){
-        best=rank; bestScore=rows[idx].score||0;
-      }
+// Best rank across all diffs for one game
+async function bestRankForGame(g, name){
+  let best=null;
+  if(g.flat){
+    // Flat path: all diffs in one ref, filtered client-side by diff field
+    const allRows = await fetchPath(g.ref);
+    for(const d of g.diffs){
+      const filtered = allRows.filter(r=>r.diff===d);
+      filtered.sort((a,b)=>b.score-a.score);
+      const r = rankIn(filtered, name);
+      if(r!==null && (best===null || r<best)) best=r;
     }
-  });
+  } else {
+    // Sub-path: each diff is a separate child node
+    for(const d of g.diffs){
+      const rows = await fetchPath(g.ref+'/'+d);
+      const r = rankIn(rows, name);
+      if(r!==null && (best===null || r<best)) best=r;
+    }
+  }
   return best;
 }
 
 async function loadMyRanks(){
   const name = localStorage.getItem('pkName');
-  if(!name) return;
+  if(!name) return null;
   initHubFirebase();
-  const results = await Promise.all(RANK_GAMES.map(g=>
-    g.path==='sub' ? bestSubRank(g.ref,name) : fetchFlat(g.ref).then(rows=>findRank(rows,name))
-  ));
-  return results;
+  return Promise.all(RANK_GAMES.map(g=>bestRankForGame(g,name)));
 }
 
 function openRankModal(){
