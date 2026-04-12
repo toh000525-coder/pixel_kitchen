@@ -513,6 +513,7 @@ body {
   0%,100% { box-shadow:0 0 0 9999px rgba(10,6,20,.82),0 0 0 4px rgba(245,200,66,.15); }
   50%     { box-shadow:0 0 0 9999px rgba(10,6,20,.82),0 0 0 10px rgba(245,200,66,.40); }
 }
+#pkTourBlock { position:fixed; inset:0; z-index:9499; }
 #pkTourSpot {
   position:fixed; border:3px solid #f5c842; border-radius:4px;
   pointer-events:none; z-index:9500;
@@ -576,6 +577,7 @@ body {
 <!-- NAME MODAL -->
 <!-- TOUR OVERLAY -->
 <div id="pkTour">
+  <div id="pkTourBlock"></div>
   <div id="pkTourSpot"></div>
   <div id="pkTourCard">
     <span id="pkTourIcon"></span>
