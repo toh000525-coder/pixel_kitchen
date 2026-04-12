@@ -974,7 +974,8 @@ function endGame(){
   if(isNew6) localStorage.setItem(bk6,gScore);
   document.getElementById('newBest').textContent=isNew6?'★ NEW BEST!':(prev6>0?'BEST: '+prev6:'');
   document.getElementById('saveStatus').textContent='Saving score...';
-  pkRecordGame({gameId:6,stars:gDishes>=8?3:gDishes>=4?2:1,hardest:diffKey==='chef'});
+  const _s6=diffKey==='chef'?(gDishes>=6?3:gDishes>=3?2:1):diffKey==='cuisinier'?(gDishes>=7?3:gDishes>=4?2:1):(gDishes>=8?3:gDishes>=4?2:1);
+  pkRecordGame({gameId:6,stars:_s6,hardest:diffKey==='chef'});
   showPane('paneResult');
   animGrade(document.getElementById('resultGrade'));
   animCount(document.getElementById('resultScore'),gScore,800);

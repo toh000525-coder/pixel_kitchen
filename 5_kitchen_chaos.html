@@ -1219,7 +1219,8 @@ function endGame() {
   document.getElementById('newBest').textContent=isNew5?'★ NEW BEST!':(prev5>0?'BEST: '+prev5:'');
   document.getElementById('saveStatus').textContent   = 'Saving score...';
 
-  pkRecordGame({gameId:5,stars:gServed>=8?3:gServed>=4?2:1,hardest:diffKey==='chef'});
+  const _s5=diffKey==='chef'?(gServed>=6?3:gServed>=3?2:1):diffKey==='cuisinier'?(gServed>=7?3:gServed>=4?2:1):(gServed>=8?3:gServed>=4?2:1);
+  pkRecordGame({gameId:5,stars:_s5,hardest:diffKey==='chef'});
   showPane('paneResult');
   animGrade(document.getElementById('resultGrade'));
   animCount(document.getElementById('resultScore'),gScore,800);
