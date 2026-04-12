@@ -254,13 +254,14 @@ canvas { display:block; }
   <div class="gpane" id="paneResult">
     <div class="result-box">
       <div class="result-title" id="resultTitle">WELL DONE!</div>
+      <div style="font-size:2rem;" id="resultGrade"></div>
       <div class="result-score" id="resultScore">0</div>
       <div class="result-sub" id="resultSub"></div>
       <div id="resultCoins" style="font-size:.50rem;color:#f5c842;letter-spacing:2px;min-height:1.2rem;"></div>
       <div class="save-status" id="saveStatus"></div>
       <button class="btn-green" onclick="replayGame()">▶ PLAY AGAIN</button>
       <button class="btn-gold"  onclick="showLeader()">🏆 LEADERBOARD</button>
-      <button class="btn-back"  onclick="location.href='index.html?from=game'" style="margin:4px 8px;width:calc(100% - 16px);">← HUB</button>
+      <button class="btn-back"  onclick="location.href='index.html?from=game'" style="margin:4px 8px;width:calc(100% - 16px);">◀ HUB</button>
     </div>
   </div>
 
@@ -411,6 +412,7 @@ function sndGood(){const t=actx?.currentTime||0;beep(523,t,0.07,0.12,'square',0.
 function sndOk(){const t=actx?.currentTime||0;beep(440,t,0.08,0.08,'triangle',0.005,0.06);}
 function sndMiss(){const t=actx?.currentTime||0;beep(220,t,0.12,0.18,'sawtooth',0.005,0.08);beep(196,t+0.1,0.15,0.14,'sawtooth',0.005,0.10);}
 function sndGameOver(){const t=actx?.currentTime||0;[330,262,220,196].forEach((f,i)=>beep(f,t+i*0.12,0.15,0.16,'sawtooth',0.005,0.10));}
+function sndClick(){if(!actx)return;const t=actx.currentTime;beep(660,t,0.04,0.08,'square',0.003,0.03);}
 
 function toggleMute(){
   muted=!muted;
@@ -419,6 +421,7 @@ function toggleMute(){
   if(masterGain) masterGain.gain.value=muted?0:0.26;
 }
 document.addEventListener('click',function onFirstClick(){ initAudio(); startBGMusic(); },{once:true});
+document.addEventListener('click',e=>{ if(e.target.closest('button')&&e.target.id!=='muteBtn') sndClick(); });
 function onResize(){ scaleGame(); checkRotate(); }
 document.addEventListener('DOMContentLoaded',()=>{ onResize(); updateTopbarCoins(); const b=document.getElementById('muteBtn');if(b)b.textContent=muted?'🔇':'🔊'; });
 window.addEventListener('resize',onResize);
@@ -527,7 +530,9 @@ function endGame(){
   stopBGMusic(); sndGameOver();
   const pct=score/(cfg.rounds*cfg.pts[0]);
   const title=pct>=.9?'MASTERCHEF!':pct>=.65?'WELL DONE!':pct>=.4?'KEEP GOING!':'NEEDS WORK...';
+  const grade=pct>=.9?'🏆':pct>=.65?'⭐':pct>=.4?'👨‍🍳':'🍳';
   document.getElementById('resultTitle').textContent=title;
+  document.getElementById('resultGrade').textContent=grade;
   document.getElementById('resultScore').textContent=score;
   document.getElementById('resultSub').textContent=
     `ROUNDS: ${cfg.rounds}   BEST COMBO: ×${bestCombo}\nDIFFICULTY: ${cfg.name}`;

@@ -349,7 +349,7 @@ canvas { display:block; border:3px solid #6878a0; box-shadow:0 0 18px #2a2a4a; }
           <div class="save-status" id="saveStatus"></div>
           <button class="btn-silver" onclick="restartGame()">▶ PLAY AGAIN</button>
           <button class="btn-gold"   onclick="showPane('paneLeader')">🏆 LEADERBOARD</button>
-          <button class="btn-back"   onclick="location.href='index.html?from=game'" style="margin:4px 8px;width:calc(100% - 16px);">← HUB</button>
+          <button class="btn-back"   onclick="location.href='index.html?from=game'" style="margin:4px 8px;width:calc(100% - 16px);">◀ HUB</button>
         </div>
       </div>
 
@@ -454,6 +454,7 @@ let gServed     = 0;  // orders completed
 let gLives      = 0;
 let lastTime    = 0;
 let animId      = null;
+let _lastTimerBeep = -1;
 
 let items       = [];   // {emoji, isBad, x, y, bobT}
 let orders      = [];   // {recipe, collected:{emoji:count}}
@@ -490,6 +491,7 @@ window.addEventListener('orientationchange', () => setTimeout(onResize, 100));
 if (window.visualViewport) window.visualViewport.addEventListener('resize', onResize);
 document.addEventListener('DOMContentLoaded', () => { onResize(); refreshCoins(); showPane('paneTitle'); const b=document.getElementById('muteBtn');if(b)b.textContent=muted?'🔇':'🔊'; });
 document.addEventListener('click',function onFirstClick(){ getAudio(); startBGMusic(); },{once:true});
+document.addEventListener('click',e=>{ if(e.target.closest('button')&&e.target.id!=='muteBtn') sndClick(); });
 
 // ══════════════════════════════════════════
 //  COINS
@@ -530,6 +532,7 @@ function sndMiss()     { playTone(180, 0.20, 'sawtooth', 0.20); }
 function sndSpawn()    { playTone(440, 0.05, 'sine', 0.10); }
 function sndTick()     { playTone(660, 0.04, 'square', 0.08); }
 function sndGameOver() { playTone(220,0.15,'sawtooth',0.2); setTimeout(()=>playTone(160,0.25,'sawtooth',0.2),120); }
+function sndClick()    { playTone(660, 0.04, 'square', 0.08); }
 function sndServed()   {
   playTone(523,0.06); setTimeout(()=>playTone(659,0.06),70);
   setTimeout(()=>playTone(784,0.06),140); setTimeout(()=>playTone(1047,0.18),210);
@@ -721,6 +724,7 @@ function startGame() {
   gTime   = cfg.time;
   paused  = false;
   running = true;
+  _lastTimerBeep = -1;
 
   for (let i = 0; i < cfg.maxOrders; i++) orders.push(makeOrder());
 
@@ -787,6 +791,8 @@ function gameLoop(ts) {
 function update(dt) {
   gTime -= dt;
   if (gTime <= 0) { gTime = 0; endGame(); return; }
+  const _tw = Math.floor(gTime);
+  if (gTime > 0 && _tw < 10 && _tw !== _lastTimerBeep) { _lastTimerBeep = _tw; sndTick(); }
 
   // Belt scroll
   beltOffset = (beltOffset + cfg.speed * dt) % 40;

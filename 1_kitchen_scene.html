@@ -282,9 +282,9 @@ canvas { display:block; image-rendering:pixelated; image-rendering:crisp-edges; 
         <div id="saveStatus" style="font-size:0.36rem;color:#50c840;min-height:1rem;"></div>
         <div style="display:flex;gap:6px;width:100%;margin-bottom:4px;">
           <button class="btn-play-again" style="flex:1;" onclick="showTitle()">▶ PLAY AGAIN</button>
-          <button class="btn-leader" style="flex:1;" onclick="showLeader()">🏆 RANKS</button>
+          <button class="btn-leader" style="flex:1;" onclick="showLeader()">🏆 LEADERBOARD</button>
         </div>
-        <button class="btn-back" style="width:100%;" onclick="location.href='index.html?from=game'">◀ BACK TO HUB</button>
+        <button class="btn-back" style="width:100%;" onclick="location.href='index.html?from=game'">◀ HUB</button>
       </div>
     </div>
 
@@ -1184,6 +1184,7 @@ let gState='title', gDiff='apprenti';
 let timeLeft=0, gTimerInt=null;
 let gScore=0, gDishIdx=0, gDishes=[], gGolden=new Set();
 let gCombo=0, gBestCombo=0, gCorrect=0;
+let lastTimerBeep=-1;
 let gPicked=new Set(), gGrid=[];
 let paused=false;
 
@@ -1238,7 +1239,7 @@ function _doStartGame(diff){
   gDiff=diff; gState='playing';
   const cfg=DIFF_CFG[diff];
   timeLeft=cfg.time;
-  gScore=0; gDishIdx=0; gCombo=0; gBestCombo=0; gCorrect=0;
+  gScore=0; gDishIdx=0; gCombo=0; gBestCombo=0; gCorrect=0; lastTimerBeep=-1;
   gDishes=shuffleArr([...DISHES]).slice(0,10);
   gGolden=new Set(shuffleArr([0,1,2,3,4,5,6,7,8,9]).slice(0,2));
   resetKitchen(); intense=false; boiling=false; stageText=''; vegsOn=true;
@@ -1262,6 +1263,8 @@ function startGTimer(){
     intense=timeLeft<30;
     boiling=timeLeft<15;
     if(timeLeft>0&&timeLeft<30&&Math.random()<0.015) speechText=rnd(C_HURRY);
+    const _flr=Math.floor(timeLeft);
+    if(timeLeft>0&&_flr<10&&_flr!==lastTimerBeep){lastTimerBeep=_flr;sfxTimerWarn();}
     if(timeLeft<=0){clearInterval(gTimerInt);endGame();}
   },100);
 }
@@ -1360,6 +1363,7 @@ function completeDish(){
   if(gCombo>=3) document.getElementById('comboTag').textContent=`🔥 ×${gCombo} COMBO!`;
   speechText=gCombo>=3?rnd(C_COMBO):rnd(C_CORRECT);
   spawnSparkles();
+  if(gCombo>=3) sfxCombo();
   sfxDishComplete(isGolden);
   updateHUD();
   // lock all tiles
@@ -1577,8 +1581,23 @@ function sfxDishComplete(golden=false){
   const seq=golden?[KF.C5,KF.E5,KF.G5,KF.C5*2,KF.E5*2]:[KF.C5,KF.E5,KF.G5,KF.C5*2];
   seq.forEach((f,i)=>beep(f,t+i*0.08,0.10,golden?0.22:0.18,'square',0.005,0.06));
 }
+function sfxTimerWarn(){
+  if(!actx) return; const t=actx.currentTime;
+  beep(880,t,0.05,0.14,'square',0.003,0.04);
+}
+function sfxClick(){
+  if(!actx) return; const t=actx.currentTime;
+  beep(660,t,0.04,0.08,'square',0.003,0.03);
+}
+function sfxCombo(){
+  if(!actx) return; const t=actx.currentTime;
+  beep(KF.E5,t,      0.06,0.12,'square',0.004,0.04);
+  beep(KF.G5,t+0.06, 0.06,0.12,'square',0.004,0.04);
+  beep(KF.C6,t+0.12, 0.10,0.16,'square',0.004,0.06);
+}
 
 document.addEventListener('click',function onFirstClick(){initAudio();},{once:true});
+document.addEventListener('click',e=>{ if(e.target.closest('button')&&e.target.id!=='muteBtn') sfxClick(); });
 
 // ══════════════════════════════════════════════
 //  EASTER EGG — INTERACTIVE KITCHEN OBJECTS

@@ -382,6 +382,7 @@ canvas { display:block; }
   <div class="gpane" id="paneResult">
     <div class="result-box">
       <div class="result-title" id="resultTitle">WELL DONE!</div>
+      <div style="font-size:2rem;" id="resultGrade"></div>
       <div class="result-score" id="resultScore">0</div>
       <div class="result-sub" id="resultSub"></div>
       <div id="resultCoins" style="font-size:.50rem;color:#a07010;letter-spacing:2px;min-height:1.2rem;"></div>
@@ -712,6 +713,7 @@ function updateProgress(){
 function loseLife(){
   lives=Math.max(0,lives-1);
   updateLives();
+  playWrong();
   if(lives<=0){
     phase='ending';
     setTimeout(endGame,800);
@@ -747,7 +749,9 @@ function endGame(){
 
   const pct=gScore/(maxRounds*350);
   const title=pct>=0.8?'MASTERCHEF!':pct>=0.55?'WELL DONE!':pct>=0.3?'KEEP GOING!':'NEEDS WORK...';
+  const grade=pct>=0.8?'🏆':pct>=0.55?'⭐':pct>=0.3?'👨‍🍳':'🍳';
   document.getElementById('resultTitle').textContent=title;
+  document.getElementById('resultGrade').textContent=grade;
   document.getElementById('resultScore').textContent=gScore;
   document.getElementById('resultSub').textContent=
     `ROUNDS: ${round}/${maxRounds}   LIVES: ${lives}\nDIFFICULTY: ${DIFF[diffKey].label}`;
@@ -1247,7 +1251,9 @@ function toggleMute(){
   document.getElementById('muteBtn').textContent=muted?'🔇':'🔊';
   if(masterGain) masterGain.gain.value=muted?0:0.30;
 }
+function sndClick(){ playTone(660, 0.04, 'square', 0.08); }
 document.addEventListener('click',function onFirstClick(){ initAudio(); startBGMusic(); },{once:true});
+document.addEventListener('click',e=>{ if(e.target.closest('button')&&e.target.id!=='muteBtn') sndClick(); });
 
 </script>
 </body>
