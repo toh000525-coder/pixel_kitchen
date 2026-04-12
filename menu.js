@@ -124,6 +124,28 @@ const PK_DISHES = [
   {id:'quesa_s',       name:'QUESADILLA',     emoji:'🫓', cuisine:'Mexican',
    items:[{emoji:'🥩',zone:'CENTER'},{emoji:'🧀',zone:'LEFT'  },{emoji:'🌶️',zone:'RIGHT'  }]},
 
+  // — French —
+  {id:'steak',         name:'STEAK',          emoji:'🥩', cuisine:'French',
+   items:[{emoji:'🥩',zone:'CENTER'},{emoji:'🧈',zone:'LEFT'  },{emoji:'🧄',zone:'RIGHT'  }]},
+
+  // — American —
+  {id:'scrambled_egg', name:'SCRAMBLED EGG',  emoji:'🍳', cuisine:'American',
+   items:[{emoji:'🥚',zone:'CENTER'},{emoji:'🧈',zone:'LEFT'  },{emoji:'🧅',zone:'RIGHT'  }]},
+  {id:'bacon_eggs',    name:'BACON & EGGS',   emoji:'🥓', cuisine:'American',
+   items:[{emoji:'🥓',zone:'LEFT'  },{emoji:'🍳',zone:'CENTER'},{emoji:'🍅',zone:'RIGHT'  }]},
+  {id:'corn_soup',     name:'CORN SOUP',      emoji:'🌽', cuisine:'American',
+   items:[{emoji:'🌽',zone:'CENTER'},{emoji:'🧅',zone:'LEFT'  },{emoji:'🧈',zone:'RIGHT'  }]},
+  {id:'broccoli_soup', name:'BROCCOLI SOUP',  emoji:'🥦', cuisine:'American',
+   items:[{emoji:'🥦',zone:'CENTER'},{emoji:'🧄',zone:'LEFT'  },{emoji:'🧅',zone:'RIGHT'  }]},
+
+  // — Chinese —
+  {id:'shrimp_toast',  name:'SHRIMP TOAST',   emoji:'🦐', cuisine:'Chinese',
+   items:[{emoji:'🦐',zone:'CENTER'},{emoji:'🍞',zone:'LEFT'  },{emoji:'🧄',zone:'RIGHT'  }]},
+
+  // — British —
+  {id:'mush_toast',    name:'MUSHROOM TOAST', emoji:'🍄', cuisine:'British',
+   items:[{emoji:'🍄',zone:'CENTER'},{emoji:'🍞',zone:'LEFT'  },{emoji:'🧈',zone:'RIGHT'  }]},
+
 
   // ════════════════════════════════════════════════
   //  4-INGREDIENT  (CUISINIER difficulty)
@@ -210,6 +232,32 @@ const PK_DISHES = [
    items:[{emoji:'🥩',zone:'CENTER'},{emoji:'🧅',zone:'TOP'   },{emoji:'🍅',zone:'LEFT'  },{emoji:'🫑',zone:'RIGHT' }]},
   {id:'shakshuka_4',   name:'SHAKSHUKA',      emoji:'🍳', cuisine:'Middle Eastern',
    items:[{emoji:'🍅',zone:'TOP'   },{emoji:'🍳',zone:'CENTER'},{emoji:'🌶️',zone:'LEFT'  },{emoji:'🧅',zone:'RIGHT' }]},
+
+  // — American —
+  {id:'caesar',        name:'CAESAR SALAD',   emoji:'🥗', cuisine:'American',
+   items:[{emoji:'🥬',zone:'CENTER'},{emoji:'🧀',zone:'TOP'   },{emoji:'🍞',zone:'LEFT'  },{emoji:'🥓',zone:'RIGHT' }]},
+  {id:'corn_chowder',  name:'CORN CHOWDER',   emoji:'🌽', cuisine:'American',
+   items:[{emoji:'🌽',zone:'CENTER'},{emoji:'🥕',zone:'TOP'   },{emoji:'🧅',zone:'LEFT'  },{emoji:'🥓',zone:'RIGHT' }]},
+  {id:'bfast_burrito', name:'BREAKFAST BURRITO',emoji:'🫓',cuisine:'Mexican',
+   items:[{emoji:'🥚',zone:'CENTER'},{emoji:'🥓',zone:'TOP'   },{emoji:'🫑',zone:'LEFT'  },{emoji:'🧀',zone:'RIGHT' }]},
+
+  // — Greek —
+  {id:'greek_salad',   name:'GREEK SALAD',    emoji:'🥗', cuisine:'Greek',
+   items:[{emoji:'🍅',zone:'TOP'   },{emoji:'🥬',zone:'LEFT'  },{emoji:'🫒',zone:'RIGHT' },{emoji:'🧅',zone:'BOTTOM'}]},
+
+  // — French —
+  {id:'mush_soup',     name:'MUSHROOM SOUP',  emoji:'🍲', cuisine:'French',
+   items:[{emoji:'🍄',zone:'CENTER'},{emoji:'🧅',zone:'TOP'   },{emoji:'🧈',zone:'LEFT'  },{emoji:'🧄',zone:'RIGHT' }]},
+
+  // — Italian —
+  {id:'stuffed_mush',  name:'STUFFED MUSHROOM',emoji:'🍄',cuisine:'Italian',
+   items:[{emoji:'🍄',zone:'CENTER'},{emoji:'🥩',zone:'TOP'   },{emoji:'🧀',zone:'LEFT'  },{emoji:'🧄',zone:'RIGHT' }]},
+
+  // — Chinese —
+  {id:'chk_brocco',    name:'CHICKEN BROCCOLI',emoji:'🥦',cuisine:'Chinese',
+   items:[{emoji:'🍗',zone:'CENTER'},{emoji:'🥦',zone:'TOP'   },{emoji:'🧄',zone:'LEFT'  },{emoji:'🌶️',zone:'RIGHT' }]},
+  {id:'shrimp_sfry',   name:'SHRIMP STIR FRY', emoji:'🦐',cuisine:'Chinese',
+   items:[{emoji:'🦐',zone:'CENTER'},{emoji:'🫑',zone:'TOP'   },{emoji:'🧄',zone:'LEFT'  },{emoji:'🥬',zone:'RIGHT' }]},
 
 
   // ════════════════════════════════════════════════
@@ -305,6 +353,32 @@ const PK_DISHES = [
   // — Hawaiian —
   {id:'poke_bowl',     name:'POKE BOWL',      emoji:'🥗', cuisine:'Hawaiian',
    items:[{emoji:'🦐',zone:'CENTER'},{emoji:'🥕',zone:'TOP'   },{emoji:'🥬',zone:'LEFT'  },{emoji:'🌽',zone:'RIGHT' },{emoji:'🧅',zone:'BOTTOM'}]},
+
+  // — Korean —
+  {id:'bulgogi',       name:'BULGOGI',        emoji:'🥩', cuisine:'Korean',
+   items:[{emoji:'🥩',zone:'CENTER'},{emoji:'🧅',zone:'TOP'   },{emoji:'🧄',zone:'LEFT'  },{emoji:'🥬',zone:'RIGHT' },{emoji:'🫑',zone:'BOTTOM'}]},
+  {id:'bibim_noodles', name:'BIBIM NOODLES',  emoji:'🍜', cuisine:'Korean',
+   items:[{emoji:'🥩',zone:'CENTER'},{emoji:'🥬',zone:'TOP'   },{emoji:'🥕',zone:'LEFT'  },{emoji:'🌶️',zone:'RIGHT' },{emoji:'🥚',zone:'BOTTOM'}]},
+
+  // — American —
+  {id:'jambalaya',     name:'JAMBALAYA',      emoji:'🍲', cuisine:'American',
+   items:[{emoji:'🦐',zone:'CENTER'},{emoji:'🥩',zone:'TOP'   },{emoji:'🌶️',zone:'LEFT'  },{emoji:'🧅',zone:'RIGHT' },{emoji:'🫑',zone:'BOTTOM'}]},
+
+  // — Indian —
+  {id:'chk_tikka',     name:'CHICKEN TIKKA',  emoji:'🍗', cuisine:'Indian',
+   items:[{emoji:'🍗',zone:'CENTER'},{emoji:'🍅',zone:'TOP'   },{emoji:'🌶️',zone:'LEFT'  },{emoji:'🧄',zone:'RIGHT' },{emoji:'🧅',zone:'BOTTOM'}]},
+
+  // — Italian —
+  {id:'marsala',       name:'CHICKEN MARSALA',emoji:'🍗', cuisine:'Italian',
+   items:[{emoji:'🍗',zone:'CENTER'},{emoji:'🍄',zone:'TOP'   },{emoji:'🧅',zone:'LEFT'  },{emoji:'🧈',zone:'RIGHT' },{emoji:'🧄',zone:'BOTTOM'}]},
+
+  // — Moroccan —
+  {id:'moroccan_chk',  name:'MOROCCAN CHICKEN',emoji:'🍗',cuisine:'Moroccan',
+   items:[{emoji:'🍗',zone:'CENTER'},{emoji:'🫒',zone:'TOP'   },{emoji:'🍅',zone:'LEFT'  },{emoji:'🧅',zone:'RIGHT' },{emoji:'🌶️',zone:'BOTTOM'}]},
+
+  // — African —
+  {id:'sweet_pot_stew',name:'SWEET POT STEW', emoji:'🍲', cuisine:'African',
+   items:[{emoji:'🍠',zone:'CENTER'},{emoji:'🧅',zone:'TOP'   },{emoji:'🥬',zone:'LEFT'  },{emoji:'🧄',zone:'RIGHT' },{emoji:'🌶️',zone:'BOTTOM'}]},
 ];
 
 // ═══════════════════════════════════════════════════════════════
