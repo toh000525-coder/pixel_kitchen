@@ -18,7 +18,7 @@ body {
 .game-content { display:flex; gap:16px; align-items:flex-start; justify-content:center; flex:1; }
 #gameWrap { position:fixed; top:50%; left:50%; transform-origin:center center; display:flex; flex-direction:column; }
 /* CANVAS WRAP */
-.canvas-wrap { display:flex; flex-direction:column; align-items:center; gap:8px; }
+.canvas-wrap { display:flex; flex-direction:column; align-items:center; justify-content:center; flex:1; }
 .canvas-label {
   font-size:.42rem; letter-spacing:3px; color:#50c840;
   text-shadow:0 0 12px #50c84066, 2px 2px #0a1a04;
@@ -80,11 +80,11 @@ canvas { display:block; }
 /* pixel divider */
 .px-div { text-align:center; color:#2a5a18; font-size:.28rem; letter-spacing:4px; margin:4px 0 0; flex-shrink:0; }
 /* HOW TO PLAY block accent */
-.how-block { padding:6px 12px 4px; border-left:3px solid #50c840; margin:10px 10px 0; background:#0d1c0488; }
+.how-block { padding:5px 10px 4px; border-left:3px solid #50c840; margin:6px 8px 0; background:#0d1c0488; }
 /* Score glow pulse */
 @keyframes scorePulse { 0%,100%{text-shadow:2px 2px #0a1a04} 50%{text-shadow:2px 2px #0a1a04,0 0 24px #7edd8a88} }
 .result-score { animation:scorePulse 1.6s ease-in-out infinite; }
-.btn-mute { position:absolute; bottom:8px; right:8px; font-family:'Press Start 2P',monospace; font-size:.28rem; padding:4px 7px; background:#0d1c04; border:2px solid #1a3a08; color:#2a5a18; cursor:pointer; z-index:10; }
+.btn-mute { font-size:1.2rem; padding:2px 4px; background:transparent; border:none; cursor:pointer; line-height:1; }
 .btn-mute:hover { border-color:#5aaa60; color:#5aaa60; }
 .diff-label { color:#5aaa60; font-size:.40rem; margin:8px 12px 4px; }
 .diff-grid { display:flex; flex-direction:column; gap:5px; padding:0 12px 8px; }
@@ -133,10 +133,13 @@ canvas { display:block; }
 .leader-rank.bronze { color:#cd7f32; }
 .leader-name { flex:1; color:#aae0b0; font-size:.40rem; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
 .leader-score { color:#7edd8a; font-size:.50rem; flex-shrink:0; }
-.leader-diff { font-size:.28rem; flex-shrink:0; padding:2px 4px; border:1px solid; }
-.leader-diff.easy   { color:#50c840; border-color:#50c840; }
-.leader-diff.medium { color:#f5c842; border-color:#f5c842; }
-.leader-diff.hard   { color:#e05050; border-color:#e05050; }
+.leader-diff { font-size:1.0rem; flex-shrink:0; }
+.leader-diff-row { display:flex; gap:8px; flex-shrink:0; padding:8px 8px 0; }
+.ld-btn { flex:1; font-size:1.3rem; padding:8px 4px; background:#0d1c04; border:3px solid #1a3008; cursor:pointer; text-align:center; line-height:1; opacity:.3; transition:opacity .15s,border-color .15s,box-shadow .15s; }
+.ld-btn.active { opacity:1; }
+.ld-btn.easy.active   { border-color:#50c840; background:rgba(80,200,64,.10); box-shadow:inset 0 0 12px rgba(80,200,64,.15); }
+.ld-btn.medium.active { border-color:#f5c842; background:rgba(245,200,66,.10); box-shadow:inset 0 0 12px rgba(245,200,66,.15); }
+.ld-btn.hard.active   { border-color:#e05050; background:rgba(224,80,80,.10); box-shadow:inset 0 0 12px rgba(224,80,80,.15); }
 .leader-empty { color:#2a4a10; font-size:.36rem; text-align:center; padding:20px; line-height:2; }
 
 /* ROTATE OVERLAY */
@@ -159,13 +162,13 @@ canvas { display:block; }
   <span class="game-topbar-brand">★ PIXEL KITCHEN ★</span>
   <span class="game-topbar-coins">🪙 <span id="topbarCoins">0</span></span>
   <span class="game-topbar-coinlbl">COINS</span>
+  <button class="btn-mute" id="muteBtn" onclick="toggleMute()">🔊</button>
 </div>
 <div class="game-content">
 
 <div class="canvas-wrap">
-  <div class="canvas-label">🔪 CHOP ZONE 🔪</div>
   <div class="canvas-frame">
-    <canvas id="gameCanvas" width="480" height="480"></canvas>
+    <canvas id="gameCanvas" width="620" height="480"></canvas>
     <!-- pixel corner brackets -->
     <div class="px-corner tl"></div>
     <div class="px-corner tr"></div>
@@ -185,7 +188,7 @@ canvas { display:block; }
     </div>
     <div class="how-block">
       <div class="diff-label" style="margin:0 0 4px;padding:0;">▶ HOW TO PLAY</div>
-      <div style="font-size:.36rem;color:#7edd8a;line-height:2;padding:0 2px;">
+      <div style="font-size:.42rem;color:#7edd8a;line-height:2;padding:0 2px;">
         ① Watch the knife swing left-right<br>
         ② Tap when the blade hits center<br>
         ③ PERFECT = max pts + 10 🪙
@@ -195,30 +198,30 @@ canvas { display:block; }
     <div class="diff-label">▶ SELECT DIFFICULTY</div>
     <div class="diff-grid">
       <button class="d-btn d-easy" onclick="startGame('easy')">
-        <span class="d-icon">🥕</span>
+        <span class="d-icon">✨</span>
         <div class="d-texts">
-          <span class="d-name">APPRENTICE</span>
+          <span class="d-name">APPRENTI</span>
           <span class="d-info">Slow knife · 8 rounds</span>
         </div>
       </button>
       <button class="d-btn d-medium" onclick="startGame('medium')">
-        <span class="d-icon">🥦</span>
+        <span class="d-icon">🔥</span>
         <div class="d-texts">
-          <span class="d-name">CHEF</span>
+          <span class="d-name">CUISINIER</span>
           <span class="d-info">Medium · 10 rounds</span>
         </div>
       </button>
       <button class="d-btn d-hard" onclick="startGame('hard')">
-        <span class="d-icon">🌶️</span>
+        <span class="d-icon">💥</span>
         <div class="d-texts">
           <span class="d-name">CHEF</span>
           <span class="d-info">Fast knife · 12 rounds</span>
         </div>
       </button>
     </div>
-    <div style="display:flex;gap:6px;padding:4px 12px 6px;">
-      <button class="btn-back" style="flex:1;" onclick="location.href='index.html?from=game'">◀ HUB</button>
-      <button class="btn-back" style="flex:1;" onclick="openLeaderFromTitle()">🏆 RANKS</button>
+    <div style="display:flex;gap:6px;padding:2px 10px 6px;">
+      <button class="btn-back" style="flex:1;margin:0;" onclick="location.href='index.html?from=game'">◀ HUB</button>
+      <button class="btn-back" style="flex:1;margin:0;" onclick="openLeaderFromTitle()">🏆 RANKS</button>
     </div>
   </div>
 
@@ -266,13 +269,17 @@ canvas { display:block; }
     <div class="leader-header">
       <div class="leader-title"><span>🏆</span>LEADERBOARD</div>
     </div>
+    <div class="leader-diff-row">
+      <button class="ld-btn easy active" id="lbApprentil" onclick="switchLeader('apprenti')">✨</button>
+      <button class="ld-btn medium" id="lbCuisinier" onclick="switchLeader('cuisinier')">🔥</button>
+      <button class="ld-btn hard" id="lbChef" onclick="switchLeader('chef')">💥</button>
+    </div>
     <div class="leader-list" id="leaderList">
       <div class="leader-empty">Loading...</div>
     </div>
     <button class="btn-back" id="leaderBackBtn" onclick="showPane('paneResult')">← BACK</button>
   </div>
 
-  <button class="btn-mute" id="muteBtn" onclick="toggleMute()">♪ ON</button>
 </div><!-- .game-panel -->
 </div><!-- .game-content -->
 </div><!-- #gameWrap -->
@@ -322,6 +329,8 @@ function scaleGame(){
   const vw=window.visualViewport?window.visualViewport.width:window.innerWidth;
   const vh=window.visualViewport?window.visualViewport.height:window.innerHeight;
   const scale=Math.min((vw-8)/GAME_W,(vh-8)/GAME_H);
+  wrap.style.width  = GAME_W + 'px';
+  wrap.style.height = GAME_H + 'px';
   wrap.style.transform=`translate(-50%,-50%) scale(${scale})`;
 }
 function checkRotate(){
@@ -336,13 +345,14 @@ function updateTopbarCoins(){
   const el=document.getElementById('topbarCoins');
   if(el) el.textContent=n.toLocaleString();
 }
-let muted=false;
+let muted=localStorage.getItem('pkMuted')==='1';
 function toggleMute(){
   muted=!muted;
-  document.getElementById('muteBtn').textContent=muted?'♪ OFF':'♪ ON';
+  localStorage.setItem('pkMuted',muted?'1':'0');
+  document.getElementById('muteBtn').textContent=muted?'🔇':'🔊';
 }
 function onResize(){ scaleGame(); checkRotate(); }
-document.addEventListener('DOMContentLoaded',()=>{ onResize(); updateTopbarCoins(); });
+document.addEventListener('DOMContentLoaded',()=>{ onResize(); updateTopbarCoins(); const b=document.getElementById('muteBtn');if(b)b.textContent=muted?'🔇':'🔊'; });
 window.addEventListener('resize',onResize);
 window.addEventListener('orientationchange',()=>setTimeout(onResize,100));
 if(window.visualViewport) window.visualViewport.addEventListener('resize',onResize);
@@ -353,7 +363,7 @@ if(window.visualViewport) window.visualViewport.addEventListener('resize',onResi
 const canvas=document.getElementById('gameCanvas');
 const ctx=canvas.getContext('2d');
 ctx.imageSmoothingEnabled=false;
-const CW=480, CH=480;
+const CW=620, CH=480;
 
 // ══════════════════════════════════════════
 //  GAME CONFIG
@@ -366,7 +376,7 @@ const DIFFS={
 const FOODS = pkIngredientPool();
 
 // Board geometry (on 480×480 canvas)
-const BX=60, BY=230, BW=360, BH=80;   // cutting board rect
+const BX=130, BY=230, BW=360, BH=80;  // cutting board rect
 const FOOD_X=CW/2, FOOD_Y=BY-4;       // food sits on top of board
 const ZONE_Y=BY+32;                    // precision zone bar center
 
@@ -572,22 +582,36 @@ function drawBackground(){
   ctx.fillStyle='#22bb40';
   [[-1,-28],[5,-33],[-5,-33],[0,-46]].forEach(([dx,dy])=>{ ctx.fillRect(hpX+dx-2,shelfY+dy-2,5,5); });
 
-  // ── LEFT WALL: magnetic knife strip ──
-  const stripX=4, stripY=80, stripH=110;
-  ctx.fillStyle='#3a2808'; ctx.fillRect(stripX,stripY,14,stripH);
-  ctx.fillStyle='#4a3818'; ctx.fillRect(stripX+2,stripY+2,10,stripH-4);
-  // screws
-  ctx.fillStyle='#666'; [[stripX+7,stripY+6],[stripX+7,stripY+stripH-6]].forEach(([sx,sy])=>{
-    ctx.fillRect(sx-2,sy-2,4,4); ctx.fillStyle='#888'; ctx.fillRect(sx-1,sy-1,2,2); ctx.fillStyle='#666';
+  // ── LEFT WALL: kitchen window (night sky) ──
+  const winX=5, winY=68, winW=62, winH=72;
+  // Outer wood frame
+  ctx.fillStyle='#5a3a10'; ctx.fillRect(winX-5,winY-5,winW+10,winH+10);
+  ctx.fillStyle='#3a2008'; ctx.fillRect(winX-3,winY-3,winW+6,winH+6);
+  // Night sky background
+  ctx.fillStyle='#060c1e'; ctx.fillRect(winX,winY,winW,winH);
+  // Stars (static flicker via time)
+  const tw=Date.now()/1200;
+  ctx.fillStyle='#ffffff';
+  [[10,8],[28,5],[48,12],[18,25],[52,20],[8,38],[35,32],[55,40],[22,52],[44,55],[12,60],[58,62]].forEach(([sx,sy],i)=>{
+    const a=0.5+0.5*Math.sin(tw+i*1.7);
+    ctx.globalAlpha=a; ctx.fillRect(winX+sx,winY+sy,2,2);
   });
-  // 3 hanging knives (blade points right)
-  [[stripY+20,18,'#c8c8d0'],[stripY+52,22,'#b8b8c0'],[stripY+84,16,'#d0d0d8']].forEach(([ky,bl,col])=>{
-    ctx.fillStyle='#4a3010'; ctx.fillRect(stripX+14,ky-3,10,6); // handle
-    ctx.fillStyle='#2a1a08'; ctx.fillRect(stripX+14,ky-1,10,2); // handle grain
-    ctx.fillStyle=col; ctx.fillRect(stripX+24,ky-2,bl,4);       // blade
-    ctx.fillStyle='#e8e8f0'; ctx.fillRect(stripX+24,ky-1,bl,1); // blade shine
-    ctx.fillStyle=col; ctx.fillRect(stripX+24+bl,ky,3,2);       // tip
+  ctx.globalAlpha=1;
+  // Crescent moon
+  ctx.fillStyle='#fffff0'; ctx.beginPath(); ctx.arc(winX+47,winY+14,9,0,Math.PI*2); ctx.fill();
+  ctx.fillStyle='#060c1e'; ctx.beginPath(); ctx.arc(winX+51,winY+12,7,0,Math.PI*2); ctx.fill();
+  // Distant city lights (bottom strip)
+  ctx.fillStyle='#1a1a3a'; ctx.fillRect(winX,winY+winH-14,winW,14);
+  [[6,8,'#f5c842'],[14,5,'#ff9b6a'],[22,9,'#f5c842'],[32,6,'#ffe0b0'],[42,8,'#ff9b6a'],[52,5,'#f5c842']].forEach(([bx,bh,col])=>{
+    ctx.fillStyle=col; ctx.fillRect(winX+bx,winY+winH-14-bh,4,bh);
+    ctx.fillStyle=col+'66'; ctx.fillRect(winX+bx,winY+winH-14,4,4); // reflection
   });
+  // Window frame dividers (wood cross)
+  ctx.fillStyle='#4a2e08';
+  ctx.fillRect(winX,winY+winH/2-2,winW,4);   // horizontal
+  ctx.fillRect(winX+winW/2-2,winY,4,winH);   // vertical
+  // Window outer edge highlight
+  ctx.strokeStyle='#6a4818'; ctx.lineWidth=1; ctx.strokeRect(winX-3,winY-3,winW+6,winH+6);
 
   // ── LEFT WALL: chalk score board ──
   const cbX=4, cbY=210, cbW=50, cbH=36;
@@ -634,10 +658,10 @@ function drawBackground(){
 
   // Right shelf + two spice jars
   const rShelfY=215;
-  ctx.fillStyle='#5a3a10'; ctx.fillRect(420,rShelfY,60,8);
-  ctx.fillStyle='#3a2008'; ctx.fillRect(420,rShelfY+8,60,3);
+  ctx.fillStyle='#5a3a10'; ctx.fillRect(510,rShelfY,80,8);
+  ctx.fillStyle='#3a2008'; ctx.fillRect(510,rShelfY+8,80,3);
   // Jar 1 — paprika (red-orange)
-  const s1x=434, jt=rShelfY;
+  const s1x=528, jt=rShelfY;
   ctx.fillStyle='#aa2822'; ctx.fillRect(s1x-8,jt-30,16,30);
   ctx.fillStyle='#cc3030'; ctx.fillRect(s1x-8,jt-30,16,5);
   ctx.fillStyle='#888';    ctx.fillRect(s1x-5,jt-37,10,8);
@@ -645,7 +669,7 @@ function drawBackground(){
   ctx.fillStyle='#f5e0c0'; ctx.fillRect(s1x-6,jt-23,12,14);
   ctx.fillStyle='#cc3030'; ctx.fillRect(s1x-4,jt-21,8,10);
   // Jar 2 — herbs (teal)
-  const s2x=457;
+  const s2x=554;
   ctx.fillStyle='#1a6666'; ctx.fillRect(s2x-8,jt-25,16,25);
   ctx.fillStyle='#208888'; ctx.fillRect(s2x-8,jt-25,16,5);
   ctx.fillStyle='#888';    ctx.fillRect(s2x-5,jt-32,10,8);
@@ -807,12 +831,25 @@ function drawPrompt(){
 
 function drawRoundDots(){
   if(!cfg) return;
-  const n=cfg.rounds,sz=8,gap=5;
-  const tw=n*sz+(n-1)*gap;
+  const n=cfg.rounds,sz=8,gap=6;
+  const tw=n*(sz+gap)-gap;
   let x=CW/2-tw/2;
   for(let i=0;i<n;i++){
-    ctx.fillStyle=i<round-1?'#7edd8a':i===round-1?'#b0ffb8':'#1a3a08';
-    ctx.fillRect(x,18,sz,sz);
+    if(i<round-1){
+      // completed — solid green
+      ctx.fillStyle='#50c840'; ctx.fillRect(x,16,sz,sz);
+      ctx.fillStyle='#7edd8a'; ctx.fillRect(x+1,16,sz-2,2);
+    } else if(i===round-1){
+      // current — bright pulse + glow
+      ctx.shadowColor='#7edd8a'; ctx.shadowBlur=8;
+      ctx.fillStyle='#b0ffb8'; ctx.fillRect(x-1,15,sz+2,sz+2);
+      ctx.fillStyle='#7edd8a'; ctx.fillRect(x,16,sz,sz);
+      ctx.shadowBlur=0;
+    } else {
+      // upcoming — dark
+      ctx.fillStyle='#1a3a08'; ctx.fillRect(x,16,sz,sz);
+      ctx.fillStyle='#243a1a'; ctx.fillRect(x,16,sz,2);
+    }
     x+=sz+gap;
   }
 }
@@ -895,33 +932,33 @@ function openLeaderFromTitle(){ showLeader('paneTitle'); }
 function showLeader(returnPane='paneResult'){
   document.getElementById('leaderBackBtn').onclick=()=>showPane(returnPane);
   showPane('paneLeader');
+  detachLeader();
+  switchLeader('apprenti');
+}
+function switchLeader(key){
+  const m={apprenti:'lbApprentil',cuisinier:'lbCuisinier',chef:'lbChef'};
+  Object.entries(m).forEach(([k,id])=>document.getElementById(id)?.classList.toggle('active',k===key));
+  const diffMap={apprenti:'easy',cuisinier:'medium',chef:'hard'};
+  const diffVal=diffMap[key]||key;
   const list=document.getElementById('leaderList');
   list.innerHTML='<div class="leader-empty">Loading...</div>';
-  detachLeader();
-  _lbQ=LB_REF.orderByChild('score').limitToLast(10);
-  _lbL=_lbQ.on('value',snap=>{
-    const rows=[];
-    snap.forEach(c=>rows.push(c.val()));
+  const myName=localStorage.getItem('pkName')||'';
+  LB_REF.orderByChild('score').limitToLast(50).once('value',snap=>{
+    const rows=[]; snap.forEach(c=>{ const v=c.val(); if(v.diff===diffVal) rows.push(v); });
     rows.sort((a,b)=>b.score-a.score);
-    if(!rows.length){
-      list.innerHTML='<div class="leader-empty">No scores yet!<br>Be the first to chop!</div>';
-      return;
-    }
+    const top=rows.slice(0,10);
+    if(!top.length){ list.innerHTML='<div class="leader-empty">No scores yet.<br>Be the first!</div>'; return; }
     list.innerHTML='';
-    rows.forEach((r,i)=>{
+    top.forEach((r,i)=>{
       const rc=i===0?'gold':i===1?'silver':i===2?'bronze':'';
-      const rs=i===0?'1ST':i===1?'2ND':i===2?'3RD':`#${i+1}`;
+      const rs=i===0?'🥇':i===1?'🥈':i===2?'🥉':`#${i+1}`;
+      const de=r.diff==='easy'?'✨':r.diff==='medium'?'🔥':'💥';
       const d=document.createElement('div');
-      d.className='leader-row'+(r.name===localStorage.getItem('pkName')?' me':'');
-      d.innerHTML=`<span class="leader-rank ${rc}">${rs}</span>
-        <span class="leader-name">${r.name}</span>
-        <span class="leader-score">${r.score}</span>
-        <span class="leader-diff ${r.diff||'easy'}">${(r.diff||'easy').toUpperCase()}</span>`;
+      d.className='leader-row'+(r.name===myName?' me':'');
+      d.innerHTML=`<span class="leader-rank ${rc}">${rs}</span><span class="leader-name">${r.name}</span><span class="leader-score">${r.score}</span><span class="leader-diff">${de}</span>`;
       list.appendChild(d);
     });
-  },()=>{
-    list.innerHTML='<div class="leader-empty">Failed to load.<br>Check connection.</div>';
-  });
+  },()=>{ list.innerHTML='<div class="leader-empty">Failed to load.</div>'; });
 }
 </script>
 </body>

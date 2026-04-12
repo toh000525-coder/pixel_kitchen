@@ -11,7 +11,7 @@
 <style>
 * { margin:0; padding:0; box-sizing:border-box; image-rendering:pixelated; }
 body {
-  background:radial-gradient(ellipse at 50% 30%, #fff5e6 0%, #ffe0b0 100%);
+  background:radial-gradient(ellipse at 50% 30%, #6b3a10 0%, #3a1c06 100%);
   font-family:'Press Start 2P',monospace;
   width:100vw; height:100vh; overflow:hidden;
 }
@@ -144,7 +144,7 @@ canvas { display:block; }
 .px-div { text-align:center; color:#d4a060; font-size:.28rem; letter-spacing:4px; margin:4px 0 0; flex-shrink:0; }
 
 /* HOW TO PLAY */
-.how-block { padding:6px 12px 4px; border-left:3px solid #e8913a; margin:8px 10px 0; background:rgba(245,220,180,0.5); }
+.how-block { padding:5px 10px 4px; border-left:3px solid #e8913a; margin:6px 8px 0; background:rgba(245,220,180,0.5); }
 
 @keyframes scorePulse { 0%,100%{text-shadow:2px 2px #3a1208} 50%{text-shadow:2px 2px #3a1208,0 0 24px #f5a74288} }
 
@@ -246,20 +246,17 @@ canvas { display:block; }
 .leader-rank.bronze { color:#a05820; }
 .leader-name { flex:1; color:#5a3010; font-size:.40rem; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
 .leader-score { color:#c85a1a; font-size:.50rem; flex-shrink:0; }
-.leader-diff { font-size:.28rem; flex-shrink:0; padding:2px 4px; border:1px solid; }
-.leader-diff.apprenti { color:#2a8020; border-color:#50c840; }
-.leader-diff.cuisinier { color:#a07000; border-color:#d4a030; }
-.leader-diff.chef { color:#c02020; border-color:#e05050; }
+.leader-diff { font-size:1.0rem; flex-shrink:0; }
+.leader-diff-row { display:flex; gap:8px; flex-shrink:0; padding:8px 8px 0; }
+.ld-btn { flex:1; font-size:1.3rem; padding:8px 4px; background:#f5e8d8; border:3px solid #d4b080; cursor:pointer; text-align:center; line-height:1; opacity:.3; transition:opacity .15s,border-color .15s,box-shadow .15s; }
+.ld-btn.active { opacity:1; }
+.ld-btn.easy.active   { border-color:#50c840; background:rgba(80,200,64,.12); box-shadow:inset 0 0 12px rgba(80,200,64,.15); }
+.ld-btn.medium.active { border-color:#c8780a; background:rgba(200,120,10,.12); box-shadow:inset 0 0 12px rgba(200,120,10,.15); }
+.ld-btn.hard.active   { border-color:#e05050; background:rgba(224,80,80,.12); box-shadow:inset 0 0 12px rgba(224,80,80,.15); }
 .leader-empty { color:#c0a070; font-size:.36rem; text-align:center; padding:20px; line-height:2; }
 
 /* MUTE */
-.btn-mute {
-  position:absolute; bottom:8px; right:8px;
-  font-family:'Press Start 2P',monospace; font-size:.28rem;
-  padding:4px 7px; background:#f5e8d8;
-  border:2px solid #d4b080; color:#b08050; cursor:pointer; z-index:10;
-}
-.btn-mute:hover { border-color:#e8913a; color:#c85a1a; }
+.btn-mute { font-size:1.2rem; padding:2px 4px; background:transparent; border:none; cursor:pointer; line-height:1; }
 
 /* ROTATE OVERLAY */
 #rotateMsg {
@@ -281,6 +278,7 @@ canvas { display:block; }
   <span class="game-topbar-brand">★ PIXEL KITCHEN ★</span>
   <span class="game-topbar-coins">🪙 <span id="topbarCoins">0</span></span>
   <span class="game-topbar-coinlbl">COINS</span>
+  <button class="btn-mute" id="muteBtn" onclick="toggleMute()">🔊</button>
 </div>
 <div class="game-content">
 
@@ -314,7 +312,7 @@ canvas { display:block; }
     </div>
     <div class="how-block">
       <div class="diff-label" style="margin:0 0 4px;padding:0;">▶ HOW TO PLAY</div>
-      <div style="font-size:.34rem;color:#7a4820;line-height:2;padding:0 2px;">
+      <div style="font-size:.42rem;color:#7a4820;line-height:2;padding:0 2px;">
         ① Watch the recipe sequence<br>
         ② Wait for GET READY...<br>
         ③ Click foods in ORDER<br>
@@ -325,30 +323,30 @@ canvas { display:block; }
     <div class="diff-label">▶ SELECT DIFFICULTY</div>
     <div class="diff-grid">
       <button class="d-btn d-easy" onclick="startGame('apprenti')">
-        <span class="d-icon">🥕</span>
+        <span class="d-icon">✨</span>
         <div class="d-texts">
           <span class="d-name">APPRENTI</span>
           <span class="d-info">3 steps · 5 rounds · slow</span>
         </div>
       </button>
       <button class="d-btn d-medium" onclick="startGame('cuisinier')">
-        <span class="d-icon">🍝</span>
+        <span class="d-icon">🔥</span>
         <div class="d-texts">
           <span class="d-name">CUISINIER</span>
           <span class="d-info">4 steps · 5 rounds · medium</span>
         </div>
       </button>
       <button class="d-btn d-hard" onclick="startGame('chef')">
-        <span class="d-icon">🧀</span>
+        <span class="d-icon">💥</span>
         <div class="d-texts">
           <span class="d-name">CHEF</span>
           <span class="d-info">5 steps · 5 rounds · fast</span>
         </div>
       </button>
     </div>
-    <div style="display:flex;gap:6px;padding:4px 12px 6px;">
-      <button class="btn-back" style="flex:1;" onclick="location.href='index.html?from=game'">◀ HUB</button>
-      <button class="btn-back" style="flex:1;" onclick="openLeaderFromTitle()">🏆 RANKS</button>
+    <div style="display:flex;gap:6px;padding:2px 10px 6px;">
+      <button class="btn-back" style="flex:1;margin:0;" onclick="location.href='index.html?from=game'">◀ HUB</button>
+      <button class="btn-back" style="flex:1;margin:0;" onclick="openLeaderFromTitle()">🏆 RANKS</button>
     </div>
   </div>
 
@@ -399,13 +397,17 @@ canvas { display:block; }
     <div class="leader-header">
       <div class="leader-title"><span>🏆</span>LEADERBOARD</div>
     </div>
+    <div class="leader-diff-row">
+      <button class="ld-btn easy active" id="lbApprentil" onclick="switchLeader('apprenti')">✨</button>
+      <button class="ld-btn medium" id="lbCuisinier" onclick="switchLeader('cuisinier')">🔥</button>
+      <button class="ld-btn hard" id="lbChef" onclick="switchLeader('chef')">💥</button>
+    </div>
     <div class="leader-list" id="leaderList">
       <div class="leader-empty">Loading...</div>
     </div>
     <button class="btn-back" id="leaderBackBtn" onclick="showPane('paneResult')">◀ BACK</button>
   </div>
 
-  <button class="btn-mute" id="muteBtn" onclick="toggleMute()">♪ ON</button>
 </div><!-- .game-panel -->
 </div><!-- .game-content -->
 </div><!-- #gameWrap -->
@@ -454,6 +456,8 @@ function scaleGame(){
   const vw=window.visualViewport?window.visualViewport.width:window.innerWidth;
   const vh=window.visualViewport?window.visualViewport.height:window.innerHeight;
   const scale=Math.min((vw-8)/GAME_W,(vh-8)/GAME_H);
+  wrap.style.width  = GAME_W + 'px';
+  wrap.style.height = GAME_H + 'px';
   wrap.style.transform=`translate(-50%,-50%) scale(${scale})`;
 }
 function checkRotate(){
@@ -469,7 +473,7 @@ function updateTopbarCoins(){
   if(el) el.textContent=n.toLocaleString();
 }
 function onResize(){ scaleGame(); checkRotate(); }
-document.addEventListener('DOMContentLoaded',()=>{ onResize(); updateTopbarCoins(); showTitle(); });
+document.addEventListener('DOMContentLoaded',()=>{ onResize(); updateTopbarCoins(); showTitle(); const b=document.getElementById('muteBtn');if(b)b.textContent=muted?'🔇':'🔊'; });
 window.addEventListener('resize',onResize);
 window.addEventListener('orientationchange',()=>setTimeout(onResize,100));
 if(window.visualViewport) window.visualViewport.addEventListener('resize',onResize);
@@ -1121,48 +1125,44 @@ function openLeaderFromTitle(){ showLeader('paneTitle'); }
 function showLeader(returnPane='paneResult'){
   document.getElementById('leaderBackBtn').onclick=()=>showPane(returnPane);
   showPane('paneLeader');
+  detachLeader();
+  switchLeader('apprenti');
+}
+function switchLeader(key){
+  const m={apprenti:'lbApprentil',cuisinier:'lbCuisinier',chef:'lbChef'};
+  Object.entries(m).forEach(([k,id])=>document.getElementById(id)?.classList.toggle('active',k===key));
   const list=document.getElementById('leaderList');
   list.innerHTML='<div class="leader-empty">Loading...</div>';
-  detachLeader();
-  _lbQ=LB_REF.orderByChild('score').limitToLast(10);
-  _lbL=_lbQ.on('value',snap=>{
-    const rows=[];
-    snap.forEach(c=>rows.push(c.val()));
+  const myName=localStorage.getItem('pkName')||'';
+  LB_REF.orderByChild('score').limitToLast(50).once('value',snap=>{
+    const rows=[]; snap.forEach(c=>{ const v=c.val(); if(v.diff===key) rows.push(v); });
     rows.sort((a,b)=>b.score-a.score);
-    if(!rows.length){
-      list.innerHTML='<div class="leader-empty">No scores yet!<br>Be the first chef!</div>';
-      return;
-    }
+    const top=rows.slice(0,10);
+    if(!top.length){ list.innerHTML='<div class="leader-empty">No scores yet.<br>Be the first!</div>'; return; }
     list.innerHTML='';
-    const myName=localStorage.getItem('pkName');
-    rows.forEach((r,i)=>{
+    top.forEach((r,i)=>{
       const rc=i===0?'gold':i===1?'silver':i===2?'bronze':'';
-      const rs=i===0?'1ST':i===1?'2ND':i===2?'3RD':`#${i+1}`;
+      const rs=i===0?'🥇':i===1?'🥈':i===2?'🥉':`#${i+1}`;
+      const de=r.diff==='apprenti'?'✨':r.diff==='cuisinier'?'🔥':'💥';
       const d=document.createElement('div');
       d.className='leader-row'+(r.name===myName?' me':'');
-      const diffCls=r.diff||'apprenti';
-      d.innerHTML=`<span class="leader-rank ${rc}">${rs}</span>
-        <span class="leader-name">${r.name}</span>
-        <span class="leader-score">${r.score}</span>
-        <span class="leader-diff ${diffCls}">${(r.diff||'apprenti').toUpperCase()}</span>`;
+      d.innerHTML=`<span class="leader-rank ${rc}">${rs}</span><span class="leader-name">${r.name}</span><span class="leader-score">${r.score}</span><span class="leader-diff">${de}</span>`;
       list.appendChild(d);
     });
-  },()=>{
-    list.innerHTML='<div class="leader-empty">Failed to load.<br>Check connection.</div>';
-  });
+  },()=>{ list.innerHTML='<div class="leader-empty">Failed to load.</div>'; });
 }
 
 // ══════════════════════════════════════════
 //  AUDIO
 // ══════════════════════════════════════════
 const AC=window.AudioContext||window.webkitAudioContext;
-let actx=null, masterGain=null, muted=false;
+let actx=null, masterGain=null, muted=localStorage.getItem('pkMuted')==='1';
 
 function initAudio(){
   if(actx) return;
   actx=new AC();
   masterGain=actx.createGain();
-  masterGain.gain.value=0.30;
+  masterGain.gain.value=muted?0:0.30;
   masterGain.connect(actx.destination);
 }
 function playTone(freq,dur,type='square',vol=0.12){
@@ -1198,7 +1198,8 @@ function playRoundClear(){
 }
 function toggleMute(){
   muted=!muted;
-  document.getElementById('muteBtn').textContent=muted?'♪ OFF':'♪ ON';
+  localStorage.setItem('pkMuted',muted?'1':'0');
+  document.getElementById('muteBtn').textContent=muted?'🔇':'🔊';
 }
 document.addEventListener('click',function onFirstClick(){ initAudio(); },{once:true});
 

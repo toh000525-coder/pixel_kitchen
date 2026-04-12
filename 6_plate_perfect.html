@@ -28,7 +28,7 @@ canvas { display:block; border:3px solid #00c8d7; box-shadow:0 0 18px #003a5088;
 .gp-title { color:#bde8f0; font-size:.70rem; letter-spacing:2px; line-height:1.6; text-shadow:2px 2px #100804,0 0 12px #00c8d788; }
 .gp-sub   { color:#2a8090; font-size:.38rem; margin-top:4px; line-height:1.5; }
 .px-div { text-align:center; color:#104050; font-size:.28rem; letter-spacing:4px; margin:4px 0 0; flex-shrink:0; }
-.how-block { padding:6px 12px 4px; border-left:3px solid #00c8d7; margin:10px 10px 0; background:#0a182888; }
+.how-block { padding:5px 10px 4px; border-left:3px solid #00c8d7; margin:6px 8px 0; background:#0a182888; }
 .pane { flex:1; display:flex; flex-direction:column; overflow:hidden; }
 .diff-label { color:#2a8090; font-size:.40rem; margin:8px 12px 4px; }
 .diff-grid  { display:flex; flex-direction:column; gap:5px; padding:0 12px 8px; }
@@ -69,9 +69,15 @@ canvas { display:block; border:3px solid #00c8d7; box-shadow:0 0 18px #003a5088;
 .leader-header::before { content:''; position:absolute; top:0; left:0; right:0; height:3px; background:linear-gradient(90deg,transparent,#00c8d7,#b0ecf5,#00c8d7,transparent); }
 .leader-title { color:#bde8f0; font-size:.70rem; letter-spacing:2px; }
 .leader-title span { font-size:2rem; display:block; margin-bottom:4px; }
-.leader-diff-row { display:flex; gap:4px; flex-shrink:0; padding:6px 8px 0; }
-.ld-btn { flex:1; font-family:'Press Start 2P',monospace; font-size:.22rem; padding:5px 2px; background:#070e18; border:2px solid #104050; color:#2a8090; cursor:pointer; text-align:center; }
-.ld-btn.active { border-color:#00c8d7; color:#bde8f0; }
+.leader-diff-row { display:flex; gap:8px; flex-shrink:0; padding:8px 8px 0; }
+.ld-btn { flex:1; font-size:1.3rem; padding:8px 4px; background:#070e18; border:3px solid #0c1830; cursor:pointer; text-align:center; line-height:1; opacity:.3; transition:opacity .15s,border-color .15s,box-shadow .15s; }
+.ld-btn.active { opacity:1; }
+.ld-btn.easy   { border-color:#0a2010; }
+.ld-btn.medium { border-color:#1a1808; }
+.ld-btn.hard   { border-color:#200a0a; }
+.ld-btn.easy.active   { border-color:#50c840; background:rgba(80,200,64,.10); box-shadow:inset 0 0 12px rgba(80,200,64,.15); }
+.ld-btn.medium.active { border-color:#f5c842; background:rgba(245,200,66,.10); box-shadow:inset 0 0 12px rgba(245,200,66,.15); }
+.ld-btn.hard.active   { border-color:#e05050; background:rgba(224,80,80,.10); box-shadow:inset 0 0 12px rgba(224,80,80,.15); }
 .leader-list { flex:1; overflow-y:auto; padding:8px; display:flex; flex-direction:column; gap:6px; min-height:0; }
 .leader-list::-webkit-scrollbar { width:4px; }
 .leader-list::-webkit-scrollbar-thumb { background:#104050; }
@@ -84,7 +90,7 @@ canvas { display:block; border:3px solid #00c8d7; box-shadow:0 0 18px #003a5088;
 .leader-name  { flex:1; color:#4a8aaa; font-size:.40rem; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
 .leader-score { color:#bde8f0; font-size:.50rem; flex-shrink:0; }
 .leader-empty { color:#104050; font-size:.36rem; text-align:center; padding:20px; line-height:2; }
-.btn-mute { position:absolute; bottom:8px; right:8px; z-index:10; font-family:'Press Start 2P',monospace; font-size:.26rem; padding:5px 8px; background:#070e18; border:2px solid #104050; color:#00c8d7; cursor:pointer; }
+.btn-mute { font-size:1.2rem; padding:2px 4px; background:transparent; border:none; cursor:pointer; line-height:1; }
 .btn-mute:hover { border-color:#00c8d7; color:#bde8f0; }
 #pauseMenu { display:none; position:fixed; inset:0; z-index:9000; background:#08040299; align-items:center; justify-content:center; }
 #pauseMenu.visible { display:flex; }
@@ -107,23 +113,23 @@ canvas { display:block; border:3px solid #00c8d7; box-shadow:0 0 18px #003a5088;
     <span class="game-topbar-brand">★ PIXEL KITCHEN ★</span>
     <span class="game-topbar-coins">🪙 <span id="topbarCoins">0</span></span>
     <span class="game-topbar-coinlbl">COINS</span>
+    <button class="btn-mute" id="muteBtn" onclick="toggleMute()">🔊</button>
   </div>
   <div class="game-content">
     <div class="canvas-wrap"><canvas id="gameCanvas" width="620" height="480"></canvas></div>
     <div class="game-panel">
 
       <div id="paneTitle" class="pane" style="display:flex;">
-        <div class="gp-header">
-          <span class="gp-logo">🍽️</span>
-          <div class="gp-title">PLATE<br>PERFECT</div>
+        <div class="gp-header" style="padding:7px 10px;">
+          <span class="gp-logo" style="font-size:26px;margin-bottom:2px;">🍽️</span>
+          <div class="gp-title" style="font-size:.60rem;">PLATE PERFECT</div>
           <div class="gp-sub">Read the order. Plate it. Sauce it!</div>
         </div>
-        <div class="how-block">
-          <div class="diff-label" style="margin:0 0 4px;padding:0;">▶ HOW TO PLAY</div>
-          <div style="font-size:.30rem;color:#4a8aaa;line-height:2.2;padding:0 2px;">
+        <div class="how-block" style="margin:6px 8px 0;padding:4px 10px 4px;">
+          <div class="diff-label" style="margin:0 0 3px;padding:0;">▶ HOW TO PLAY</div>
+          <div style="font-size:.38rem;color:#4a8aaa;line-height:1.7;padding:0 2px;">
             ① Read the order card 📋<br>
-            ② Drag each ingredient to<br>
-            &nbsp;&nbsp;&nbsp;the correct zone on the plate<br>
+            ② Drag each ingredient to the correct zone<br>
             ③ Watch the sauce pattern 👁️<br>
             ④ Draw it from memory! 🎨
           </div>
@@ -144,11 +150,10 @@ canvas { display:block; border:3px solid #00c8d7; box-shadow:0 0 18px #003a5088;
             <div class="d-texts"><span class="d-name">CHEF</span><span class="d-info">5 items · 60s · 3 lives · 1s preview</span></div>
           </button>
         </div>
-        <div style="display:flex;gap:6px;padding:4px 12px 6px;">
-          <button class="btn-back" style="flex:1;" onclick="location.href='index.html?from=game'">◀ HUB</button>
-          <button class="btn-back" style="flex:1;" onclick="showPane('paneLeader')">🏆 RANKS</button>
+        <div style="display:flex;gap:6px;padding:2px 10px 6px;">
+          <button class="btn-back" style="flex:1;margin:0;" onclick="location.href='index.html?from=game'">◀ HUB</button>
+          <button class="btn-back" style="flex:1;margin:0;" onclick="showPane('paneLeader')">🏆 RANKS</button>
         </div>
-        <button class="btn-mute" onclick="toggleMute()" id="btnMute">♪ ON</button>
       </div>
 
       <div id="paneGame" class="pane" style="display:none;">
@@ -163,7 +168,6 @@ canvas { display:block; border:3px solid #00c8d7; box-shadow:0 0 18px #003a5088;
         <div class="hud-tap-area">
           <div class="hud-tap-txt" id="phaseHint">📋<br>READ THE ORDER<br>DRAG INGREDIENTS</div>
         </div>
-        <button class="btn-mute" onclick="toggleMute()" id="btnMuteGame">♪ ON</button>
       </div>
 
       <div id="paneResult" class="pane" style="display:none;">
@@ -178,19 +182,17 @@ canvas { display:block; border:3px solid #00c8d7; box-shadow:0 0 18px #003a5088;
           <button class="btn-gold"   onclick="showPane('paneLeader')">🏆 LEADERBOARD</button>
           <button class="btn-back"   onclick="location.href='index.html?from=game'" style="margin:4px 8px;width:calc(100% - 16px);">← HUB</button>
         </div>
-        <button class="btn-mute" onclick="toggleMute()" id="btnMuteResult">♪ ON</button>
       </div>
 
       <div id="paneLeader" class="pane" style="display:none;">
         <div class="leader-header"><div class="leader-title"><span>🏆</span>LEADERBOARD</div></div>
         <div class="leader-diff-row">
-          <button class="ld-btn active" id="lbApprentil" onclick="switchLeader('apprenti')">APPRENTI</button>
-          <button class="ld-btn" id="lbCuisinier" onclick="switchLeader('cuisinier')">CUISIN</button>
-          <button class="ld-btn" id="lbChef" onclick="switchLeader('chef')">CHEF</button>
+          <button class="ld-btn easy active" id="lbApprentil" onclick="switchLeader('apprenti')">✨</button>
+          <button class="ld-btn medium" id="lbCuisinier" onclick="switchLeader('cuisinier')">🔥</button>
+          <button class="ld-btn hard" id="lbChef" onclick="switchLeader('chef')">💥</button>
         </div>
         <div class="leader-list" id="leaderList"><div class="leader-empty">Loading...</div></div>
         <button class="btn-back" onclick="showPane('paneTitle')">← BACK</button>
-        <button class="btn-mute" onclick="toggleMute()" id="btnMuteLeader">♪ ON</button>
       </div>
 
     </div>
@@ -298,7 +300,7 @@ let running=false, paused=false;
 let gTime=0, gScore=0, gDishes=0, gLives=0;
 let lastTime=0, animId=null;
 let idleT=0, idleAnimId=null;
-let audioCtx=null, muted=false;
+let audioCtx=null, muted=localStorage.getItem('pkMuted')==='1';
 
 // Per-dish state
 let gamePhase = 'plate'; // 'plate'|'sauce_preview'|'sauce_draw'|'dish_score'
@@ -336,7 +338,7 @@ function onResize() { scaleGame(); checkRotate(); }
 window.addEventListener('resize',onResize);
 window.addEventListener('orientationchange',()=>setTimeout(onResize,100));
 if (window.visualViewport) window.visualViewport.addEventListener('resize',onResize);
-document.addEventListener('DOMContentLoaded',()=>{ onResize(); refreshCoins(); showPane('paneTitle'); });
+document.addEventListener('DOMContentLoaded',()=>{ onResize(); refreshCoins(); showPane('paneTitle'); const b=document.getElementById('muteBtn');if(b)b.textContent=muted?'🔇':'🔊'; });
 
 // ══════ COINS ══════
 function getCoins(){return parseInt(localStorage.getItem('pkCoins')||'0');}
@@ -360,8 +362,9 @@ function sndDraw()    {playTone(440,0.03,'sine',0.06);}
 
 function toggleMute(){
   muted=!muted;
-  const l=muted?'♪ OFF':'♪ ON';
-  ['btnMute','btnMuteGame','btnMuteResult','btnMuteLeader'].forEach(id=>{const e=document.getElementById(id);if(e)e.textContent=l;});
+  localStorage.setItem('pkMuted',muted?'1':'0');
+  const btn=document.getElementById('muteBtn');
+  if(btn) btn.textContent=muted?'🔇':'🔊';
 }
 
 // ══════ PANE SYSTEM ══════

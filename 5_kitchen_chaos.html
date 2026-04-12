@@ -76,7 +76,7 @@ canvas { display:block; border:3px solid #6878a0; box-shadow:0 0 18px #2a2a4a; }
 .px-div { text-align:center; color:#3a4060; font-size:.28rem; letter-spacing:4px; margin:4px 0 0; flex-shrink:0; }
 
 /* HOW TO PLAY accent block */
-.how-block { padding:6px 12px 4px; border-left:3px solid #6878a0; margin:10px 10px 0; background:#24243a88; }
+.how-block { padding:5px 10px 4px; border-left:3px solid #6878a0; margin:6px 8px 0; background:#24243a88; }
 
 /* ══ PANE SYSTEM ══ */
 .pane { flex:1; display:flex; flex-direction:column; overflow:hidden; }
@@ -171,13 +171,15 @@ canvas { display:block; border:3px solid #6878a0; box-shadow:0 0 18px #2a2a4a; }
 .leader-header::before { content:''; position:absolute; top:0; left:0; right:0; height:3px; background:linear-gradient(90deg,transparent,#6878a0,#c0c8d0,#6878a0,transparent); }
 .leader-title { color:#c0c8d0; font-size:.70rem; letter-spacing:2px; }
 .leader-title span { font-size:2rem; display:block; margin-bottom:4px; }
-.leader-diff-row { display:flex; gap:4px; flex-shrink:0; padding:6px 8px 0; }
-.ld-btn {
-  flex:1; font-family:'Press Start 2P',monospace; font-size:.22rem;
-  padding:5px 2px; background:#1a1a24; border:2px solid #3a4060;
-  color:#7080a0; cursor:pointer; text-align:center;
-}
-.ld-btn.active { border-color:#6878a0; color:#c0c8d0; }
+.leader-diff-row { display:flex; gap:8px; flex-shrink:0; padding:8px 8px 0; }
+.ld-btn { flex:1; font-size:1.3rem; padding:8px 4px; background:#1a1a24; border:3px solid #24243a; cursor:pointer; text-align:center; line-height:1; opacity:.3; transition:opacity .15s,border-color .15s,box-shadow .15s; }
+.ld-btn.active { opacity:1; }
+.ld-btn.easy   { border-color:#0a1a10; }
+.ld-btn.medium { border-color:#1a1808; }
+.ld-btn.hard   { border-color:#200a0a; }
+.ld-btn.easy.active   { border-color:#50c840; background:rgba(80,200,64,.10); box-shadow:inset 0 0 12px rgba(80,200,64,.15); }
+.ld-btn.medium.active { border-color:#f5c842; background:rgba(245,200,66,.10); box-shadow:inset 0 0 12px rgba(245,200,66,.15); }
+.ld-btn.hard.active   { border-color:#e05050; background:rgba(224,80,80,.10); box-shadow:inset 0 0 12px rgba(224,80,80,.15); }
 .leader-list { flex:1; overflow-y:auto; padding:8px; display:flex; flex-direction:column; gap:6px; min-height:0; }
 .leader-list::-webkit-scrollbar { width:4px; }
 .leader-list::-webkit-scrollbar-thumb { background:#3a4060; }
@@ -197,13 +199,7 @@ canvas { display:block; border:3px solid #6878a0; box-shadow:0 0 18px #2a2a4a; }
 .save-msg { color:#7080a0; font-size:.30rem; text-align:center; margin-top:4px; }
 
 /* ══ MUTE BUTTON ══ */
-.btn-mute {
-  position:absolute; bottom:8px; right:8px; z-index:10;
-  font-family:'Press Start 2P',monospace; font-size:.26rem;
-  padding:5px 8px; background:#1a1a24; border:2px solid #3a4060;
-  color:#6878a0; cursor:pointer;
-}
-.btn-mute:hover { border-color:#6878a0; color:#90a8c0; }
+.btn-mute { font-size:1.2rem; padding:2px 4px; background:transparent; border:none; cursor:pointer; line-height:1; }
 
 /* ══ PAUSE MENU ══ */
 #pauseMenu {
@@ -256,6 +252,7 @@ canvas { display:block; border:3px solid #6878a0; box-shadow:0 0 18px #2a2a4a; }
     <span class="game-topbar-brand">★ PIXEL KITCHEN ★</span>
     <span class="game-topbar-coins">🪙 <span id="topbarCoins">0</span></span>
     <span class="game-topbar-coinlbl">COINS</span>
+    <button class="btn-mute" id="muteBtn" onclick="toggleMute()">🔊</button>
   </div>
 
   <div class="game-content">
@@ -276,7 +273,7 @@ canvas { display:block; border:3px solid #6878a0; box-shadow:0 0 18px #2a2a4a; }
         </div>
         <div class="how-block">
           <div class="diff-label" style="margin:0 0 4px;padding:0;">▶ HOW TO PLAY</div>
-          <div style="font-size:.32rem;color:#9098b0;line-height:2;padding:0 2px;">
+          <div style="font-size:.42rem;color:#9098b0;line-height:2;padding:0 2px;">
             ① Ingredients flow on the belt<br>
             ② Click the RIGHT ones to grab<br>
             ③ Fill the order = SERVED! 🍽️<br>
@@ -308,11 +305,10 @@ canvas { display:block; border:3px solid #6878a0; box-shadow:0 0 18px #2a2a4a; }
             </div>
           </button>
         </div>
-        <div style="display:flex;gap:6px;padding:4px 12px 6px;">
-          <button class="btn-back" style="flex:1;" onclick="location.href='index.html?from=game'">◀ HUB</button>
-          <button class="btn-back" style="flex:1;" onclick="showPane('paneLeader')">🏆 RANKS</button>
+        <div style="display:flex;gap:6px;padding:2px 10px 6px;">
+          <button class="btn-back" style="flex:1;margin:0;" onclick="location.href='index.html?from=game'">◀ HUB</button>
+          <button class="btn-back" style="flex:1;margin:0;" onclick="showPane('paneLeader')">🏆 RANKS</button>
         </div>
-        <button class="btn-mute" onclick="toggleMute()" id="btnMute">♪ ON</button>
       </div>
 
       <!-- GAME PANE -->
@@ -340,7 +336,6 @@ canvas { display:block; border:3px solid #6878a0; box-shadow:0 0 18px #2a2a4a; }
         <div class="hud-tap-area">
           <div class="hud-tap-txt">🎯<br>CLICK THE<br>RIGHT FOOD!</div>
         </div>
-        <button class="btn-mute" onclick="toggleMute()" id="btnMuteGame">♪ ON</button>
       </div>
 
       <!-- RESULT PANE -->
@@ -356,7 +351,6 @@ canvas { display:block; border:3px solid #6878a0; box-shadow:0 0 18px #2a2a4a; }
           <button class="btn-gold"   onclick="showPane('paneLeader')">🏆 LEADERBOARD</button>
           <button class="btn-back"   onclick="location.href='index.html?from=game'" style="margin:4px 8px;width:calc(100% - 16px);">← HUB</button>
         </div>
-        <button class="btn-mute" onclick="toggleMute()" id="btnMuteResult">♪ ON</button>
       </div>
 
       <!-- LEADER PANE -->
@@ -365,15 +359,14 @@ canvas { display:block; border:3px solid #6878a0; box-shadow:0 0 18px #2a2a4a; }
           <div class="leader-title"><span>🏆</span>LEADERBOARD</div>
         </div>
         <div class="leader-diff-row">
-          <button class="ld-btn active" id="lbApprentil" onclick="switchLeader('apprenti')">APPRENTI</button>
-          <button class="ld-btn" id="lbCuisinier" onclick="switchLeader('cuisinier')">CUISIN</button>
-          <button class="ld-btn" id="lbChef" onclick="switchLeader('chef')">CHEF</button>
+          <button class="ld-btn easy active" id="lbApprentil" onclick="switchLeader('apprenti')">✨</button>
+          <button class="ld-btn medium" id="lbCuisinier" onclick="switchLeader('cuisinier')">🔥</button>
+          <button class="ld-btn hard" id="lbChef" onclick="switchLeader('chef')">💥</button>
         </div>
         <div class="leader-list" id="leaderList">
           <div class="leader-empty">Loading...</div>
         </div>
         <button class="btn-back" id="leaderBackBtn" onclick="showPane('paneTitle')">← BACK</button>
-        <button class="btn-mute" onclick="toggleMute()" id="btnMuteLeader">♪ ON</button>
       </div>
 
     </div><!-- .game-panel -->
@@ -471,7 +464,7 @@ let flashRed    = 0;    // red flash on bad item hit
 let idleT      = 0;
 let idleAnimId = null;
 let audioCtx   = null;
-let muted      = false;
+let muted      = localStorage.getItem('pkMuted')==='1';
 
 // ══════════════════════════════════════════
 //  SCALING
@@ -494,7 +487,7 @@ function onResize() { scaleGame(); checkRotate(); }
 window.addEventListener('resize', onResize);
 window.addEventListener('orientationchange', () => setTimeout(onResize, 100));
 if (window.visualViewport) window.visualViewport.addEventListener('resize', onResize);
-document.addEventListener('DOMContentLoaded', () => { onResize(); refreshCoins(); showPane('paneTitle'); });
+document.addEventListener('DOMContentLoaded', () => { onResize(); refreshCoins(); showPane('paneTitle'); const b=document.getElementById('muteBtn');if(b)b.textContent=muted?'🔇':'🔊'; });
 
 // ══════════════════════════════════════════
 //  COINS
@@ -542,11 +535,9 @@ function sndServed()   {
 
 function toggleMute() {
   muted = !muted;
-  const label = muted ? '♪ OFF' : '♪ ON';
-  document.getElementById('btnMute').textContent       = label;
-  document.getElementById('btnMuteGame').textContent   = label;
-  document.getElementById('btnMuteResult').textContent = label;
-  document.getElementById('btnMuteLeader').textContent = label;
+  localStorage.setItem('pkMuted', muted ? '1' : '0');
+  const btn = document.getElementById('muteBtn');
+  if (btn) btn.textContent = muted ? '🔇' : '🔊';
 }
 
 // ══════════════════════════════════════════

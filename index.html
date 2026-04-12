@@ -5,6 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Tiny Kitchen</title>
 <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-database-compat.js"></script>
 <style>
 /* ══════════════════════════════════════════
    THEME VARIABLES
@@ -61,6 +63,7 @@ body {
 .hub-topbar-brand { font-size:1rem; letter-spacing:3px; color:#f5c842; text-shadow:2px 2px #8b3a00, 0 0 20px #f5a700; flex:1; }
 .hub-topbar-coin  { color:#f5c842; font-size:.72rem; }
 .hub-topbar-lbl   { color:#5a4a20; font-size:.42rem; }
+.btn-mute { font-size:1.2rem; padding:2px 4px; background:transparent; border:none; cursor:pointer; line-height:1; }
 .hub-body {
   display:flex; flex-direction:row; overflow:hidden; flex-shrink:0;
 }
@@ -76,9 +79,7 @@ body {
   display:flex;
   flex-direction:column;
   align-items:center;
-  justify-content:flex-start;
-  gap:10px;
-  padding:20px 20px 14px;
+  padding:16px 16px 12px;
   position:relative;
   overflow:hidden;
 }
@@ -88,6 +89,50 @@ body {
   content:''; position:absolute; top:0; left:0; right:0; height:4px;
   background:linear-gradient(90deg, var(--pink), var(--gold), var(--pink));
 }
+.hub-top {
+  flex:1; display:flex; flex-direction:column; align-items:center;
+  justify-content:center; gap:6px; min-height:0;
+}
+.hub-bottom {
+  flex:1; display:flex; flex-direction:column; align-items:center;
+  justify-content:center; gap:8px; min-height:0; width:100%;
+}
+/* ── RANKS MODAL ── */
+#rankModal {
+  display:none; position:fixed; inset:0; z-index:9000;
+  background:rgba(10,6,20,.88);
+  align-items:center; justify-content:center;
+}
+#rankModal.visible { display:flex; }
+.rank-box {
+  background:var(--bg2); border:4px solid var(--border-hi);
+  box-shadow:6px 6px 0 var(--shadow), 0 0 40px #c87eb833;
+  padding:28px 32px; display:flex; flex-direction:column;
+  gap:14px; min-width:340px; position:relative;
+}
+.rank-box-title {
+  color:var(--gold); font-size:.80rem; letter-spacing:3px; text-align:center;
+  text-shadow:0 0 20px #ffd97d55;
+}
+.rank-box-title span { font-size:1.6rem; display:block; margin-bottom:4px; }
+.rank-divider {
+  height:2px; background:linear-gradient(90deg,transparent,var(--border-hi),transparent);
+}
+.rank-row {
+  display:flex; align-items:center; gap:14px;
+  padding:8px 12px; background:var(--bg3);
+  border:2px solid var(--border);
+}
+.rank-row-icon { font-size:22px; flex-shrink:0; }
+.rank-row-name { flex:1; color:var(--sub); font-size:.40rem; }
+.rank-row-val {
+  font-size:.60rem; color:var(--gold); flex-shrink:0;
+  min-width:50px; text-align:right;
+}
+.rank-row-val.top1 { color:#ffd700; text-shadow:0 0 12px #ffd70088; }
+.rank-row-val.top3 { color:var(--pink); text-shadow:0 0 10px #ff8fb088; }
+.rank-row-val.unranked { color:var(--border-hi); font-size:.44rem; }
+.rank-loading { color:var(--sub); font-size:.34rem; text-align:center; letter-spacing:2px; }
 
 #hubChef {
   display:block;
@@ -126,21 +171,9 @@ body {
   letter-spacing:2px;
   text-shadow:0 0 8px #ffd97d66;
   text-align:center;
-  margin-top:8px;
+  flex-shrink:0;
+  padding-top:6px;
 }
-#hubMute {
-  font-family:'Press Start 2P',monospace;
-  font-size:.38rem;
-  background:var(--bg3);
-  color:var(--sub);
-  border:2px solid var(--border);
-  padding:7px 14px;
-  cursor:pointer;
-  transition:filter .12s;
-  letter-spacing:1px;
-}
-#hubMute:hover { filter:brightness(1.5); color:var(--gold); border-color:var(--gold); }
-
 /* ── RIGHT CONTENT ── */
 .hub-right {
   flex:1;
@@ -208,9 +241,9 @@ body {
 }
 
 .card-desc {
-  font-size:.34rem;
+  font-size:.42rem;
   color:var(--sub);
-  line-height:2;
+  line-height:1.9;
   flex:1;
 }
 
@@ -261,7 +294,7 @@ body {
 }
 .game-card.wide .card-icon { font-size:30px; }
 .game-card.wide .card-body { flex:1; display:flex; flex-direction:column; gap:6px; }
-.game-card.wide .card-desc { font-size:.35rem; }
+.game-card.wide .card-desc { font-size:.42rem; }
 
 /* ══════════════════════════════════════════
    SPLASH INTRO
@@ -382,13 +415,20 @@ body {
 }
 .nm-btn:hover { filter:brightness(1.3); }
 /* player name in sidebar */
-.hub-player { color:#f0d090; font-size:.46rem; line-height:2; text-align:center; margin-top:auto; }
+.hub-player { color:#f0d090; font-size:.70rem; line-height:2; text-align:center; }
 .hub-change {
-  font-family:'Press Start 2P',monospace; font-size:.36rem;
+  font-family:'Press Start 2P',monospace; font-size:.38rem;
   background:none; border:1px solid #664420; color:#664420;
-  padding:6px 12px; cursor:pointer; margin-top:6px; text-align:center;
+  padding:9px 14px; cursor:pointer; text-align:center; width:100%;
 }
 .hub-change:hover { border-color:#c8904a; color:#c8904a; }
+.hub-ranks-btn {
+  font-family:'Press Start 2P',monospace; font-size:.38rem;
+  background:none; border:2px solid var(--border-hi); color:var(--pink);
+  padding:9px 14px; cursor:pointer; text-align:center; width:100%;
+  letter-spacing:1px;
+}
+.hub-ranks-btn:hover { background:var(--bg3); color:var(--gold); border-color:var(--gold); }
 
 /* ── ROTATE OVERLAY ── */
 #rotateMsg {
@@ -447,6 +487,19 @@ body {
 </div>
 
 <!-- NAME MODAL -->
+<!-- RANK MODAL -->
+<div id="rankModal">
+  <div class="rank-box">
+    <div class="rank-box-title"><span>🏆</span>MY RANKS</div>
+    <div class="rank-divider"></div>
+    <div id="rankModalBody">
+      <div class="rank-loading">LOADING...</div>
+    </div>
+    <div class="rank-divider"></div>
+    <button class="hub-ranks-btn" onclick="closeRankModal()">✕ CLOSE</button>
+  </div>
+</div>
+
 <div id="nameModal">
   <div class="nm-box">
     <div class="nm-title">WHO ARE YOU?</div>
@@ -465,20 +518,31 @@ body {
     <span class="hub-topbar-brand">★ PIXEL KITCHEN ★</span>
     <span class="hub-topbar-coin">🪙 <span id="hubCoins">0</span></span>
     <span class="hub-topbar-lbl">COINS</span>
+    <button class="btn-mute" id="muteBtn" onclick="toggleMute()">🔊</button>
   </div>
 
   <div class="hub-body">
 
   <!-- LEFT SIDEBAR -->
   <div class="hub-left">
-    <canvas id="hubChef"></canvas>
-    <div class="hub-title">TINY<br><span>KITCHEN</span></div>
+    <!-- TOP: logo + animation -->
+    <div class="hub-top">
+      <canvas id="hubChef"></canvas>
+      <div class="hub-title">TINY<br><span>KITCHEN</span></div>
+      <div class="hub-sub">★ PIXEL ARCADE ★</div>
+    </div>
+
     <div class="hub-divider-v"></div>
-    <div class="hub-sub">★ PIXEL ARCADE ★</div>
-    <div class="hub-player" id="hubPlayerName"></div>
-    <button class="hub-change" id="hubChangeName" onclick="showNameModal()" style="display:none;">✎ CHANGE NAME</button>
-    <button id="hubMute" onclick="toggleHubMute()">♪ ON</button>
-    <div class="hub-version">v0.2</div>
+
+    <!-- BOTTOM: player info + ranks -->
+    <div class="hub-bottom">
+      <div class="hub-player" id="hubPlayerName"></div>
+      <button class="hub-change" id="hubChangeName" onclick="showNameModal()" style="display:none;">✎ CHANGE NAME</button>
+
+      <button class="hub-ranks-btn" onclick="openRankModal()">🏆 MY RANKS</button>
+    </div>
+
+    <div class="hub-version">v1.0</div>
   </div>
 
   <!-- RIGHT: GAME SELECT -->
@@ -490,7 +554,7 @@ body {
       <!-- 1. Ingredient Match -->
       <div class="game-card" onclick="location.href='1_kitchen_scene.html'">
         <div class="card-stripe" style="background:var(--gold);"></div>
-        <div class="card-icon">🥗</div>
+        <div class="card-icon">🍳</div>
         <div class="card-name" style="color:var(--gold);">DISH DETECTIVE</div>
         <div class="card-desc">Read emoji clues and tap the right ingredients before time runs out!</div>
         <div class="card-footer">
@@ -501,7 +565,7 @@ body {
       <!-- 2. Pantry Peek -->
       <div class="game-card" onclick="location.href='2_pantry_peek.html'">
         <div class="card-stripe" style="background:var(--blue);"></div>
-        <div class="card-icon">🃏</div>
+        <div class="card-icon">🥕</div>
         <div class="card-name" style="color:var(--blue);">PANTRY PEEK</div>
         <div class="card-desc">Flip cards and match all food pairs before the timer runs out!</div>
         <div class="card-footer">
@@ -549,7 +613,7 @@ body {
       <!-- 6. Kitchen Chaos -->
       <div class="game-card" onclick="location.href='5_kitchen_chaos.html'">
         <div class="card-stripe" style="background:var(--red);"></div>
-        <div class="card-icon">🍳</div>
+        <div class="card-icon">🌶️</div>
         <div class="card-name" style="color:var(--red);">KITCHEN CHAOS</div>
         <div class="card-desc">React fast! Click the right pot when events flash before time runs out!</div>
         <div class="card-footer">
@@ -684,7 +748,11 @@ function onResize(){
   scaleHub();
   scaleSplash();
 }
-document.addEventListener('DOMContentLoaded', onResize);
+document.addEventListener('DOMContentLoaded', ()=>{
+  onResize();
+  updateHubCoins();
+  if(localStorage.getItem('pkName')){ updateHubPlayerName(); }
+});
 window.addEventListener('resize', onResize);
 window.addEventListener('orientationchange', ()=>{ setTimeout(onResize, 100); });
 if(window.visualViewport) window.visualViewport.addEventListener('resize', onResize);
@@ -799,8 +867,100 @@ function confirmHubName(){
 function updateHubPlayerName(){
   const name = localStorage.getItem('pkName');
   if(!name) return;
-  document.getElementById('hubPlayerName').textContent = '▶ ' + name;
+  document.getElementById('hubPlayerName').textContent = '▶ ' + name + ' ◀';
   document.getElementById('hubChangeName').style.display = '';
+}
+
+// ── MY RANKS ──
+const FB_CONFIG = {
+  apiKey:"AIzaSyAJ3C969-IHJxptn3rcuudOrDxzTzlFHYg",
+  authDomain:"pixel-kitchen-e6b18.firebaseapp.com",
+  databaseURL:"https://pixel-kitchen-e6b18-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId:"pixel-kitchen-e6b18",
+  storageBucket:"pixel-kitchen-e6b18.firebasestorage.app",
+  messagingSenderId:"631692992106",
+  appId:"1:631692992106:web:384cf6c3a2ff3096a7b413"
+};
+let hubFbApp, hubDb;
+function initHubFirebase(){
+  if(hubDb) return;
+  try { hubFbApp = firebase.app('hub'); } catch(e){ hubFbApp = firebase.initializeApp(FB_CONFIG, 'hub'); }
+  hubDb = firebase.database(hubFbApp);
+}
+
+const RANK_GAMES = [
+  { icon:'🍳', name:'DISH DETECTIVE',  path:'flat',  ref:'leaderboard' },
+  { icon:'🥕', name:'PANTRY PEEK',     path:'flat',  ref:'leaderboard_pantry' },
+  { icon:'🔪', name:'CHOP CHOP!',      path:'flat',  ref:'chop_chop/scores' },
+  { icon:'📋', name:'RECIPE RUSH',     path:'flat',  ref:'recipe_rush/scores' },
+  { icon:'🍽️',name:'PLATE PERFECT',   path:'sub',   ref:'plate_perfect/scores' },
+  { icon:'🌶️',name:'KITCHEN CHAOS',   path:'sub',   ref:'kitchen_chaos/scores' },
+];
+
+function fetchFlat(path){
+  return hubDb.ref(path).orderByChild('score').get().then(snap=>{
+    const rows=[];
+    snap.forEach(c=>rows.push(c.val()));
+    rows.sort((a,b)=>b.score-a.score);
+    return rows;
+  }).catch(()=>[]);
+}
+
+function findRank(rows, playerName){
+  const idx = rows.findIndex(r=>r.name===playerName);
+  return idx===-1 ? null : idx+1;
+}
+
+async function bestSubRank(base, name){
+  const diffs=['apprenti','cuisinier','chef'];
+  const snaps = await Promise.all(diffs.map(d=>fetchFlat(base+'/'+d)));
+  let best=null, bestScore=0;
+  snaps.forEach(rows=>{
+    const idx=rows.findIndex(r=>r.name===name);
+    if(idx!==-1){
+      const rank=idx+1;
+      if(best===null||rank<best||(rank===best&&(rows[idx].score||0)>bestScore)){
+        best=rank; bestScore=rows[idx].score||0;
+      }
+    }
+  });
+  return best;
+}
+
+async function loadMyRanks(){
+  const name = localStorage.getItem('pkName');
+  if(!name) return;
+  initHubFirebase();
+  const results = await Promise.all(RANK_GAMES.map(g=>
+    g.path==='sub' ? bestSubRank(g.ref,name) : fetchFlat(g.ref).then(rows=>findRank(rows,name))
+  ));
+  return results;
+}
+
+function openRankModal(){
+  const modal = document.getElementById('rankModal');
+  const body  = document.getElementById('rankModalBody');
+  modal.classList.add('visible');
+  body.innerHTML = '<div class="rank-loading">LOADING...</div>';
+  loadMyRanks().then(results=>{
+    if(!results){ body.innerHTML='<div class="rank-loading">SET A NAME FIRST</div>'; return; }
+    body.innerHTML = RANK_GAMES.map((g,i)=>{
+      const rank = results[i];
+      let cls='unranked', txt='–';
+      if(rank){ txt='#'+rank; cls=rank===1?'top1':rank<=3?'top3':''; }
+      return `<div class="rank-row">
+        <span class="rank-row-icon">${g.icon}</span>
+        <span class="rank-row-name">${g.name}</span>
+        <span class="rank-row-val ${cls}">${txt}</span>
+      </div>`;
+    }).join('');
+  }).catch(()=>{
+    body.innerHTML='<div class="rank-loading">ERROR LOADING</div>';
+  });
+}
+
+function closeRankModal(){
+  document.getElementById('rankModal').classList.remove('visible');
 }
 function updateHubCoins(){
   const n = parseInt(localStorage.getItem('pkCoins')||'0');
@@ -809,12 +969,27 @@ function updateHubCoins(){
 }
 updateHubCoins();
 
+function toggleMute(){
+  const muted = localStorage.getItem('pkMuted') === '1';
+  const next = !muted;
+  localStorage.setItem('pkMuted', next ? '1' : '0');
+  const btn = document.getElementById('muteBtn');
+  if(btn) btn.textContent = next ? '🔇' : '🔊';
+  if(hGain) hGain.gain.value = next ? 0 : 0.65;
+  hMuted = next;
+}
+// sync button label on load
+(function(){
+  const btn = document.getElementById('muteBtn');
+  if(btn) btn.textContent = localStorage.getItem('pkMuted')==='1' ? '🔇' : '🔊';
+})();
+
 // ══════════════════════════════════════════
 //  HUB BACKGROUND MUSIC
 //  Marimba-style: sine + fast decay = organic, not electronic
 // ══════════════════════════════════════════
 const HAC=window.AudioContext||window.webkitAudioContext;
-let hActx=null,hGain=null,hPlaying=false,hTimeout=null,hBar=0,hMuted=false;
+let hActx=null,hGain=null,hPlaying=false,hTimeout=null,hBar=0,hMuted=localStorage.getItem('pkMuted')==='1';
 
 const HF={
   C3:130.81,D3:146.83,E3:164.81,F3:174.61,G3:196.00,A3:220.00,
@@ -825,7 +1000,7 @@ function initHubAudio(){
   if(hActx) return;
   hActx=new HAC();
   hGain=hActx.createGain();
-  hGain.gain.value=0.65;
+  hGain.gain.value=hMuted?0:0.65;
   hGain.connect(hActx.destination);
   startHubMusic();
 }
@@ -878,11 +1053,6 @@ function startHubMusic(){
   scheduleHubBar(hActx.currentTime+0.2);
 }
 
-function toggleHubMute(){
-  hMuted=!hMuted;
-  if(hGain) hGain.gain.value=hMuted?0:0.65;
-  document.getElementById('hubMute').textContent=hMuted?'♪ OFF':'♪ ON';
-}
 
 // AudioContext requires user gesture — start on first click/keypress
 function _hubStart(){
@@ -892,6 +1062,7 @@ function _hubStart(){
 }
 document.addEventListener('click',_hubStart);
 document.addEventListener('keydown',_hubStart);
+
 </script>
 </body>
 </html>

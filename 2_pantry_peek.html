@@ -23,13 +23,17 @@ canvas { display:block; image-rendering:pixelated; image-rendering:crisp-edges; 
 
 /* GAME PANEL */
 .game-panel { width:280px; background:#0a1428; border:4px solid #3878c0; box-shadow:4px 4px 0 #1a3870; display:flex; flex-direction:column; height:480px; overflow:hidden; position:relative; }
-.btn-mute { position:absolute; bottom:8px; right:8px; font-family:'Press Start 2P',monospace; font-size:.28rem; padding:4px 7px; background:#0a1428; border:2px solid #1a3870; color:#3878c0; cursor:pointer; z-index:10; }
+.btn-mute { font-size:1.2rem; padding:2px 4px; background:transparent; border:none; cursor:pointer; line-height:1; }
 .btn-mute:hover { border-color:#60c8f0; color:#60c8f0; }
 .gpane { display:none; flex-direction:column; flex:1; overflow:hidden; }
 .gpane.active { display:flex; }
 
 /* TITLE PANE */
-.gp-header { background:#0c2450; padding:8px 14px; text-align:center; border-bottom:4px solid #1a3870; }
+.gp-header { background:#0c2450; padding:8px 14px; text-align:center; border-bottom:4px solid #1a3870; flex-shrink:0; position:relative; overflow:hidden; }
+.gp-header::before { content:''; position:absolute; top:0; left:0; right:0; height:3px; background:linear-gradient(90deg,transparent,#3878c0,#60c8f0,#3878c0,transparent); }
+.gp-header::after { content:'◆  ◆  ◆'; position:absolute; bottom:-10px; left:50%; transform:translateX(-50%); font-size:6px; color:#1a3060; letter-spacing:3px; white-space:nowrap; }
+.how-block { padding:5px 10px 4px; border-left:3px solid #3878c0; margin:6px 8px 0; background:#0a182888; }
+.px-div { text-align:center; color:#1a3060; font-size:.28rem; letter-spacing:4px; margin:4px 0 0; flex-shrink:0; }
 .gp-logo { font-size:30px; display:block; margin-bottom:2px; }
 .gp-title { color:#60c8f0; font-size:0.7rem; letter-spacing:2px; line-height:1.6; text-shadow:2px 2px #1a3060; }
 .gp-sub { color:#6098c0; font-size:0.42rem; margin-top:4px; line-height:1.5; }
@@ -88,10 +92,13 @@ canvas { display:block; image-rendering:pixelated; image-rendering:crisp-edges; 
 .leader-rank.bronze { color:#cd7f32; }
 .leader-name { color:#c0d8f0; font-size:0.46rem; flex:1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
 .leader-score { color:#60c8f0; font-size:0.50rem; flex-shrink:0; }
-.leader-diff { font-size:0.36rem; flex-shrink:0; padding:3px 6px; border:1px solid; }
-.leader-diff.apprenti { color:#50c840; border-color:#50c840; }
-.leader-diff.cuisinier { color:#f5c842; border-color:#f5c842; }
-.leader-diff.chef { color:#e05050; border-color:#e05050; }
+.leader-diff { font-size:1.0rem; flex-shrink:0; }
+.leader-diff-row { display:flex; gap:8px; flex-shrink:0; padding:8px 8px 0; }
+.ld-btn { flex:1; font-size:1.3rem; padding:8px 4px; background:#0a1428; border:3px solid #1a2840; cursor:pointer; text-align:center; line-height:1; opacity:.3; transition:opacity .15s,border-color .15s,box-shadow .15s; }
+.ld-btn.active { opacity:1; }
+.ld-btn.easy.active   { border-color:#50c840; background:rgba(80,200,64,.10); box-shadow:inset 0 0 12px rgba(80,200,64,.15); }
+.ld-btn.medium.active { border-color:#f5c842; background:rgba(245,200,66,.10); box-shadow:inset 0 0 12px rgba(245,200,66,.15); }
+.ld-btn.hard.active   { border-color:#e05050; background:rgba(224,80,80,.10); box-shadow:inset 0 0 12px rgba(224,80,80,.15); }
 .leader-empty { color:#6098c0; font-size:0.38rem; text-align:center; margin-top:20px; line-height:2; }
 
 /* ROTATE OVERLAY */
@@ -109,6 +116,7 @@ canvas { display:block; image-rendering:pixelated; image-rendering:crisp-edges; 
   <span class="game-topbar-brand">★ PIXEL KITCHEN ★</span>
   <span class="game-topbar-coins">🪙 <span id="topbarCoins">0</span></span>
   <span class="game-topbar-coinlbl">COINS</span>
+  <button class="btn-mute" id="muteBtn" onclick="toggleMute()">🔊</button>
 </div>
 <div class="game-content">
   <canvas id="gameCanvas" width="620" height="480"></canvas>
@@ -121,32 +129,33 @@ canvas { display:block; image-rendering:pixelated; image-rendering:crisp-edges; 
         <div class="gp-title">PANTRY<br>PEEK</div>
         <div class="gp-sub">Flip & match all pairs!</div>
       </div>
-      <div style="padding:2px 12px 0;">
-        <div class="diff-label" style="margin:0 0 3px;">▶ HOW TO PLAY</div>
-        <div style="font-size:.36rem;color:#7898b8;line-height:1.8;padding:0 2px;">
+      <div class="how-block">
+        <div class="diff-label" style="margin:0 0 4px;padding:0;">▶ HOW TO PLAY</div>
+        <div style="font-size:.42rem;color:#7898b8;line-height:2;padding:0 2px;">
           ① Flip two cards at a time<br>
           ② Match the same food items<br>
           ③ Find all pairs before time runs out!
         </div>
       </div>
+      <div class="px-div">─────────────────</div>
       <div class="diff-label">▶ SELECT DIFFICULTY</div>
       <div class="diff-grid">
         <button class="d-btn d-apprenti" onclick="startGame('apprenti')">
-          <span class="d-icon">🧑‍🍳</span>
+          <span class="d-icon">✨</span>
           <span class="d-texts"><span class="d-name">APPRENTI</span><span class="d-info">4×3 · 6 pairs · 90s</span></span>
         </button>
         <button class="d-btn d-cuisinier" onclick="startGame('cuisinier')">
-          <span class="d-icon">👨‍🍳</span>
+          <span class="d-icon">🔥</span>
           <span class="d-texts"><span class="d-name">CUISINIER</span><span class="d-info">4×4 · 8 pairs · 70s</span></span>
         </button>
         <button class="d-btn d-chef" onclick="startGame('chef')">
-          <span class="d-icon">🎩</span>
+          <span class="d-icon">💥</span>
           <span class="d-texts"><span class="d-name">CHEF</span><span class="d-info">5×4 · 10 pairs · 50s</span></span>
         </button>
       </div>
-      <div style="display:flex;gap:6px;padding:4px 12px 6px;">
-        <button class="btn-back" style="flex:1;" onclick="location.href='index.html?from=game'">◀ HUB</button>
-        <button class="btn-back" style="flex:1;" onclick="showLeader()">🏆 RANKS</button>
+      <div style="display:flex;gap:6px;padding:2px 10px 6px;">
+        <button class="btn-back" style="flex:1;margin:0;" onclick="location.href='index.html?from=game'">◀ HUB</button>
+        <button class="btn-back" style="flex:1;margin:0;" onclick="showLeader()">🏆 RANKS</button>
       </div>
     </div>
 
@@ -186,13 +195,17 @@ canvas { display:block; image-rendering:pixelated; image-rendering:crisp-edges; 
       <div class="leader-header">
         <div class="leader-title"><span>🏆</span>LEADERBOARD</div>
       </div>
+      <div class="leader-diff-row">
+        <button class="ld-btn easy active" id="lbApprentil" onclick="switchLeader('apprenti')">✨</button>
+        <button class="ld-btn medium" id="lbCuisinier" onclick="switchLeader('cuisinier')">🔥</button>
+        <button class="ld-btn hard" id="lbChef" onclick="switchLeader('chef')">💥</button>
+      </div>
       <div class="leader-list" id="leaderList">
         <div class="leader-empty">Loading...</div>
       </div>
       <button class="btn-back" onclick="showTitle()">◀ BACK</button>
     </div>
 
-    <button class="btn-mute" id="muteBtn" onclick="toggleMute()">♪ ON</button>
   </div><!-- .game-panel -->
 </div><!-- .game-content -->
 </div><!-- #gameWrap -->
@@ -224,6 +237,8 @@ function scaleGame(){
   const vw=window.visualViewport?window.visualViewport.width:window.innerWidth;
   const vh=window.visualViewport?window.visualViewport.height:window.innerHeight;
   const scale=Math.min((vw-8)/GAME_W,(vh-8)/GAME_H);
+  wrap.style.width  = GAME_W + 'px';
+  wrap.style.height = GAME_H + 'px';
   wrap.style.transform=`translate(-50%,-50%) scale(${scale})`;
 }
 function checkRotate(){
@@ -239,7 +254,7 @@ function updateTopbarCoins(){
   if(el) el.textContent=n.toLocaleString();
 }
 function onResize(){ scaleGame(); checkRotate(); }
-document.addEventListener('DOMContentLoaded',()=>{ onResize(); updateTopbarCoins(); });
+document.addEventListener('DOMContentLoaded',()=>{ onResize(); updateTopbarCoins(); const b=document.getElementById('muteBtn');if(b)b.textContent=muted?'🔇':'🔊'; });
 window.addEventListener('resize',onResize);
 window.addEventListener('orientationchange',()=>setTimeout(onResize,100));
 if(window.visualViewport) window.visualViewport.addEventListener('resize',onResize);
@@ -698,13 +713,13 @@ function endGame(won){
 //  AUDIO ENGINE
 // ══════════════════════════════════════════════
 const AC=window.AudioContext||window.webkitAudioContext;
-let actx=null,masterGain=null,muted=false,bgPlaying=false,bgTimeout=null;
+let actx=null,masterGain=null,muted=localStorage.getItem('pkMuted')==='1',bgPlaying=false,bgTimeout=null;
 
 function initAudio(){
   if(actx) return;
   actx=new AC();
   masterGain=actx.createGain();
-  masterGain.gain.value=0.35;
+  masterGain.gain.value=muted?0:0.35;
   masterGain.connect(actx.destination);
   startBGMusic();
 }
@@ -781,8 +796,9 @@ function startBGMusic(){ if(!actx||bgPlaying) return; bgPlaying=true; bgBar=0; s
 function stopBGMusic(){ bgPlaying=false; bgBar=0; if(bgTimeout){clearTimeout(bgTimeout);bgTimeout=null;} }
 function toggleMute(){
   muted=!muted;
+  localStorage.setItem('pkMuted',muted?'1':'0');
   if(masterGain) masterGain.gain.setTargetAtTime(muted?0:0.35,actx.currentTime,0.1);
-  document.getElementById('muteBtn').textContent=muted?'♪ OFF':'♪ ON';
+  document.getElementById('muteBtn').textContent=muted?'🔇':'🔊';
 }
 
 // ══════════════════════════════════════════════
@@ -818,25 +834,28 @@ function submitScore(name,score,diff,pairs){
 
 function showLeader(){
   showPane('paneLeader');
+  detachLeaderListener();
+  switchLeader('apprenti');
+}
+function switchLeader(key){
+  const m={apprenti:'lbApprentil',cuisinier:'lbCuisinier',chef:'lbChef'};
+  Object.entries(m).forEach(([k,id])=>document.getElementById(id)?.classList.toggle('active',k===key));
   const list=document.getElementById('leaderList');
   list.innerHTML='<div class="leader-empty">Loading...</div>';
-  detachLeaderListener();
-  _lbQuery=LB_REF.orderByChild('score').limitToLast(10);
-  _lbListener=_lbQuery.on('value',snap=>{
-    const rows=[]; snap.forEach(c=>rows.push(c.val()));
+  const myName=localStorage.getItem('pkName')||'';
+  LB_REF.orderByChild('score').limitToLast(50).once('value',snap=>{
+    const rows=[]; snap.forEach(c=>{ const v=c.val(); if(v.diff===key) rows.push(v); });
     rows.sort((a,b)=>b.score-a.score);
-    if(!rows.length){ list.innerHTML='<div class="leader-empty">No scores yet.<br>Be the first!</div>'; return; }
+    const top=rows.slice(0,10);
+    if(!top.length){ list.innerHTML='<div class="leader-empty">No scores yet.<br>Be the first!</div>'; return; }
     list.innerHTML='';
-    rows.forEach((r,i)=>{
-      const rankClass=i===0?'gold':i===1?'silver':i===2?'bronze':'';
-      const rankSymbol=i===0?'1ST':i===1?'2ND':i===2?'3RD':`#${i+1}`;
+    top.forEach((r,i)=>{
+      const rc=i===0?'gold':i===1?'silver':i===2?'bronze':'';
+      const rs=i===0?'🥇':i===1?'🥈':i===2?'🥉':`#${i+1}`;
+      const de=r.diff==='apprenti'?'✨':r.diff==='cuisinier'?'🔥':'💥';
       const div=document.createElement('div');
-      div.className='leader-row';
-      div.innerHTML=`
-        <span class="leader-rank ${rankClass}">${rankSymbol}</span>
-        <span class="leader-name">${r.name}</span>
-        <span class="leader-score">${r.score}</span>
-        <span class="leader-diff ${r.diff}">${r.diff.toUpperCase()}</span>`;
+      div.className='leader-row'+(r.name===myName?' me':'');
+      div.innerHTML=`<span class="leader-rank ${rc}">${rs}</span><span class="leader-name">${r.name}</span><span class="leader-score">${r.score}</span><span class="leader-diff">${de}</span>`;
       list.appendChild(div);
     });
   },()=>{ list.innerHTML='<div class="leader-empty">Failed to load.</div>'; });
