@@ -483,7 +483,7 @@ function makeNextDish(){
   pool.forEach((p,i)=>{p.x=startX+i*gap;});
   gamePhase='plate';
   dragging=null; sauceDrawn=[]; isDrawing=false; lastDrawPt=null;
-  previewTimer=0; drawTimer=cfg.drawSec; dishScoreTimer=0;
+  previewTimer=0; dishScoreTimer=0;
   lastPlaceScore=0; lastSauceScore=0;
   setPhaseHint();
 }
@@ -492,7 +492,7 @@ function setPhaseHint(){
   const el=document.getElementById('phaseHint');
   if(gamePhase==='plate')      el.innerHTML='📋<br>READ THE ORDER<br>DRAG INGREDIENTS';
   else if(gamePhase==='sauce_preview') el.innerHTML='👁️<br>REMEMBER THE<br>SAUCE PATTERN!';
-  else if(gamePhase==='sauce_draw')    el.innerHTML='🎨<br>DRAW THE<br>SAUCE NOW!';
+  else if(gamePhase==='sauce_draw')    el.innerHTML='🎨<br>ONE STROKE!<br>LIFT = DONE';
   else                         el.innerHTML='⭐<br>NEXT DISH<br>COMING UP...';
 }
 
@@ -526,9 +526,6 @@ function update(dt){
   if(gamePhase==='sauce_preview'){
     previewTimer-=dt;
     if(previewTimer<=0) startSauceDraw();
-  } else if(gamePhase==='sauce_draw'){
-    drawTimer-=dt;
-    if(drawTimer<=0) finishSauceDraw();
   } else if(gamePhase==='dish_score'){
     dishScoreTimer-=dt;
     if(dishScoreTimer<=0) makeNextDish();
@@ -549,7 +546,6 @@ function startSaucePreview(){
 }
 function startSauceDraw(){
   gamePhase='sauce_draw';
-  drawTimer=cfg.drawSec;
   sauceDrawn=[]; isDrawing=false; lastDrawPt=null;
   showFlash('🎨  DRAW!');
   setPhaseHint();
@@ -686,7 +682,14 @@ function continueDraw(mx,my){
   sauceDrawn.push({x:mx,y:my}); lastDrawPt={x:mx,y:my};
   sndDraw();
 }
-function stopDraw(){isDrawing=false; lastDrawPt=null;}
+function stopDraw(){
+  if(isDrawing && gamePhase==='sauce_draw'){
+    isDrawing=false; lastDrawPt=null;
+    finishSauceDraw();
+    return;
+  }
+  isDrawing=false; lastDrawPt=null;
+}
 
 // ══════ DRAW ══════
 function draw(){
@@ -823,7 +826,7 @@ function drawInstructionCard(){
   } else {
     // Sauce/result phases: centered message
     const label = gamePhase==='sauce_preview'?'👁️  MEMORIZE: '+currentPattern.name:
-                  gamePhase==='sauce_draw'?'🎨  DRAW: '+currentPattern.name+'  ('+Math.ceil(drawTimer)+'s)':
+                  gamePhase==='sauce_draw'?'🎨  DRAW: '+currentPattern.name+'  (ONE STROKE!)':
                   '★  DISH COMPLETE!';
     ctx.fillStyle='#00e8ff'; ctx.font='10px "Press Start 2P"';
     ctx.textAlign='center'; ctx.textBaseline='middle';
@@ -869,11 +872,11 @@ function drawPlayerSauce(){
 }
 
 function drawDrawTimer(){
-  const frac=Math.max(0,drawTimer/cfg.drawSec);
-  ctx.strokeStyle='#00e8ff'; ctx.lineWidth=6; ctx.globalAlpha=0.85;
-  ctx.beginPath();
-  ctx.arc(PCX,PCY,PR+6,-Math.PI/2,-Math.PI/2+frac*Math.PI*2);
-  ctx.stroke(); ctx.globalAlpha=1;
+  // Pulsing ring — indicates "draw mode active, one stroke"
+  const pulse=0.55+Math.abs(Math.sin(performance.now()/300))*0.45;
+  ctx.strokeStyle='#00e8ff'; ctx.lineWidth=5; ctx.globalAlpha=pulse;
+  ctx.beginPath(); ctx.arc(PCX,PCY,PR+6,0,Math.PI*2); ctx.stroke();
+  ctx.globalAlpha=1;
 }
 
 function drawPool(){
