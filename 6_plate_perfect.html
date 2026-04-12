@@ -319,8 +319,8 @@ const PATTERNS = [
     for(let t=Math.PI;t<=Math.PI*2;t+=0.10) a.push({x:Math.cos(t)*72, y:Math.sin(t)*72});
     return a;
   })()},
-  { name:'CROSS', color:'#cc44ff', pts: densify([
-    {x:0,y:-70},{x:0,y:70},{x:0,y:0},{x:-70,y:0},{x:70,y:0}
+  { name:'CHECK', color:'#cc44ff', pts: densify([
+    {x:-62,y:0},{x:-18,y:58},{x:68,y:-62}
   ])},
   { name:'COIL', color:'#00ffaa', pts: (() => {
     const a=[];
