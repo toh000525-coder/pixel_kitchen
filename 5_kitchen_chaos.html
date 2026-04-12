@@ -10,6 +10,7 @@
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-database-compat.js"></script>
 <style>
 * { margin:0; padding:0; box-sizing:border-box; image-rendering:pixelated; }
+#gameCanvas { image-rendering:auto; }
 body {
   background:radial-gradient(ellipse at 50% 30%, #181820 0%, #10101a 100%);
   font-family:'Press Start 2P',monospace;
@@ -443,7 +444,17 @@ const DIFF = {
 // ══════════════════════════════════════════
 const canvas = document.getElementById('gameCanvas');
 const ctx    = canvas.getContext('2d');
-ctx.imageSmoothingEnabled = false;
+// DPR scaling for crisp rendering on retina / high-DPI screens
+(function(){
+  const dpr = Math.min(window.devicePixelRatio || 1, 3);
+  canvas.width  = CW * dpr;
+  canvas.height = CH * dpr;
+  canvas.style.width  = CW + 'px';
+  canvas.style.height = CH + 'px';
+  ctx.scale(dpr, dpr);
+})();
+ctx.imageSmoothingEnabled = true;
+ctx.imageSmoothingQuality = 'high';
 
 let cfg         = null;
 let diffKey     = null;
@@ -666,7 +677,7 @@ function drawIdle() {
 
   // --- Idle flowing items ---
   const IDLE_EMOJIS = ['🍅','🧀','🥩','💣','🌶️','🥬','🧅','🍄'];
-  ctx.font = '28px serif';
+  ctx.font = '32px serif';
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
   IDLE_EMOJIS.forEach((emoji, i) => {
@@ -1055,7 +1066,7 @@ function drawItems() {
   const t = performance.now() / 1000;
   items.forEach(it => {
     const bob = Math.sin(t * 4 + it.bobT) * 3;
-    ctx.font = '26px serif';
+    ctx.font = '30px serif';
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
     ctx.fillText(it.emoji, it.x, it.y + bob);
@@ -1085,10 +1096,10 @@ function drawOrders() {
     P(cx+cardW-3, cy, 3, cardH, '#3a4060');
 
     // Recipe header
-    ctx.font = '18px serif';
+    ctx.font = '22px serif';
     ctx.textAlign = 'left';
     ctx.textBaseline = 'middle';
-    ctx.fillText(ord.recipe.emoji, cx + 8, cy + 16);
+    ctx.fillText(ord.recipe.emoji, cx + 8, cy + 18);
     ctx.fillStyle = '#c0c8d0';
     ctx.font = '6px "Press Start 2P"';
     ctx.textBaseline = 'alphabetic';
@@ -1117,7 +1128,7 @@ function drawOrders() {
       P(sx, sy, slotW, slotH, done ? '#162a16' : '#24243a');
       P(sx, sy, slotW, 2, done ? '#50c840' : '#3a4060');
 
-      ctx.font = '20px serif';
+      ctx.font = '22px serif';
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
       ctx.globalAlpha = done ? 1 : 0.45;
