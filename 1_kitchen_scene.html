@@ -361,7 +361,7 @@ function updateTopbarCoins(){
   const el=document.getElementById('topbarCoins');
   if(el) el.textContent=n.toLocaleString();
 }
-document.addEventListener('DOMContentLoaded', ()=>{ scaleGame(); updateTopbarCoins(); const b=document.getElementById('muteBtn');if(b)b.textContent=muted?'🔇':'🔊'; });
+document.addEventListener('DOMContentLoaded', ()=>{ scaleGame(); updateTopbarCoins(); const b=document.getElementById('muteBtn');if(b)b.textContent=muted?'🔇':'🔊'; const _sd=localStorage.getItem('pkDiff_1');if(_sd)document.querySelector(`.d-btn[onclick*="'${_sd}'"]`)?.classList.add('active'); });
 window.addEventListener('resize', scaleGame);
 if(window.visualViewport) window.visualViewport.addEventListener('resize', scaleGame);
 
@@ -1239,6 +1239,9 @@ function showTitle(){
 // ── START ──
 function startGame(diff){
   if(!localStorage.getItem('pkName')){ location.href='index.html'; return; }
+  localStorage.setItem('pkDiff_1',diff);
+  document.querySelectorAll('.d-btn').forEach(b=>b.classList.remove('active'));
+  document.querySelector(`.d-btn[onclick*="'${diff}'"]`)?.classList.add('active');
   _doStartGame(diff);
 }
 

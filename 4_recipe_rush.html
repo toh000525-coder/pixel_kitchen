@@ -481,7 +481,7 @@ function updateTopbarCoins(){
   if(el) el.textContent=n.toLocaleString();
 }
 function onResize(){ scaleGame(); checkRotate(); }
-document.addEventListener('DOMContentLoaded',()=>{ onResize(); updateTopbarCoins(); showTitle(); const b=document.getElementById('muteBtn');if(b)b.textContent=muted?'🔇':'🔊'; });
+document.addEventListener('DOMContentLoaded',()=>{ onResize(); updateTopbarCoins(); showTitle(); const b=document.getElementById('muteBtn');if(b)b.textContent=muted?'🔇':'🔊'; const _sd=localStorage.getItem('pkDiff_4');if(_sd)document.querySelector(`.d-btn[onclick*="'${_sd}'"]`)?.classList.add('active'); });
 window.addEventListener('resize',onResize);
 window.addEventListener('orientationchange',()=>setTimeout(onResize,100));
 if(window.visualViewport) window.visualViewport.addEventListener('resize',onResize);
@@ -552,6 +552,9 @@ function showTitle(){
 // ══════════════════════════════════════════
 function startGame(diff){
   if(!localStorage.getItem('pkName')){ location.href='index.html'; return; }
+  localStorage.setItem('pkDiff_4',diff);
+  document.querySelectorAll('.d-btn').forEach(b=>b.classList.remove('active'));
+  document.querySelector(`.d-btn[onclick*="'${diff}'"]`)?.classList.add('active');
   diffKey=diff;
   cfg=DIFF[diff];
   round=0; gScore=0; lives=3; maxRounds=cfg.rounds;

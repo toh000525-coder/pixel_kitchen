@@ -506,7 +506,7 @@ function onResize() { scaleGame(); checkRotate(); }
 window.addEventListener('resize', onResize);
 window.addEventListener('orientationchange', () => setTimeout(onResize, 100));
 if (window.visualViewport) window.visualViewport.addEventListener('resize', onResize);
-document.addEventListener('DOMContentLoaded', () => { onResize(); refreshCoins(); showPane('paneTitle'); const b=document.getElementById('muteBtn');if(b)b.textContent=muted?'🔇':'🔊'; });
+document.addEventListener('DOMContentLoaded', () => { onResize(); refreshCoins(); showPane('paneTitle'); const b=document.getElementById('muteBtn');if(b)b.textContent=muted?'🔇':'🔊'; const _sd=localStorage.getItem('pkDiff_5');if(_sd){diffKey=_sd;cfg=DIFF[_sd];const _bm={apprenti:'dApprentil',cuisinier:'dCuisinier',chef:'dChef'};document.getElementById(_bm[_sd])?.classList.add('active');} });
 document.addEventListener('click',function onFirstClick(){ getAudio(); startBGMusic(); },{once:true});
 document.addEventListener('click',e=>{ if(e.target.closest('button')&&e.target.id!=='muteBtn') sndClick(); });
 
@@ -604,6 +604,7 @@ function showPane(id) {
 // ══════════════════════════════════════════
 function selectDiff(key) {
   if(!localStorage.getItem('pkName')){ location.href='index.html'; return; }
+  localStorage.setItem('pkDiff_5', key);
   diffKey = key;
   cfg     = DIFF[key];
   ['apprentil','cuisinier','chef'].forEach(k => {

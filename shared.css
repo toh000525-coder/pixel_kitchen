@@ -69,6 +69,9 @@ button { touch-action: manipulation; -webkit-tap-highlight-color: transparent; }
   to   { transform:scale(1); opacity:1; }
 }
 
+/* ── Difficulty button — remembered selection ── */
+.d-btn.active { filter:brightness(1.5); outline:2px solid currentColor; outline-offset:3px; }
+
 /* ── Screen shake (combo) ── */
 @keyframes pkShake {
   0%,100% { translate: 0 0; }

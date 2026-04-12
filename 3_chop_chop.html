@@ -433,7 +433,7 @@ function toggleMute(){
 document.addEventListener('click',function onFirstClick(){ initAudio(); startBGMusic(); },{once:true});
 document.addEventListener('click',e=>{ if(e.target.closest('button')&&e.target.id!=='muteBtn') sndClick(); });
 function onResize(){ scaleGame(); checkRotate(); }
-document.addEventListener('DOMContentLoaded',()=>{ onResize(); updateTopbarCoins(); const b=document.getElementById('muteBtn');if(b)b.textContent=muted?'🔇':'🔊'; });
+document.addEventListener('DOMContentLoaded',()=>{ onResize(); updateTopbarCoins(); const b=document.getElementById('muteBtn');if(b)b.textContent=muted?'🔇':'🔊'; const _sd=localStorage.getItem('pkDiff_3');if(_sd)document.querySelector(`.d-btn[onclick*="'${_sd}'"]`)?.classList.add('active'); });
 window.addEventListener('resize',onResize);
 window.addEventListener('orientationchange',()=>setTimeout(onResize,100));
 if(window.visualViewport) window.visualViewport.addEventListener('resize',onResize);
@@ -517,6 +517,9 @@ function showPane(id){
 // ══════════════════════════════════════════
 function startGame(diff){
   if(!localStorage.getItem('pkName')){ location.href='index.html'; return; }
+  localStorage.setItem('pkDiff_3',diff);
+  document.querySelectorAll('.d-btn').forEach(b=>b.classList.remove('active'));
+  document.querySelector(`.d-btn[onclick*="'${diff}'"]`)?.classList.add('active');
   diffKey=diff; cfg=DIFFS[diff];
   round=0; score=0; lives=3; combo=0; bestCombo=0; coinsEarned=0; paused=false;
   document.getElementById('pauseMenu').style.display='none';
