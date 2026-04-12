@@ -3,10 +3,15 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Tiny Kitchen</title>
+<title>Pixel Kitchen</title>
+<link rel="manifest" href="manifest.json">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="shared.css">
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-database-compat.js"></script>
+<script src="shared.js"></script>
 <style>
 /* ══════════════════════════════════════════
    THEME VARIABLES
@@ -63,7 +68,6 @@ body {
 .hub-topbar-brand { font-size:1rem; letter-spacing:3px; color:#f5c842; text-shadow:2px 2px #8b3a00, 0 0 20px #f5a700; flex:1; }
 .hub-topbar-coin  { color:#f5c842; font-size:.72rem; }
 .hub-topbar-lbl   { color:#5a4a20; font-size:.42rem; }
-.btn-mute { font-size:1.2rem; padding:2px 4px; background:transparent; border:none; cursor:pointer; line-height:1; }
 .hub-body {
   display:flex; flex-direction:row; overflow:hidden; flex-shrink:0;
 }
@@ -459,10 +463,6 @@ body {
   line-height:2.4;
 }
 .rotate-sub { color:var(--sub); font-size:.32rem; letter-spacing:2px; }
-/* Page transitions */
-@keyframes pkPageIn  { from{opacity:0;transform:translateY(6px)} to{opacity:1;transform:none} }
-@keyframes pkPageOut { to{opacity:0;transform:translateY(-6px)} }
-body { animation: pkPageIn 0.22s ease-out both; }
 </style>
 </head>
 <body>
@@ -1069,11 +1069,6 @@ function _hubStart(){
 }
 document.addEventListener('click',_hubStart);
 document.addEventListener('keydown',_hubStart);
-
-function goTo(url){
-  document.body.style.animation='pkPageOut 0.18s ease-in both';
-  setTimeout(()=>location.href=url,190);
-}
 
 function _hubClick(){
   if(!hActx||hMuted) return;

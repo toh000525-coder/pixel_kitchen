@@ -1,0 +1,13 @@
+{
+  "name": "Pixel Kitchen",
+  "short_name": "PxlKitch",
+  "description": "Pixel-art cooking mini-games",
+  "start_url": "./",
+  "display": "standalone",
+  "orientation": "landscape",
+  "background_color": "#110d00",
+  "theme_color": "#f5c842",
+  "icons": [
+    { "src": "icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }
+  ]
+}
