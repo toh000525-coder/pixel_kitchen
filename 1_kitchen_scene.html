@@ -155,6 +155,8 @@ canvas { display:block; image-rendering:pixelated; image-rendering:crisp-edges; 
   text-shadow:2px 2px #8b3a00, 0 0 20px #f5a70055;
 }
 .rotate-sub { color:#664420; font-size:.30rem; letter-spacing:2px; }
+@keyframes pkPopIn{0%{transform:scale(0) rotate(-15deg);opacity:0}65%{transform:scale(1.3) rotate(4deg)}100%{transform:scale(1) rotate(0);opacity:1}}
+@keyframes pkFadeUp{from{transform:translateY(8px);opacity:0}to{transform:translateY(0);opacity:1}}
 
 /* ── CELEBRATION OVERLAY ── */
 #celebrate {
@@ -1378,6 +1380,11 @@ function completeDish(){
   },1500);
 }
 
+// ── RESULT ANIMATIONS ──
+function animCount(el,target,dur){const s=performance.now();(function t(n){const p=Math.min((n-s)/dur,1);el.textContent=Math.round(target*(1-Math.pow(1-p,3)));if(p<1)requestAnimationFrame(t);})(s);}
+function animGrade(el){el.style.animation='none';void el.offsetWidth;el.style.animation='pkPopIn .55s cubic-bezier(.34,1.56,.64,1) forwards';}
+function animFadeUp(el){el.style.animation='none';void el.offsetWidth;el.style.animation='pkFadeUp .4s ease-out both';}
+
 // ── END GAME ──
 function endGame(){
   gState='over'; clearInterval(gTimerInt);
@@ -1391,7 +1398,7 @@ function endGame(){
   // fill result pane (shown after celebration)
   document.getElementById('resIcon').textContent=icon;
   document.getElementById('resTitle').textContent=title;
-  document.getElementById('resScore').textContent=gScore;
+  document.getElementById('resScore').textContent=0;
   document.getElementById('resStats').innerHTML=
     `${gCorrect} / 10 dishes correct<br>Best combo: ×${gBestCombo}<br>${gDiff.toUpperCase()} mode`;
   speechText='MERCI!';
@@ -1411,6 +1418,8 @@ function showCelebration(icon, title, score, msg){
     cel.classList.remove('show');
     showPane('paneResult');
     spawnSparkles();
+    animGrade(document.getElementById('resIcon'));
+    animCount(document.getElementById('resScore'),gScore,800);
   };
 }
 

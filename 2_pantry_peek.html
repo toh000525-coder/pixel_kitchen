@@ -108,6 +108,8 @@ canvas { display:block; image-rendering:pixelated; image-rendering:crisp-edges; 
 @keyframes rotatePulse { 0%,100%{transform:rotate(0deg)} 50%{transform:rotate(90deg)} }
 .rotate-text { color:#60c8f0; font-size:0.7rem; letter-spacing:3px; text-align:center; }
 .rotate-sub { color:#6098c0; font-size:0.38rem; }
+@keyframes pkPopIn{0%{transform:scale(0) rotate(-15deg);opacity:0}65%{transform:scale(1.3) rotate(4deg)}100%{transform:scale(1) rotate(0);opacity:1}}
+@keyframes pkFadeUp{from{transform:translateY(8px);opacity:0}to{transform:translateY(0);opacity:1}}
 </style>
 </head>
 <body>
@@ -688,6 +690,9 @@ canvas.addEventListener('click',function(e){
   }
 });
 
+function animCount(el,target,dur){const s=performance.now();(function t(n){const p=Math.min((n-s)/dur,1);el.textContent=Math.round(target*(1-Math.pow(1-p,3)));if(p<1)requestAnimationFrame(t);})(s);}
+function animGrade(el){el.style.animation='none';void el.offsetWidth;el.style.animation='pkPopIn .55s cubic-bezier(.34,1.56,.64,1) forwards';}
+function animFadeUp(el){el.style.animation='none';void el.offsetWidth;el.style.animation='pkFadeUp .4s ease-out both';}
 // ══════════════════════════════════════════════
 //  END GAME
 // ══════════════════════════════════════════════
@@ -699,7 +704,7 @@ function endGame(won){
   document.getElementById('resultTitle').textContent=won?'PERFECT!':'TIME\'S UP!';
   const _pct=gPairs/gTotalPairs;
   document.getElementById('resultEmoji').textContent=_pct>=1?'🏆':_pct>=0.7?'⭐':_pct>=0.4?'👨‍🍳':'🍳';
-  document.getElementById('resultScore').textContent=gScore;
+  document.getElementById('resultScore').textContent=0;
   document.getElementById('resultSub').textContent=
     won ? `All ${gTotalPairs} pairs found!\nDifficulty: ${gDiff.toUpperCase()}`
         : `${gPairs} / ${gTotalPairs} pairs found\nDifficulty: ${gDiff.toUpperCase()}`;
@@ -710,6 +715,8 @@ function endGame(won){
   if(isNew2) localStorage.setItem(bk2,gScore);
   document.getElementById('newBest').textContent=isNew2?'★ NEW BEST!':(prev2>0?'BEST: '+prev2:'');
   showPane('paneResult');
+  animGrade(document.getElementById('resultEmoji'));
+  animCount(document.getElementById('resultScore'),gScore,800);
 
   won ? sfxWin() : sfxLose();
 

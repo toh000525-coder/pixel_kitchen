@@ -268,6 +268,8 @@ canvas { display:block; }
 .rotate-phone { font-size:52px; animation:rotatePhone 2s steps(2) infinite; }
 @keyframes rotatePhone { 0%,40%{transform:rotate(0deg)} 60%,100%{transform:rotate(90deg)} }
 .rotate-text { color:#f5a742; font-size:.50rem; letter-spacing:2px; text-align:center; line-height:2.4; }
+@keyframes pkPopIn{0%{transform:scale(0) rotate(-15deg);opacity:0}65%{transform:scale(1.3) rotate(4deg)}100%{transform:scale(1) rotate(0);opacity:1}}
+@keyframes pkFadeUp{from{transform:translateY(8px);opacity:0}to{transform:translateY(0);opacity:1}}
 .rotate-sub  { color:#6a2808; font-size:.32rem; letter-spacing:2px; }
 </style>
 </head>
@@ -742,6 +744,9 @@ function onRoundComplete(){
   }
 }
 
+function animCount(el,target,dur){const s=performance.now();(function t(n){const p=Math.min((n-s)/dur,1);el.textContent=Math.round(target*(1-Math.pow(1-p,3)));if(p<1)requestAnimationFrame(t);})(s);}
+function animGrade(el){el.style.animation='none';void el.offsetWidth;el.style.animation='pkPopIn .55s cubic-bezier(.34,1.56,.64,1) forwards';}
+function animFadeUp(el){el.style.animation='none';void el.offsetWidth;el.style.animation='pkFadeUp .4s ease-out both';}
 function endGame(){
   phase='result';
   stopBGMusic();
@@ -753,7 +758,7 @@ function endGame(){
   const grade=pct>=0.8?'🏆':pct>=0.55?'⭐':pct>=0.3?'👨‍🍳':'🍳';
   document.getElementById('resultTitle').textContent=title;
   document.getElementById('resultGrade').textContent=grade;
-  document.getElementById('resultScore').textContent=gScore;
+  document.getElementById('resultScore').textContent=0;
   document.getElementById('resultSub').textContent=
     `ROUNDS: ${round}/${maxRounds}   LIVES: ${lives}\nDIFFICULTY: ${DIFF[diffKey].label}`;
   document.getElementById('saveStatus').textContent='';
@@ -762,7 +767,7 @@ function endGame(){
   const prev=parseInt(localStorage.getItem('pkCoins')||'0');
   localStorage.setItem('pkCoins',prev+coins);
   updateTopbarCoins();
-  document.getElementById('resultCoins').textContent=coins>0?`🪙 +${coins} COINS`:'';
+  document.getElementById('resultCoins').textContent='';
   const bk4='pkBest_4_'+diffKey;
   const prev4=parseInt(localStorage.getItem(bk4)||'0');
   const isNew4=gScore>prev4&&gScore>0;
@@ -777,6 +782,9 @@ function endGame(){
   document.getElementById('badgeCook').classList.remove('show');
 
   showPane('paneResult');
+  animGrade(document.getElementById('resultGrade'));
+  animCount(document.getElementById('resultScore'),gScore,800);
+  if(coins>0)setTimeout(()=>{const _c=document.getElementById('resultCoins');_c.textContent=`🪙 +${coins} COINS`;animFadeUp(_c);},600);
   submitScore();
 }
 
