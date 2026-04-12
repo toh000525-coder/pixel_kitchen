@@ -547,6 +547,8 @@ function showTitle(){
 // ══════════════════════════════════════════
 function startGame(diff){
   if(!localStorage.getItem('pkName')){ location.href='index.html'; return; }
+  localStorage.setItem('pkPlays_4',(parseInt(localStorage.getItem('pkPlays_4')||'0')+1));
+  localStorage.setItem('pkLastPlay_4',Date.now());
   diffKey=diff;
   cfg=DIFF[diff];
   round=0; gScore=0; lives=3; maxRounds=cfg.rounds;
