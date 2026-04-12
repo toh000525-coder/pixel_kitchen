@@ -1238,8 +1238,11 @@ function _applyTourStep(){
   const step = _TOUR[_tourStep];
   const el = document.querySelector(step.sel);
   if(!el){ pkTourNext(); return; }
-  const r = el.getBoundingClientRect();
-  const pad = 8, margin = 14, cw = 238;
+  const r   = el.getBoundingClientRect();
+  const vw  = window.visualViewport ? window.visualViewport.width  : window.innerWidth;
+  const vh  = window.visualViewport ? window.visualViewport.height : window.innerHeight;
+  const pad = 8, margin = 12;
+  const cw  = Math.min(230, vw - 24); // never wider than screen
   // spotlight
   const spot = document.getElementById('pkTourSpot');
   spot.style.left   = (r.left - pad) + 'px';
@@ -1252,21 +1255,27 @@ function _applyTourStep(){
   document.getElementById('pkTourBody').innerHTML    = step.body;
   document.getElementById('pkTourStep').textContent  = (_tourStep+1)+' / '+_TOUR.length;
   document.getElementById('pkTourBtn').textContent   = _tourStep===_TOUR.length-1 ? "LET'S COOK! ▶" : 'NEXT ▶';
-  // card position
+  // card position — calculate ideal, then clamp to viewport
   const card = document.getElementById('pkTourCard');
-  card.style.cssText = card.style.cssText; // reset via reassign
-  card.removeAttribute('style');
-  card.style.width = cw+'px';
+  card.style.width = cw + 'px';
+  card.style.right = ''; // always use left
+  let cx, cy;
   if(step.side === 'left'){
-    card.style.left = Math.max(8, r.left - cw - margin) + 'px';
-    card.style.top  = Math.max(8, r.top) + 'px';
+    cx = r.left - cw - margin;
+    cy = r.top;
   } else if(step.side === 'right'){
-    card.style.left = (r.right + margin) + 'px';
-    card.style.top  = Math.max(8, r.top + r.height/2 - 80) + 'px';
-  } else if(step.side === 'below'){
-    card.style.right = '16px';
-    card.style.top   = (r.bottom + margin) + 'px';
+    cx = r.right + margin;
+    cy = r.top + r.height/2 - 90;
+  } else { // below
+    cx = r.right - cw;
+    cy = r.bottom + margin;
   }
+  // clamp horizontally and vertically (card height ~210px estimated)
+  const CH_EST = 220;
+  cx = Math.max(8, Math.min(cx, vw - cw - 8));
+  cy = Math.max(8, Math.min(cy, vh - CH_EST - 8));
+  card.style.left = cx + 'px';
+  card.style.top  = cy + 'px';
 }
 function pkTourNext(){
   _tourStep++;

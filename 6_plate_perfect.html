@@ -347,7 +347,7 @@ function scaleGame() {
   const vw=window.visualViewport?window.visualViewport.width:window.innerWidth;
   const vh=window.visualViewport?window.visualViewport.height:window.innerHeight;
   const wrap=document.getElementById('gameWrap');
-  const scale=Math.min(vw/GAME_W,vh/GAME_H);
+  const scale=Math.min((vw-8)/GAME_W,(vh-8)/GAME_H);
   wrap.style.width=GAME_W+'px'; wrap.style.height=GAME_H+'px';
   wrap.style.transform=`translate(-50%,-50%) scale(${scale})`;
 }
