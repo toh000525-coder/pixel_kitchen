@@ -282,6 +282,7 @@ canvas { display:block; image-rendering:pixelated; image-rendering:crisp-edges; 
     <div class="gpane" id="paneResult">
       <div class="result-wrap">
         <div class="result-icon" id="resIcon">🏆</div>
+        <div id="resultStars"></div>
         <div class="result-title" id="resTitle">WELL DONE!</div>
         <div class="result-score-lbl">FINAL SCORE</div>
         <div class="result-score" id="resScore">0</div>
@@ -1426,6 +1427,11 @@ function showCelebration(icon, title, score, msg){
     spawnSparkles();
     animGrade(document.getElementById('resIcon'));
     animCount(document.getElementById('resScore'),gScore,800);
+    const _s1=_p1>=0.9?3:_p1>=0.7?2:1;
+    const _c1=_s1===3?30:_s1===2?15:5;
+    localStorage.setItem('pkCoins',(parseInt(localStorage.getItem('pkCoins')||'0')+_c1));
+    pkShowResultStars(_s1);
+    setTimeout(()=>pkCoinBurst(_c1), 900);
   };
 }
 

@@ -347,6 +347,7 @@ canvas { display:block; border:3px solid #6878a0; box-shadow:0 0 18px #2a2a4a; }
       <div id="paneResult" class="pane" style="display:none;">
         <div class="result-box">
           <div style="font-size:2rem;" id="resultGrade">⭐</div>
+          <div id="resultStars"></div>
           <div class="result-title" id="resultTitle">WELL DONE!</div>
           <div class="result-score" id="resultScore">0</div>
           <div class="result-sub" id="resultSub"></div>
@@ -1220,7 +1221,8 @@ function endGame() {
   showPane('paneResult');
   animGrade(document.getElementById('resultGrade'));
   animCount(document.getElementById('resultScore'),gScore,800);
-  if(earned>0)setTimeout(()=>{const _c=document.getElementById('resultCoins');_c.textContent='🪙 +'+earned+' COINS';animFadeUp(_c);},600);
+  pkShowResultStars(gServed>=8?3:gServed>=4?2:1);
+  setTimeout(()=>pkCoinBurst(earned), 900);
   submitScore();
 }
 
