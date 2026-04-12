@@ -294,6 +294,42 @@ const PATTERNS = [
     for (let t=0;t<=Math.PI*2;t+=0.10) a.push({x:58*Math.sin(t), y:36*Math.sin(t)*Math.cos(t)});
     return a;
   })()},
+  { name:'S-CURVE', color:'#ff66aa', pts: (() => {
+    const a=[];
+    for(let t=-Math.PI;t<=Math.PI;t+=0.09) a.push({x:55*Math.sin(t), y:t/Math.PI*65});
+    return a;
+  })()},
+  { name:'HEART', color:'#ff1155', pts: (() => {
+    const a=[];
+    for(let t=0;t<=Math.PI*2;t+=0.08)
+      a.push({x:55*(Math.sin(t)**3), y:-(42*Math.cos(t)-14*Math.cos(2*t)-5*Math.cos(3*t)-2*Math.cos(4*t))});
+    return a;
+  })()},
+  { name:'TRIANGLE', color:'#00ddff', pts: densify([
+    {x:0,y:-72},{x:68,y:52},{x:-68,y:52},{x:0,y:-72}
+  ])},
+  { name:'V-SHAPE', color:'#88ff22', pts: densify([
+    {x:-65,y:-52},{x:0,y:55},{x:65,y:-52}
+  ])},
+  { name:'LIGHTNING', color:'#ffee00', pts: densify([
+    {x:20,y:-72},{x:-16,y:-8},{x:20,y:-8},{x:-20,y:72}
+  ])},
+  { name:'ARCH', color:'#ff8833', pts: (() => {
+    const a=[];
+    for(let t=Math.PI;t<=Math.PI*2;t+=0.10) a.push({x:Math.cos(t)*72, y:Math.sin(t)*72});
+    return a;
+  })()},
+  { name:'CROSS', color:'#cc44ff', pts: densify([
+    {x:0,y:-70},{x:0,y:70},{x:0,y:0},{x:-70,y:0},{x:70,y:0}
+  ])},
+  { name:'COIL', color:'#00ffaa', pts: (() => {
+    const a=[];
+    for(let t=0;t<Math.PI*4;t+=0.10){
+      const r=Math.max(10, 72-t*62/(Math.PI*4));
+      a.push({x:Math.cos(t)*r, y:Math.sin(t)*r});
+    }
+    return a;
+  })()},
 ];
 
 // Recipes pulled from shared menu.js (grouped by ingredient count)
