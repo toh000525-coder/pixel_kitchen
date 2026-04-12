@@ -60,9 +60,44 @@ function pkCoinBurst(amount){
   }
 }
 
-// Register service worker
+// Register service worker + update detection
 if('serviceWorker' in navigator){
   window.addEventListener('load', ()=>{
-    navigator.serviceWorker.register('./sw.js').catch(()=>{});
+    navigator.serviceWorker.register('./sw.js').then(reg => {
+      function onWaiting(sw){
+        if(document.getElementById('pkUpdateToast')) return;
+        const d = document.createElement('div');
+        d.id = 'pkUpdateToast';
+        d.textContent = '🔄 UPDATE AVAILABLE — TAP TO REFRESH';
+        d.onclick = ()=>{
+          sw.postMessage('SKIP_WAITING');
+          navigator.serviceWorker.addEventListener('controllerchange', ()=> location.reload(), {once:true});
+        };
+        document.body.appendChild(d);
+        requestAnimationFrame(()=> requestAnimationFrame(()=> d.classList.add('pk-show')));
+      }
+      if(reg.waiting) onWaiting(reg.waiting);
+      reg.addEventListener('updatefound', ()=>{
+        const sw = reg.installing;
+        sw.addEventListener('statechange', ()=>{
+          if(sw.state === 'installed' && navigator.serviceWorker.controller) onWaiting(sw);
+        });
+      });
+    }).catch(()=>{});
   });
 }
+
+// Offline / online detection
+function _pkSetOffline(offline){
+  const b = document.getElementById('pkOfflineBanner');
+  if(b) b.classList.toggle('pk-show', offline);
+}
+document.addEventListener('DOMContentLoaded', ()=>{
+  const b = document.createElement('div');
+  b.id = 'pkOfflineBanner';
+  b.textContent = '📡 NO CONNECTION — LEADERBOARDS UNAVAILABLE';
+  document.body.appendChild(b);
+  if(!navigator.onLine) _pkSetOffline(true);
+});
+window.addEventListener('offline', ()=> _pkSetOffline(true));
+window.addEventListener('online',  ()=> _pkSetOffline(false));

@@ -1,7 +1,7 @@
 // ═══════════════════════════════════════════
 //  sw.js — Pixel Kitchen  Service Worker
 // ═══════════════════════════════════════════
-const CACHE = 'pk-v2';
+const CACHE = 'pk-v3';
 
 const STATIC = [
   './',
@@ -21,11 +21,9 @@ const STATIC = [
   'https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap',
 ];
 
-// Cache all static assets on install
+// Cache all static assets on install — do NOT skipWaiting so update toast can appear
 self.addEventListener('install', e => {
-  e.waitUntil(
-    caches.open(CACHE).then(c => c.addAll(STATIC)).then(() => self.skipWaiting())
-  );
+  e.waitUntil(caches.open(CACHE).then(c => c.addAll(STATIC)));
 });
 
 // Remove old caches on activate
@@ -37,10 +35,14 @@ self.addEventListener('activate', e => {
   );
 });
 
+// Page sends 'SKIP_WAITING' when user taps the update toast
+self.addEventListener('message', e => {
+  if(e.data === 'SKIP_WAITING') self.skipWaiting();
+});
+
 // Cache-first for same-origin assets; network-first for Firebase
 self.addEventListener('fetch', e => {
   const url = new URL(e.request.url);
-  // Always use network for Firebase
   if(url.hostname.includes('firebase') || url.hostname.includes('firebaseio')) return;
   e.respondWith(
     caches.match(e.request).then(cached => {

@@ -33,6 +33,27 @@ button { touch-action: manipulation; -webkit-tap-highlight-color: transparent; }
 @keyframes pkAchIn  { from{opacity:0;transform:translateX(-50%) translateY(16px)} to{opacity:1;transform:translateX(-50%) translateY(0)} }
 @keyframes pkAchOut { from{opacity:1;transform:translateX(-50%) translateY(0)} to{opacity:0;transform:translateX(-50%) translateY(-12px)} }
 
+/* ── SW update toast ── */
+#pkUpdateToast {
+  position:fixed; top:-60px; left:50%; transform:translateX(-50%);
+  z-index:99997; background:#0a180a; border:2px solid #50c840;
+  color:#50c840; font-family:'Press Start 2P',monospace; font-size:.28rem;
+  padding:10px 18px; cursor:pointer; white-space:nowrap; letter-spacing:1px;
+  transition:top .4s cubic-bezier(.4,0,.2,1); box-shadow:0 4px 16px rgba(0,0,0,.8);
+}
+#pkUpdateToast.pk-show { top:12px; }
+#pkUpdateToast:hover { background:#50c840; color:#000; }
+
+/* ── Offline banner ── */
+#pkOfflineBanner {
+  position:fixed; bottom:-48px; left:0; right:0; z-index:99996;
+  background:#200808; border-top:2px solid #ff6b6b;
+  color:#ff6b6b; font-family:'Press Start 2P',monospace; font-size:.26rem;
+  padding:8px; text-align:center; letter-spacing:1px;
+  transition:bottom .3s ease;
+}
+#pkOfflineBanner.pk-show { bottom:0; }
+
 /* ── Star result animation ── */
 #resultStars { display:flex; gap:8px; justify-content:center; margin:6px 0; flex-shrink:0; }
 .pk-star { font-size:1.8rem; display:inline-block; opacity:0; }
