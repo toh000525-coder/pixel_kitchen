@@ -423,7 +423,7 @@ function showPane(id){
   if(id==='paneTitle')startIdleCanvas(); else stopIdleCanvas();
   if(id==='paneLeader')loadLeader(diffKey||'apprenti');
 }
-function selectDiff(key){diffKey=key;cfg=DIFF[key];setTimeout(()=>startGame(),300);}
+function selectDiff(key){if(!localStorage.getItem('pkName')){location.href='index.html';return;}diffKey=key;cfg=DIFF[key];setTimeout(()=>startGame(),300);}
 
 // ══════ IDLE CANVAS ══════
 function startIdleCanvas(){

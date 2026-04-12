@@ -603,6 +603,7 @@ function showPane(id) {
 //  DIFFICULTY SELECT
 // ══════════════════════════════════════════
 function selectDiff(key) {
+  if(!localStorage.getItem('pkName')){ location.href='index.html'; return; }
   diffKey = key;
   cfg     = DIFF[key];
   ['apprentil','cuisinier','chef'].forEach(k => {

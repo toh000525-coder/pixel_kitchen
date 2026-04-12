@@ -516,6 +516,7 @@ function showPane(id){
 //  GAME FLOW
 // ══════════════════════════════════════════
 function startGame(diff){
+  if(!localStorage.getItem('pkName')){ location.href='index.html'; return; }
   diffKey=diff; cfg=DIFFS[diff];
   round=0; score=0; lives=3; combo=0; bestCombo=0; coinsEarned=0; paused=false;
   document.getElementById('pauseMenu').style.display='none';
