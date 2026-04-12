@@ -684,7 +684,7 @@ canvas.addEventListener('click',function(e){
         } else {
           // No match — flash wrong, flip back
           gCards[first].wrong=true; gCards[i].wrong=true;
-          sfxNoMatch();
+          sfxNoMatch(); pkVibrate('fail');
           setTimeout(()=>{
             flipCard(first,false); flipCard(i,false);
             setTimeout(()=>{ gCards[first].wrong=false; gCards[i].wrong=false; gLocked=false; },400);

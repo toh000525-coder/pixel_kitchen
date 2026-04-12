@@ -893,7 +893,7 @@ function clickItem(it, idx) {
     items.splice(idx, 1);
     gLives--;
     flashRed = 1.0;
-    sndMiss();
+    sndMiss(); pkVibrate('fail');
     spawnEffect(it.x, it.y - 30, 'DANGER! -1❤️', '#e05050');
     if (gLives <= 0) { gLives = 0; setTimeout(() => endGame(), 700); }
     updateLivesRow();
@@ -920,7 +920,7 @@ function clickItem(it, idx) {
   if (!grabbed) {
     gScore = Math.max(0, gScore - 3);
     items.splice(idx, 1);
-    sndMiss();
+    sndMiss(); pkVibrate('fail');
     spawnEffect(it.x, it.y - 30, '-3 NOT NEEDED!', '#e08050');
   }
 }

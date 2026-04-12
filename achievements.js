@@ -159,7 +159,7 @@ function _pkNextToast(){
 
   let toast = document.getElementById('pkAchToast');
   if(!toast){ _pkToasting=false; return; }
-  _pkAchSfx();
+  _pkAchSfx(); pkVibrate('ach');
 
   document.getElementById('pkAchToastEmoji').textContent = ach.emoji;
   document.getElementById('pkAchToastName').textContent  = ach.name;

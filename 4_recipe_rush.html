@@ -706,7 +706,7 @@ function onCookClick(gridIdx,foodIdx){
     // Wrong
     btn.classList.add('wrong');
     setTimeout(()=>{ if(btn) btn.classList.remove('wrong'); },350);
-    playWrong();
+    playWrong(); pkVibrate('fail');
     showFeedback('✗ WRONG!', false);
     loseLife();
   }

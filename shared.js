@@ -60,6 +60,13 @@ function pkCoinBurst(amount){
   }
 }
 
+// Haptic feedback — respects devices that don't support vibrate
+function pkVibrate(type){
+  if(!navigator.vibrate) return;
+  const p = { combo:[40,30,40,30,80], fail:[100], ach:[30,20,30,20,80] };
+  navigator.vibrate(p[type] || [30]);
+}
+
 // Screen shake on combo — uses CSS translate property (composites independently of transform)
 function pkShake(){
   const el = document.getElementById('gameWrap') || document.getElementById('hubWrap');

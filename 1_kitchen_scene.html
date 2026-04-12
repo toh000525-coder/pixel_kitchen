@@ -1338,7 +1338,7 @@ function selectIngr(id,tile){
     if(gPicked.size===dish.ok.length) setTimeout(completeDish, 200);
   } else {
     tile.classList.add('wrong');
-    sfxWrongIngr();
+    sfxWrongIngr(); pkVibrate('fail');
     timeLeft=Math.max(0,timeLeft-8);
     if(gCombo>gBestCombo) gBestCombo=gCombo;
     gCombo=0;
@@ -1372,7 +1372,7 @@ function completeDish(){
   if(gCombo>=3) document.getElementById('comboTag').textContent=`🔥 ×${gCombo} COMBO!`;
   speechText=gCombo>=3?rnd(C_COMBO):rnd(C_CORRECT);
   spawnSparkles();
-  if(gCombo>=3){ sfxCombo(); pkShake(); }
+  if(gCombo>=3){ sfxCombo(); pkShake(); pkVibrate('combo'); }
   sfxDishComplete(isGolden);
   updateHUD();
   // lock all tiles

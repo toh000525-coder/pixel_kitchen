@@ -671,7 +671,7 @@ function endPickup(mx,my){
 }
 function wrongPlace(){
   gLives--;
-  sndWrong();
+  sndWrong(); pkVibrate('fail');
   spawnEffect(dragging.x,dragging.y-30,'✗ WRONG ZONE','#e05050');
   pool[dragging.poolIdx].available=true; dragging=null;
   if(gLives<=0){gLives=0;setTimeout(()=>endGame(),700);}
