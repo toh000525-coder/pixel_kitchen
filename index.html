@@ -533,8 +533,8 @@ body {
 #pkTourStep  { color:#5a4020; font-size:.24rem; text-align:right; margin-bottom:8px; }
 #pkTourBtn   { width:100%; font-family:'Press Start 2P',monospace; font-size:.42rem; padding:10px; background:#1a0e00; border:2px solid #50c840; color:#50c840; cursor:pointer; letter-spacing:1px; touch-action:manipulation; }
 #pkTourBtn:hover { background:#50c840; color:#000; }
-#pkTourSkip  { display:block; text-align:center; color:#5a4020; font-size:.22rem; margin-top:8px; cursor:pointer; touch-action:manipulation; }
-#pkTourSkip:hover { color:#c8904a; }
+#pkTourSkip  { position:fixed; top:12px; right:12px; z-index:9502; font-family:'Press Start 2P',monospace; font-size:.30rem; color:#c8904a; background:#1a0e00; border:2px solid #5a4020; padding:8px 12px; cursor:pointer; touch-action:manipulation; letter-spacing:1px; }
+#pkTourSkip:hover { border-color:#c8904a; }
 </style>
 </head>
 <body>
@@ -583,8 +583,8 @@ body {
     <div id="pkTourBody"></div>
     <div id="pkTourStep"></div>
     <button id="pkTourBtn" onclick="pkTourNext()">NEXT ▶</button>
-    <span id="pkTourSkip" onclick="pkTourEnd()">SKIP TOUR</span>
   </div>
+  <button id="pkTourSkip" onclick="pkTourEnd()">✕ SKIP</button>
 </div>
 <!-- RANK MODAL -->
 <div id="rankModal">
