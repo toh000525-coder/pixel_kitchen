@@ -638,7 +638,7 @@ body {
       <div class="hub-player" id="hubPlayerName"></div>
       <button class="hub-change" id="hubChangeName" onclick="showNameModal()" style="display:none;">✎ CHANGE NAME</button>
 
-      <button class="hub-ranks-btn" onclick="openRankModal()">🏆 MY RANKS</button>
+      <button class="hub-ranks-btn" id="hubRanksBtn" onclick="openRankModal()">🏆 MY RANKS</button>
       <button class="hub-ranks-btn" onclick="openAchModal()" id="achBtn">🎖️ ACHIEVEMENTS</button>
     </div>
 
@@ -1221,7 +1221,7 @@ const _TOUR = [
     body:'Six mini-games to master!<br>Each has 3 difficulty levels<br>and a global leaderboard.' },
   { sel:'.hub-topbar-coin',side:'below', icon:'🪙', title:'EARN COINS',
     body:'Play well to earn coins!<br>Higher difficulty =<br>more coins per game.' },
-  { sel:'.hub-ranks-btn',  side:'right', icon:'🏆', title:'LEADERBOARDS',
+  { sel:'#hubRanksBtn',    side:'right', icon:'🏆', title:'LEADERBOARDS',
     body:'See your rank across<br>every mini-game.<br>Compete globally in real time!' },
   { sel:'#achBtn',         side:'right', icon:'🎖️', title:'ACHIEVEMENTS',
     body:'25 unique badges to unlock<br>across all 6 games.<br>Can you collect them all?' },
