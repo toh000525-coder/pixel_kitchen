@@ -697,7 +697,8 @@ function endGame(won){
   stopBGMusic();
 
   document.getElementById('resultTitle').textContent=won?'PERFECT!':'TIME\'S UP!';
-  document.getElementById('resultEmoji').textContent=won?'🎉':'⏰';
+  const _pct=gPairs/gTotalPairs;
+  document.getElementById('resultEmoji').textContent=_pct>=1?'🏆':_pct>=0.7?'⭐':_pct>=0.4?'👨‍🍳':'🍳';
   document.getElementById('resultScore').textContent=gScore;
   document.getElementById('resultSub').textContent=
     won ? `All ${gTotalPairs} pairs found!\nDifficulty: ${gDiff.toUpperCase()}`
