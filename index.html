@@ -143,6 +143,26 @@ body {
 .ach-card-cat { font-size:.22rem; color:#5a4010; letter-spacing:1px; }
 .ach-card.unlocked .ach-card-cat { color:#8a6020; }
 .ach-card-date { font-size:.20rem; color:#7a5820; margin-top:2px; }
+/* ── PROFILE MODAL ── */
+#profileModal { display:none; position:fixed; inset:0; z-index:9000; background:rgba(10,6,20,.88); align-items:center; justify-content:center; }
+#profileModal.visible { display:flex; }
+.profile-box { background:var(--bg2); border:4px solid var(--border-hi); box-shadow:6px 6px 0 var(--shadow),0 0 40px #c87eb833; padding:16px 20px; display:flex; flex-direction:column; gap:8px; min-width:290px; }
+.profile-header { display:flex; align-items:center; gap:10px; }
+.profile-avatar { font-size:1.8rem; }
+.profile-name-wrap { flex:1; }
+.profile-name { color:var(--gold); font-size:.62rem; letter-spacing:2px; display:block; }
+.profile-edit { margin-top:4px; color:var(--sub); font-size:.24rem; cursor:pointer; background:none; border:none; font-family:'Press Start 2P',monospace; padding:0; touch-action:manipulation; }
+.profile-edit:hover { color:var(--gold); }
+.profile-stats-row { display:flex; justify-content:space-around; padding:8px 10px; background:var(--bg3); border:2px solid var(--border); }
+.profile-stat { text-align:center; }
+.profile-stat-val { color:var(--gold); font-size:.52rem; display:block; }
+.profile-stat-lbl { color:var(--sub); font-size:.22rem; margin-top:3px; display:block; letter-spacing:1px; }
+.profile-game-row { display:flex; align-items:center; gap:8px; padding:5px 8px; background:var(--bg3); border:2px solid var(--border); }
+.profile-game-icon { font-size:13px; width:18px; flex-shrink:0; }
+.profile-game-name { flex:1; color:var(--sub); font-size:.28rem; }
+.profile-game-stars { font-size:.34rem; color:var(--gold); min-width:48px; text-align:center; }
+.profile-game-plays { color:var(--border-hi); font-size:.26rem; min-width:26px; text-align:right; flex-shrink:0; }
+.profile-join { color:#5a4020; font-size:.22rem; text-align:center; padding:2px 0; }
 /* ── RANKS MODAL ── */
 #rankModal {
   display:none; position:fixed; inset:0; z-index:9000;
@@ -575,6 +595,38 @@ body {
   </div>
 </div>
 <!-- NAME MODAL -->
+<!-- PROFILE MODAL -->
+<div id="profileModal">
+  <div class="profile-box">
+    <div class="profile-header">
+      <span class="profile-avatar">👨‍🍳</span>
+      <div class="profile-name-wrap">
+        <span class="profile-name" id="profileName">PLAYER</span>
+        <button class="profile-edit" onclick="closeProfileModal();showNameModal();">✎ EDIT NAME</button>
+      </div>
+    </div>
+    <div class="rank-divider"></div>
+    <div class="profile-stats-row">
+      <div class="profile-stat">
+        <span class="profile-stat-val" id="profileCoins">0</span>
+        <span class="profile-stat-lbl">🪙 COINS</span>
+      </div>
+      <div class="profile-stat">
+        <span class="profile-stat-val" id="profileAch">0/25</span>
+        <span class="profile-stat-lbl">🎖️ BADGES</span>
+      </div>
+      <div class="profile-stat">
+        <span class="profile-stat-val" id="profileTotal">0</span>
+        <span class="profile-stat-lbl">🎮 GAMES</span>
+      </div>
+    </div>
+    <div class="rank-divider"></div>
+    <div id="profileGameRows"></div>
+    <div class="rank-divider"></div>
+    <div class="profile-join" id="profileJoin"></div>
+    <button class="hub-ranks-btn" onclick="closeProfileModal()">✕ CLOSE</button>
+  </div>
+</div>
 <!-- TOUR OVERLAY -->
 <div id="pkTour">
   <div id="pkTourBlock"></div>
@@ -640,6 +692,7 @@ body {
       <div class="hub-player" id="hubPlayerName"></div>
       <button class="hub-change" id="hubChangeName" onclick="showNameModal()" style="display:none;">✎ CHANGE NAME</button>
 
+      <button class="hub-ranks-btn" id="hubProfileBtn" onclick="openProfileModal()">👤 MY PROFILE</button>
       <button class="hub-ranks-btn" id="hubRanksBtn" onclick="openRankModal()">🏆 MY RANKS</button>
       <button class="hub-ranks-btn" onclick="openAchModal()" id="achBtn">🎖️ ACHIEVEMENTS</button>
     </div>
@@ -961,7 +1014,10 @@ function confirmHubName(){
   localStorage.setItem('pkName', name);
   document.getElementById('nameModal').classList.remove('visible');
   updateHubPlayerName();
-  if(isFirst) setTimeout(startTour, 450);
+  if(isFirst){
+    if(!localStorage.getItem('pkJoinDate')) localStorage.setItem('pkJoinDate', new Date().toISOString());
+    setTimeout(startTour, 450);
+  }
 }
 function updateHubPlayerName(){
   const name = localStorage.getItem('pkName');
@@ -1213,6 +1269,49 @@ function openAchModal(){
 }
 function closeAchModal(){
   document.getElementById('achModal').classList.remove('visible');
+}
+
+// ══════════════════════════════════════════
+//  PROFILE MODAL
+// ══════════════════════════════════════════
+const _PROFILE_GAMES = [
+  { id:1, icon:'🍳', name:'DISH DETECTIVE' },
+  { id:2, icon:'🥕', name:'PANTRY PEEK'    },
+  { id:3, icon:'🔪', name:'CHOP CHOP!'     },
+  { id:4, icon:'📋', name:'RECIPE RUSH'    },
+  { id:5, icon:'🌶️', name:'KITCHEN CHAOS'  },
+  { id:6, icon:'🍽️', name:'PLATE PERFECT'  },
+];
+function openProfileModal(){
+  const s       = pkGetStats();
+  const unlocked= pkGetUnlocked();
+  const coins   = parseInt(localStorage.getItem('pkCoins')||'0');
+  document.getElementById('profileName').textContent   = localStorage.getItem('pkName') || '---';
+  document.getElementById('profileCoins').textContent  = coins.toLocaleString();
+  document.getElementById('profileAch').textContent    = Object.keys(unlocked).length + '/' + PK_ACHIEVEMENTS.length;
+  document.getElementById('profileTotal').textContent  = s.totalGames || 0;
+  // per-game rows
+  document.getElementById('profileGameRows').innerHTML = _PROFILE_GAMES.map(g => {
+    const plays = (s.byGame      && s.byGame[g.id])      || 0;
+    const best  = (s.starsByGame && s.starsByGame[g.id]) || 0;
+    const stars = plays === 0 ? '<span style="color:var(--border-hi)">─</span>'
+                              : '★'.repeat(best) + '<span style="color:var(--border)">★</span>'.repeat(3-best);
+    return `<div class="profile-game-row">
+      <span class="profile-game-icon">${g.icon}</span>
+      <span class="profile-game-name">${g.name}</span>
+      <span class="profile-game-stars">${stars}</span>
+      <span class="profile-game-plays">${plays||'─'}</span>
+    </div>`;
+  }).join('');
+  // join date
+  const jd = localStorage.getItem('pkJoinDate');
+  document.getElementById('profileJoin').textContent = jd
+    ? 'CHEF SINCE ' + new Date(jd).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}).toUpperCase()
+    : '';
+  document.getElementById('profileModal').classList.add('visible');
+}
+function closeProfileModal(){
+  document.getElementById('profileModal').classList.remove('visible');
 }
 
 // ══════════════════════════════════════════
