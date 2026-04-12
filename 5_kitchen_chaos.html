@@ -18,6 +18,7 @@
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-database-compat.js"></script>
 <script src="menu.js"></script>
 <script src="shared.js"></script>
+<script src="achievements.js"></script>
 <style>
 * { margin:0; padding:0; box-sizing:border-box; image-rendering:pixelated; }
 #gameCanvas { image-rendering:auto; }
@@ -1215,6 +1216,7 @@ function endGame() {
   document.getElementById('newBest').textContent=isNew5?'★ NEW BEST!':(prev5>0?'BEST: '+prev5:'');
   document.getElementById('saveStatus').textContent   = 'Saving score...';
 
+  pkRecordGame({gameId:5,stars:gServed>=8?3:gServed>=4?2:1,hardest:diffKey==='chef'});
   showPane('paneResult');
   animGrade(document.getElementById('resultGrade'));
   animCount(document.getElementById('resultScore'),gScore,800);

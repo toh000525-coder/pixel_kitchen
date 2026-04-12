@@ -18,6 +18,7 @@
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-database-compat.js"></script>
 <script src="menu.js"></script>
 <script src="shared.js"></script>
+<script src="achievements.js"></script>
 <style>
 * { margin:0; padding:0; box-sizing:border-box; image-rendering:pixelated; }
 body { background:radial-gradient(ellipse at 50% 30%, #3a1e0a 0%, #1c0d04 100%); font-family:'Press Start 2P',monospace; width:100vw; height:100vh; overflow:hidden; }
@@ -1420,6 +1421,7 @@ function showCelebration(icon, title, score, msg){
   const btn=document.getElementById('celBtn');
   btn.onclick=function(){
     cel.classList.remove('show');
+    const _p1=gCorrect/10; pkRecordGame({gameId:1,stars:_p1>=0.9?3:_p1>=0.7?2:1,hardest:gDiff==='chef'});
     showPane('paneResult');
     spawnSparkles();
     animGrade(document.getElementById('resIcon'));

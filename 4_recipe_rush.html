@@ -18,6 +18,7 @@
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-database-compat.js"></script>
 <script src="menu.js"></script>
 <script src="shared.js"></script>
+<script src="achievements.js"></script>
 <style>
 * { margin:0; padding:0; box-sizing:border-box; image-rendering:pixelated; }
 body {
@@ -782,6 +783,7 @@ function endGame(){
   document.getElementById('badgeMemorize').classList.remove('show');
   document.getElementById('badgeCook').classList.remove('show');
 
+  const _p4=gScore/(maxRounds*350); pkRecordGame({gameId:4,stars:_p4>=0.8?3:_p4>=0.55?2:1,hardest:diffKey==='chef'});
   showPane('paneResult');
   animGrade(document.getElementById('resultGrade'));
   animCount(document.getElementById('resultScore'),gScore,800);
