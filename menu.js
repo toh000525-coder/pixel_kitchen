@@ -11,7 +11,7 @@
 
 const PK_INGREDIENTS = [
   // Proteins
-  {emoji:'🥩', name:'MEAT',        cat:'protein'},
+  {emoji:'🥩', name:'BEEF',        cat:'protein'},
   {emoji:'🍗', name:'CHICKEN',     cat:'protein'},
   {emoji:'🦐', name:'SHRIMP',      cat:'protein'},
   {emoji:'🥚', name:'EGG',         cat:'protein'},
