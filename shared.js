@@ -60,6 +60,16 @@ function pkCoinBurst(amount){
   }
 }
 
+// Screen shake on combo — uses CSS translate property (composites independently of transform)
+function pkShake(){
+  const el = document.getElementById('gameWrap') || document.getElementById('hubWrap');
+  if(!el) return;
+  el.classList.remove('pk-shake');
+  void el.offsetWidth;
+  el.classList.add('pk-shake');
+  el.addEventListener('animationend', ()=> el.classList.remove('pk-shake'), {once:true});
+}
+
 // Register service worker + update detection
 if('serviceWorker' in navigator){
   window.addEventListener('load', ()=>{

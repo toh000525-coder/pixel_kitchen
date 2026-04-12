@@ -592,11 +592,11 @@ function onChop(){
   if(off<cfg.perfect){
     cutResult='perfect'; combo++; bestCombo=Math.max(bestCombo,combo);
     score+=cfg.pts[0]+Math.min((combo-1)*15,45);
-    coinsEarned+=10; sndPerfect();
+    coinsEarned+=10; sndPerfect(); if(combo>=2) pkShake();
   } else if(off<cfg.good){
     cutResult='good'; combo++; bestCombo=Math.max(bestCombo,combo);
     score+=cfg.pts[1];
-    coinsEarned+=5; sndGood();
+    coinsEarned+=5; sndGood(); if(combo>=2) pkShake();
   } else if(off<0.42){
     cutResult='ok'; combo=0; score+=cfg.pts[2];
     coinsEarned+=2; sndOk();

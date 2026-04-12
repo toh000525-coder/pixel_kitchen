@@ -69,6 +69,16 @@ button { touch-action: manipulation; -webkit-tap-highlight-color: transparent; }
   to   { transform:scale(1); opacity:1; }
 }
 
+/* ── Screen shake (combo) ── */
+@keyframes pkShake {
+  0%,100% { translate: 0 0; }
+  20%     { translate: -6px -3px; }
+  40%     { translate:  6px  3px; }
+  60%     { translate: -4px  2px; }
+  80%     { translate:  4px -2px; }
+}
+.pk-shake { animation: pkShake .35s ease-out; }
+
 /* ── Coin fly animation ── */
 .pk-coin-fly { position:fixed; z-index:99990; font-size:1.3rem; pointer-events:none; animation:pkCoinFly .65s cubic-bezier(.4,0,.8,1) forwards; }
 @keyframes pkCoinFly {

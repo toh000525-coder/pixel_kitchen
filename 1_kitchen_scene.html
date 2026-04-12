@@ -1372,7 +1372,7 @@ function completeDish(){
   if(gCombo>=3) document.getElementById('comboTag').textContent=`🔥 ×${gCombo} COMBO!`;
   speechText=gCombo>=3?rnd(C_COMBO):rnd(C_CORRECT);
   spawnSparkles();
-  if(gCombo>=3) sfxCombo();
+  if(gCombo>=3){ sfxCombo(); pkShake(); }
   sfxDishComplete(isGolden);
   updateHUD();
   // lock all tiles
