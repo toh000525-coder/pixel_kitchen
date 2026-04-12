@@ -287,21 +287,21 @@ canvas { display:block; border:3px solid #6878a0; box-shadow:0 0 18px #2a2a4a; }
             <span class="d-icon">✨</span>
             <div class="d-texts">
               <span class="d-name">APPRENTI</span>
-              <span class="d-info">1 order · 90s · 5 lives · slow</span>
+              <span class="d-info">1 order · 90s · 5 lives · relaxed</span>
             </div>
           </button>
           <button class="d-btn d-medium" id="dCuisinier" onclick="selectDiff('cuisinier')">
             <span class="d-icon">🔥</span>
             <div class="d-texts">
               <span class="d-name">CUISINIER</span>
-              <span class="d-info">2 orders · 75s · 4 lives · medium</span>
+              <span class="d-info">2 orders · 80s · 4 lives · medium</span>
             </div>
           </button>
           <button class="d-btn d-hard" id="dChef" onclick="selectDiff('chef')">
             <span class="d-icon">💥</span>
             <div class="d-texts">
               <span class="d-name">CHEF</span>
-              <span class="d-info">2 orders · 60s · 3 lives · fast</span>
+              <span class="d-info">2 orders · 65s · 3 lives · fast</span>
             </div>
           </button>
         </div>
@@ -433,9 +433,9 @@ const RECIPES = PK_DISHES.map(d => ({
   need: d.items.map(i => i.emoji),
 }));
 const DIFF = {
-  apprenti:  {label:'APPRENTI',  maxOrders:1, time:90,  speed:65,  spawnMin:1.0, spawnMax:1.5, badChance:0.05, lives:5},
-  cuisinier: {label:'CUISINIER', maxOrders:2, time:75,  speed:95,  spawnMin:0.7, spawnMax:1.2, badChance:0.10, lives:4},
-  chef:      {label:'CHEF',      maxOrders:2, time:60,  speed:130, spawnMin:0.5, spawnMax:0.9, badChance:0.15, lives:3},
+  apprenti:  {label:'APPRENTI',  maxOrders:1, time:90,  speed:60,  spawnMin:1.2, spawnMax:1.8, badChance:0.04, lives:5, neededChance:0.65},
+  cuisinier: {label:'CUISINIER', maxOrders:2, time:80,  speed:90,  spawnMin:0.8, spawnMax:1.3, badChance:0.08, lives:4, neededChance:0.52},
+  chef:      {label:'CHEF',      maxOrders:2, time:65,  speed:120, spawnMin:0.5, spawnMax:0.9, badChance:0.12, lives:3, neededChance:0.45},
 };
 
 // ══════════════════════════════════════════
@@ -840,7 +840,7 @@ function spawnItem() {
     });
     const needed = [...neededSet].filter(e => e !== recentSpawns[recentSpawns.length - 1]);
 
-    if (Math.random() < 0.45 && needed.length > 0) {
+    if (Math.random() < cfg.neededChance && needed.length > 0) {
       // Pick a needed ingredient, prefer ones not recently spawned
       const fresh = needed.filter(e => !recentSpawns.includes(e));
       const pool  = fresh.length > 0 ? fresh : needed;
@@ -901,10 +901,10 @@ function clickItem(it, idx) {
   }
 
   if (!grabbed) {
-    gScore = Math.max(0, gScore - 5);
+    gScore = Math.max(0, gScore - 3);
     items.splice(idx, 1);
     sndMiss();
-    spawnEffect(it.x, it.y - 30, '-5 WRONG!', '#e08050');
+    spawnEffect(it.x, it.y - 30, '-3 NOT NEEDED!', '#e08050');
   }
 }
 
