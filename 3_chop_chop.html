@@ -500,8 +500,6 @@ function showPane(id){
 //  GAME FLOW
 // ══════════════════════════════════════════
 function startGame(diff){
-  localStorage.setItem('pkPlays_3',(parseInt(localStorage.getItem('pkPlays_3')||'0')+1));
-  localStorage.setItem('pkLastPlay_3',Date.now());
   diffKey=diff; cfg=DIFFS[diff];
   round=0; score=0; lives=3; combo=0; bestCombo=0; coinsEarned=0; paused=false;
   document.getElementById('pauseMenu').style.display='none';

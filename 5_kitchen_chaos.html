@@ -710,9 +710,6 @@ function drawIdle() {
 function startGame() {
   if (!cfg) return;
   stopIdleCanvas();
-  localStorage.setItem('pkPlays_5',(parseInt(localStorage.getItem('pkPlays_5')||'0')+1));
-  localStorage.setItem('pkLastPlay_5',Date.now());
-
   items       = [];
   orders      = [];
   effects     = [];

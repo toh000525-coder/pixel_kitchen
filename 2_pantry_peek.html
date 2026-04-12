@@ -574,8 +574,6 @@ function quitGame(){ endGame(false); }
 // ══════════════════════════════════════════════
 function startGame(diff){
   if(!localStorage.getItem('pkName')){ location.href='index.html'; return; }
-  localStorage.setItem('pkPlays_2',(parseInt(localStorage.getItem('pkPlays_2')||'0')+1));
-  localStorage.setItem('pkLastPlay_2',Date.now());
   gDiff=diff; gConfig=CONFIGS[diff];
   gTotalPairs=gConfig.pairs; gPairs=0; gScore=0;
   gFirstFlip=null; gLocked=false;

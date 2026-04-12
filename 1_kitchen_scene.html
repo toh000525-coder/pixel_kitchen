@@ -1237,8 +1237,6 @@ function startGame(diff){
 
 function _doStartGame(diff){
   initAudio();
-  localStorage.setItem('pkPlays_1',(parseInt(localStorage.getItem('pkPlays_1')||'0')+1));
-  localStorage.setItem('pkLastPlay_1',Date.now());
   gDiff=diff; gState='playing';
   const cfg=DIFF_CFG[diff];
   timeLeft=cfg.time;

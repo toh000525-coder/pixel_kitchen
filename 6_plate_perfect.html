@@ -437,8 +437,6 @@ function drawIdle(){
 function startGame(){
   if(!cfg)return;
   stopIdleCanvas();
-  localStorage.setItem('pkPlays_6',(parseInt(localStorage.getItem('pkPlays_6')||'0')+1));
-  localStorage.setItem('pkLastPlay_6',Date.now());
   gScore=0;gDishes=0;gLives=cfg.lives;gTime=cfg.time;
   dragging=null;effects=[];paused=false;running=true;_lastTimerBeep=-1;
   makeNextDish();

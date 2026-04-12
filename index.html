@@ -258,7 +258,6 @@ body {
 
 .card-stars { font-size:.34rem; letter-spacing:1px; }
 .card-best  { font-size:.32rem; color:#f5c842; letter-spacing:1px; }
-.card-plays { font-size:.28rem; color:var(--sub); margin-top:3px; letter-spacing:1px; min-height:.8rem; }
 
 .card-tag {
   font-family:'Press Start 2P',monospace;
@@ -559,7 +558,6 @@ body {
         <div class="card-icon">🍳</div>
         <div class="card-name" style="color:var(--gold);">DISH DETECTIVE</div>
         <div class="card-desc">Read emoji clues and tap the right ingredients before time runs out!</div>
-        <div class="card-plays" id="hubPlays_1"></div>
         <div class="card-footer">
           <span class="card-stars" style="color:var(--gold);">★★★</span>
           <span class="card-best" id="hubBest_1"></span>
@@ -572,7 +570,6 @@ body {
         <div class="card-icon">🥕</div>
         <div class="card-name" style="color:var(--blue);">PANTRY PEEK</div>
         <div class="card-desc">Flip cards and match all food pairs before the timer runs out!</div>
-        <div class="card-plays" id="hubPlays_2"></div>
         <div class="card-footer">
           <span class="card-stars" style="color:var(--blue);">★★☆</span>
           <span class="card-best" id="hubBest_2"></span>
@@ -585,7 +582,6 @@ body {
         <div class="card-icon">🔪</div>
         <div class="card-name" style="color:var(--orange);">CHOP CHOP!</div>
         <div class="card-desc">Slice the food at the perfect spot before time runs out!</div>
-        <div class="card-plays" id="hubPlays_3"></div>
         <div class="card-footer">
           <span class="card-stars" style="color:var(--orange);">★★☆</span>
           <span class="card-best" id="hubBest_3"></span>
@@ -598,7 +594,6 @@ body {
         <div class="card-icon">📋</div>
         <div class="card-name" style="color:var(--green);">RECIPE RUSH</div>
         <div class="card-desc">Memorize the recipe steps then cook them in the right order!</div>
-        <div class="card-plays" id="hubPlays_4"></div>
         <div class="card-footer">
           <span class="card-stars" style="color:var(--green);">★★☆</span>
           <span class="card-best" id="hubBest_4"></span>
@@ -611,7 +606,6 @@ body {
         <div class="card-icon">🍽️</div>
         <div class="card-name" style="color:var(--pink);">PLATE PERFECT</div>
         <div class="card-desc">Drag the right ingredients onto the plate to complete each dish!</div>
-        <div class="card-plays" id="hubPlays_6"></div>
         <div class="card-footer">
           <span class="card-stars" style="color:var(--pink);">★★☆</span>
           <span class="card-best" id="hubBest_6"></span>
@@ -624,7 +618,6 @@ body {
         <div class="card-icon">🌶️</div>
         <div class="card-name" style="color:var(--red);">KITCHEN CHAOS</div>
         <div class="card-desc">Grab ingredients flying on the conveyor belt to fill orders before time runs out!</div>
-        <div class="card-plays" id="hubPlays_5"></div>
         <div class="card-footer">
           <span class="card-stars" style="color:var(--red);">★★★</span>
           <span class="card-best" id="hubBest_5"></span>
@@ -757,19 +750,6 @@ function onResize(){
   scaleHub();
   scaleSplash();
 }
-function refreshPlayInfo(){
-  const now=Date.now();
-  [1,2,3,4,5,6].forEach(id=>{
-    const el=document.getElementById('hubPlays_'+id);
-    if(!el) return;
-    const plays=parseInt(localStorage.getItem('pkPlays_'+id)||'0');
-    if(plays===0){ el.textContent=''; return; }
-    const last=parseInt(localStorage.getItem('pkLastPlay_'+id)||'0');
-    const days=Math.floor((now-last)/86400000);
-    const when=days===0?'TODAY':days===1?'YESTERDAY':days+'D AGO';
-    el.textContent=plays+(plays===1?' PLAY':' PLAYS')+' · '+when;
-  });
-}
 function refreshBestScores(){
   const GAMES=[
     {id:1,diffs:['apprenti','cuisinier','chef']},
@@ -790,7 +770,6 @@ document.addEventListener('DOMContentLoaded', ()=>{
   updateHubCoins();
   if(localStorage.getItem('pkName')){ updateHubPlayerName(); }
   refreshBestScores();
-  refreshPlayInfo();
 });
 window.addEventListener('resize', onResize);
 window.addEventListener('orientationchange', ()=>{ setTimeout(onResize, 100); });
