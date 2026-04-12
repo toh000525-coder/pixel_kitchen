@@ -386,6 +386,7 @@ canvas { display:block; }
       <div class="result-score" id="resultScore">0</div>
       <div class="result-sub" id="resultSub"></div>
       <div id="resultCoins" style="font-size:.50rem;color:#a07010;letter-spacing:2px;min-height:1.2rem;"></div>
+      <div id="newBest" style="font-size:.44rem;color:#f5c842;letter-spacing:2px;min-height:1rem;text-align:center;"></div>
       <div class="save-status" id="saveStatus"></div>
       <button class="btn-orange" onclick="replayGame()">▶ PLAY AGAIN</button>
       <button class="btn-gold"   onclick="showLeader()">🏆 LEADERBOARD</button>
@@ -762,6 +763,11 @@ function endGame(){
   localStorage.setItem('pkCoins',prev+coins);
   updateTopbarCoins();
   document.getElementById('resultCoins').textContent=coins>0?`🪙 +${coins} COINS`:'';
+  const bk4='pkBest_4_'+diffKey;
+  const prev4=parseInt(localStorage.getItem(bk4)||'0');
+  const isNew4=gScore>prev4&&gScore>0;
+  if(isNew4) localStorage.setItem(bk4,gScore);
+  document.getElementById('newBest').textContent=isNew4?'★ NEW BEST!':(prev4>0?'BEST: '+prev4:'');
 
   // Hide overlay
   document.getElementById('memCard').classList.add('g-hidden');

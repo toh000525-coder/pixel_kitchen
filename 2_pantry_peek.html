@@ -181,6 +181,7 @@ canvas { display:block; image-rendering:pixelated; image-rendering:crisp-edges; 
         <div style="font-size:2.2rem;" id="resultEmoji">🎉</div>
         <div class="result-score" id="resultScore">0</div>
         <div class="result-sub" id="resultSub"></div>
+        <div id="newBest" style="font-size:.44rem;color:#f5c842;letter-spacing:2px;min-height:1rem;text-align:center;"></div>
         <div class="save-status" id="saveStatus"></div>
         <div style="display:flex;gap:6px;width:100%;margin-bottom:4px;">
           <button class="btn-play-again" style="flex:1;" onclick="showTitle()">▶ PLAY AGAIN</button>
@@ -702,6 +703,11 @@ function endGame(won){
     won ? `All ${gTotalPairs} pairs found!\nDifficulty: ${gDiff.toUpperCase()}`
         : `${gPairs} / ${gTotalPairs} pairs found\nDifficulty: ${gDiff.toUpperCase()}`;
   document.getElementById('saveStatus').textContent='';
+  const bk2='pkBest_2_'+gDiff;
+  const prev2=parseInt(localStorage.getItem(bk2)||'0');
+  const isNew2=gScore>prev2&&gScore>0;
+  if(isNew2) localStorage.setItem(bk2,gScore);
+  document.getElementById('newBest').textContent=isNew2?'★ NEW BEST!':(prev2>0?'BEST: '+prev2:'');
   showPane('paneResult');
 
   won ? sfxWin() : sfxLose();

@@ -258,6 +258,7 @@ canvas { display:block; }
       <div class="result-score" id="resultScore">0</div>
       <div class="result-sub" id="resultSub"></div>
       <div id="resultCoins" style="font-size:.50rem;color:#f5c842;letter-spacing:2px;min-height:1.2rem;"></div>
+      <div id="newBest" style="font-size:.44rem;color:#f5c842;letter-spacing:2px;min-height:1rem;text-align:center;"></div>
       <div class="save-status" id="saveStatus"></div>
       <button class="btn-green" onclick="replayGame()">▶ PLAY AGAIN</button>
       <button class="btn-gold"  onclick="showLeader()">🏆 LEADERBOARD</button>
@@ -542,6 +543,11 @@ function endGame(){
   localStorage.setItem('pkCoins', prevCoins+coinsEarned);
   updateTopbarCoins();
   document.getElementById('resultCoins').textContent=coinsEarned>0?`🪙 +${coinsEarned} COINS`:'';
+  const bk3='pkBest_3_'+diffKey;
+  const prev3=parseInt(localStorage.getItem(bk3)||'0');
+  const isNew3=score>prev3&&score>0;
+  if(isNew3) localStorage.setItem(bk3,score);
+  document.getElementById('newBest').textContent=isNew3?'★ NEW BEST!':(prev3>0?'BEST: '+prev3:'');
   showPane('paneResult');
   submitScore();
 }

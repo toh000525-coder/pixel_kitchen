@@ -279,6 +279,7 @@ canvas { display:block; image-rendering:pixelated; image-rendering:crisp-edges; 
         <div class="result-score-lbl">FINAL SCORE</div>
         <div class="result-score" id="resScore">0</div>
         <div class="result-stats" id="resStats"></div>
+        <div id="newBest" style="font-size:.44rem;color:#f5c842;letter-spacing:2px;min-height:1rem;text-align:center;"></div>
         <div id="saveStatus" style="font-size:0.36rem;color:#50c840;min-height:1rem;"></div>
         <div style="display:flex;gap:6px;width:100%;margin-bottom:4px;">
           <button class="btn-play-again" style="flex:1;" onclick="showTitle()">▶ PLAY AGAIN</button>
@@ -1757,6 +1758,11 @@ endGame = function(){
   _origEndGame();
   const name = localStorage.getItem('pkName') || '';
   document.getElementById('saveStatus').textContent='';
+  const bk='pkBest_1_'+gDiff;
+  const prev=parseInt(localStorage.getItem(bk)||'0');
+  const isNew=gScore>prev&&gScore>0;
+  if(isNew) localStorage.setItem(bk,gScore);
+  document.getElementById('newBest').textContent=isNew?'★ NEW BEST!':(prev>0?'BEST: '+prev:'');
   if(name && gScore>0){ submitScore(name, gScore, gDiff, gCorrect); }
 };
 </script>

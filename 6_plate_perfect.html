@@ -177,6 +177,7 @@ canvas { display:block; border:3px solid #00c8d7; box-shadow:0 0 18px #003a5088;
           <div class="result-score" id="resultScore">0</div>
           <div class="result-sub" id="resultSub"></div>
           <div class="result-coins" id="resultCoins"></div>
+          <div id="newBest" style="font-size:.44rem;color:#f5c842;letter-spacing:2px;min-height:1rem;text-align:center;"></div>
           <div class="save-status" id="saveStatus"></div>
           <button class="btn-silver" onclick="restartGame()">▶ PLAY AGAIN</button>
           <button class="btn-gold"   onclick="showPane('paneLeader')">🏆 LEADERBOARD</button>
@@ -905,6 +906,11 @@ function endGame(){
   document.getElementById('resultSub').textContent=cfg.label+' · '+gDishes+' DISHES';
   document.getElementById('resultScore').textContent=gScore;
   document.getElementById('resultCoins').textContent='🪙 +'+earned+' COINS';
+  const bk6='pkBest_6_'+diffKey;
+  const prev6=parseInt(localStorage.getItem(bk6)||'0');
+  const isNew6=gScore>prev6&&gScore>0;
+  if(isNew6) localStorage.setItem(bk6,gScore);
+  document.getElementById('newBest').textContent=isNew6?'★ NEW BEST!':(prev6>0?'BEST: '+prev6:'');
   document.getElementById('saveStatus').textContent='Saving score...';
   showPane('paneResult'); submitScore();
 }
