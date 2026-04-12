@@ -130,6 +130,26 @@ let _pkQ = [], _pkToasting = false;
 
 function pkShowAchToasts(ids){ _pkQ.push(...ids); if(!_pkToasting) _pkNextToast(); }
 
+// Achievement unlock sound — 4-note ascending arpeggio
+function _pkAchSfx(){
+  if(localStorage.getItem('pkMuted')==='1') return;
+  try{
+    const ac = new (window.AudioContext||window.webkitAudioContext)();
+    const t  = ac.currentTime;
+    [[523,0],[659,.10],[784,.20],[1047,.30]].forEach(([freq,delay])=>{
+      const o=ac.createOscillator(), g=ac.createGain();
+      o.connect(g); g.connect(ac.destination);
+      o.type='square'; o.frequency.value=freq;
+      g.gain.setValueAtTime(0,t+delay);
+      g.gain.linearRampToValueAtTime(0.07,t+delay+0.02);
+      g.gain.setValueAtTime(0.07,t+delay+0.07);
+      g.gain.linearRampToValueAtTime(0,t+delay+0.12);
+      o.start(t+delay); o.stop(t+delay+0.14);
+    });
+    setTimeout(()=>ac.close(),1200);
+  }catch(e){}
+}
+
 function _pkNextToast(){
   if(!_pkQ.length){ _pkToasting=false; return; }
   _pkToasting = true;
@@ -139,6 +159,7 @@ function _pkNextToast(){
 
   let toast = document.getElementById('pkAchToast');
   if(!toast){ _pkToasting=false; return; }
+  _pkAchSfx();
 
   document.getElementById('pkAchToastEmoji').textContent = ach.emoji;
   document.getElementById('pkAchToastName').textContent  = ach.name;
