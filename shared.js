@@ -60,6 +60,15 @@ function pkCoinBurst(amount){
   }
 }
 
+// Stat tracking helpers — add to a cumulative counter, or keep the highest value
+function pkStatAdd(key, val=1){
+  localStorage.setItem(key, (parseInt(localStorage.getItem(key))||0) + val);
+}
+function pkStatMax(key, val){
+  const cur = parseInt(localStorage.getItem(key))||0;
+  if(val > cur) localStorage.setItem(key, val);
+}
+
 // Haptic feedback — respects devices that don't support vibrate
 function pkVibrate(type){
   if(!navigator.vibrate) return;

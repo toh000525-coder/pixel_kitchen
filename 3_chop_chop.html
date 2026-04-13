@@ -522,6 +522,7 @@ function startGame(diff){
   document.querySelector(`.d-btn[onclick*="'${diff}'"]`)?.classList.add('active');
   diffKey=diff; cfg=DIFFS[diff];
   round=0; score=0; lives=3; combo=0; bestCombo=0; coinsEarned=0; paused=false;
+  pkStatAdd('pkPlays_3'); window._pkT0=Date.now();
   document.getElementById('pauseMenu').style.display='none';
   showPane('paneGame');
   stopBGMusic(); startBGMusic();
@@ -572,6 +573,7 @@ function endGame(){
   if(isNew3) localStorage.setItem(bk3,score);
   document.getElementById('newBest').textContent=isNew3?'★ NEW BEST!':(prev3>0?'BEST: '+prev3:'');
   pkRecordGame({gameId:3,stars:pct>=0.9?3:pct>=0.65?2:1,hardest:diffKey==='hard'});
+  pkStatAdd('pkCoinsEarned',coinsEarned); pkStatMax('pkBestScore_3',score); pkStatMax('pkMaxCombo',bestCombo); pkStatAdd('pkPlayTime_3',Math.max(1,Math.round((Date.now()-window._pkT0)/60000)));
   showPane('paneResult');
   animGrade(document.getElementById('resultGrade'));
   animCount(document.getElementById('resultScore'),score,800);

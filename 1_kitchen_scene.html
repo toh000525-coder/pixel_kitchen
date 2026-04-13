@@ -1252,6 +1252,7 @@ function _doStartGame(diff){
   const cfg=DIFF_CFG[diff];
   timeLeft=cfg.time;
   gScore=0; gDishIdx=0; gCombo=0; gBestCombo=0; gCorrect=0; lastTimerBeep=-1;
+  pkStatAdd('pkPlays_1'); window._pkT0=Date.now();
   gDishes=shuffleArr([...DISHES]).slice(0,10);
   gGolden=new Set(shuffleArr([0,1,2,3,4,5,6,7,8,9]).slice(0,2));
   resetKitchen(); intense=false; boiling=false; stageText=''; vegsOn=true;
@@ -1433,6 +1434,7 @@ function showCelebration(icon, title, score, msg){
     const _s1=_p1>=0.9?3:_p1>=0.7?2:1;
     const _c1=_s1===3?30:_s1===2?15:5;
     localStorage.setItem('pkCoins',(parseInt(localStorage.getItem('pkCoins')||'0')+_c1));
+    pkStatAdd('pkCoinsEarned',_c1); pkStatMax('pkBestScore_1',gScore); pkStatMax('pkMaxCombo',gBestCombo); pkStatAdd('pkPlayTime_1',Math.max(1,Math.round((Date.now()-window._pkT0)/60000)));
     pkShowResultStars(_s1);
     setTimeout(()=>pkCoinBurst(_c1), 900);
   };

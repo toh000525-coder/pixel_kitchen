@@ -742,6 +742,7 @@ function startGame() {
   gTime   = cfg.time;
   paused  = false;
   running = true;
+  pkStatAdd('pkPlays_5'); window._pkT0=Date.now();
   _lastTimerBeep = -1;
 
   for (let i = 0; i < cfg.maxOrders; i++) orders.push(makeOrder());
@@ -1221,6 +1222,7 @@ function endGame() {
 
   const _s5=diffKey==='chef'?(gServed>=6?3:gServed>=3?2:1):diffKey==='cuisinier'?(gServed>=7?3:gServed>=4?2:1):(gServed>=8?3:gServed>=4?2:1);
   pkRecordGame({gameId:5,stars:_s5,hardest:diffKey==='chef'});
+  pkStatAdd('pkCoinsEarned',earned); pkStatMax('pkBestScore_5',gScore); pkStatAdd('pkPlayTime_5',Math.max(1,Math.round((Date.now()-window._pkT0)/60000)));
   showPane('paneResult');
   animGrade(document.getElementById('resultGrade'));
   animCount(document.getElementById('resultScore'),gScore,800);

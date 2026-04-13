@@ -558,6 +558,7 @@ function startGame(diff){
   diffKey=diff;
   cfg=DIFF[diff];
   round=0; gScore=0; lives=3; maxRounds=cfg.rounds;
+  pkStatAdd('pkPlays_4'); window._pkT0=Date.now();
   paused=false;
   document.getElementById('pauseMenu').style.display='none';
   stopIdleCanvas();
@@ -788,6 +789,7 @@ function endGame(){
   document.getElementById('badgeCook').classList.remove('show');
 
   const _p4=gScore/(maxRounds*350); pkRecordGame({gameId:4,stars:_p4>=0.8?3:_p4>=0.55?2:1,hardest:diffKey==='chef'});
+  pkStatAdd('pkCoinsEarned',coins); pkStatMax('pkBestScore_4',gScore); pkStatAdd('pkPlayTime_4',Math.max(1,Math.round((Date.now()-window._pkT0)/60000)));
   showPane('paneResult');
   animGrade(document.getElementById('resultGrade'));
   animCount(document.getElementById('resultScore'),gScore,800);
