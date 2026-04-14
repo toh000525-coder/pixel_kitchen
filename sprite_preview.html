@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pixel Sprite Preview</title>
+<script src="sprites.js"></script>
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+body { background:#1a1020; font-family:'Press Start 2P',monospace; color:#f5c842; }
+@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+h1 { text-align:center; padding:24px; font-size:14px; letter-spacing:3px;
+     text-shadow:2px 2px #8b3a00, 0 0 20px #f5a700; }
+.grid { display:flex; flex-wrap:wrap; justify-content:center; gap:16px; padding:0 24px 32px; }
+.cell { display:flex; flex-direction:column; align-items:center; gap:8px; }
+canvas { image-rendering:pixelated; border:1px solid #3a2050; background:#110d00; }
+.label { font-size:7px; color:#7a5a8a; letter-spacing:1px; }
+</style>
+</head>
+<body>
+<h1>★ PIXEL SPRITES ★</h1>
+<div class="grid" id="grid"></div>
+<script>
+const ITEMS = [
+  {e:'🥕',n:'CARROT'}, {e:'🍅',n:'TOMATO'}, {e:'🥦',n:'BROCCOLI'}, {e:'🍄',n:'MUSHROOM'},
+  {e:'🌽',n:'CORN'}, {e:'🌶️',n:'CHILI'}, {e:'🥬',n:'LETTUCE'}, {e:'🧅',n:'ONION'},
+  {e:'🥚',n:'EGG'}, {e:'🍳',n:'FRIED EGG'}, {e:'🥩',n:'BEEF'}, {e:'🍗',n:'CHICKEN'},
+  {e:'🦐',n:'SHRIMP'}, {e:'🥓',n:'BACON'}, {e:'🧄',n:'GARLIC'}, {e:'🫑',n:'BELL PEPPER'},
+  {e:'🍠',n:'SWEET POTATO'}, {e:'🧀',n:'CHEESE'}, {e:'🍞',n:'BREAD'}, {e:'🧈',n:'BUTTER'},
+  {e:'🫒',n:'OLIVE'}, {e:'🥟',n:'DUMPLING'},
+];
+
+const SIZE = 72; // same size as in-game
+const grid = document.getElementById('grid');
+
+ITEMS.forEach(({e,n}) => {
+  const cell = document.createElement('div');
+  cell.className = 'cell';
+
+  const cv = document.createElement('canvas');
+  cv.width = SIZE + 8;
+  cv.height = SIZE + 8;
+  const ctx = cv.getContext('2d');
+  drawPixelSprite(ctx, e, (SIZE+8)/2, (SIZE+8)/2, SIZE);
+
+  const label = document.createElement('div');
+  label.className = 'label';
+  label.textContent = n;
+
+  cell.appendChild(cv);
+  cell.appendChild(label);
+  grid.appendChild(cell);
+});
+</script>
+</body>
+</html>
