@@ -524,35 +524,38 @@ function initImageSprites(callback){
     if(callback) callback();
     return;
   }
-  const img = new Image();
-  img.onload = function(){
-    PK_SPRITE_IMAGE = img;
-    PK_SPRITE_IMAGE_READY = true;
-    console.log('✓ Sprite grid image loaded');
-    if(callback) callback();
-  };
-  img.onerror = function(){
-    console.error('✗ Failed to load sprite grid image from:', img.src);
-    PK_SPRITE_IMAGE = null;
-    PK_SPRITE_IMAGE_READY = false;
-    if(callback) callback();
-  };
-  // Try multiple paths: relative, root, and current directory
+
   const paths = ['./assets/food-sprites.png', '/assets/food-sprites.png', 'assets/food-sprites.png'];
-  const tryNext = (index) => {
+  let currentIndex = 0;
+
+  function tryLoad(index){
     if(index >= paths.length){
-      console.error('✗ All sprite grid paths failed');
+      console.error('✗ All sprite grid image paths failed');
+      PK_SPRITE_IMAGE = null;
       PK_SPRITE_IMAGE_READY = false;
       if(callback) callback();
       return;
     }
-    img.src = paths[index];
-    img.onerror = function(){
-      console.warn(`✗ Sprite load failed: ${paths[index]}`);
-      tryNext(index + 1);
+
+    const img = new Image();
+    const path = paths[index];
+
+    img.onload = function(){
+      PK_SPRITE_IMAGE = img;
+      PK_SPRITE_IMAGE_READY = true;
+      console.log('✓ Sprite grid image loaded from:', path);
+      if(callback) callback();
     };
-  };
-  tryNext(0);
+
+    img.onerror = function(){
+      console.warn(`✗ Failed to load from ${path}, trying next...`);
+      tryLoad(index + 1);
+    };
+
+    img.src = path;
+  }
+
+  tryLoad(0);
 }
 
 function drawSpriteFromGrid(ctx, emoji, cx, cy, size){
