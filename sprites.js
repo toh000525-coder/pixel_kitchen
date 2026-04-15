@@ -584,16 +584,12 @@ function drawSpriteFromGrid(ctx, emoji, cx, cy, size){
 
 // Public API
 function drawPixelSprite(ctx, emoji, cx, cy, size){
-  // Auto-initialize grid image on first draw if not already done
-  if(!PK_SPRITE_IMAGE_READY && typeof PK_SPRITE_INIT_STARTED === 'undefined') {
-    window.PK_SPRITE_INIT_STARTED = true;
-    initImageSprites();
-  }
+  // TEMPORARILY DISABLED: Grid image loading (causing performance issues)
+  // Grid image will be re-enabled once loading issues are resolved
 
-  // Try grid image first
-  if(PK_SPRITE_IMAGE_READY && drawSpriteFromGrid(ctx, emoji, cx, cy, size)) {
-    return;
-  }
+  // if(PK_SPRITE_IMAGE_READY && drawSpriteFromGrid(ctx, emoji, cx, cy, size)) {
+  //   return;
+  // }
 
   // Fallback to hand-drawn pixel art
   const fn = PK_SPRITES[emoji];
@@ -607,19 +603,5 @@ function drawPixelSprite(ctx, emoji, cx, cy, size){
     ctx.textBaseline = 'middle';
     ctx.fillText(emoji, cx, cy);
     ctx.restore();
-  }
-}
-
-// Also try to initialize immediately when script loads
-if(document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', () => {
-    if(typeof initImageSprites === 'function') {
-      initImageSprites();
-    }
-  });
-} else {
-  // If script loaded after DOMContentLoaded, initialize now
-  if(typeof initImageSprites === 'function') {
-    initImageSprites();
   }
 }
