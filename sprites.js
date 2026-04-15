@@ -528,14 +528,31 @@ function initImageSprites(callback){
   img.onload = function(){
     PK_SPRITE_IMAGE = img;
     PK_SPRITE_IMAGE_READY = true;
+    console.log('✓ Sprite grid image loaded');
     if(callback) callback();
   };
   img.onerror = function(){
-    console.warn('Failed to load sprite grid image');
+    console.error('✗ Failed to load sprite grid image from:', img.src);
+    PK_SPRITE_IMAGE = null;
     PK_SPRITE_IMAGE_READY = false;
     if(callback) callback();
   };
-  img.src = 'assets/food-sprites.png';
+  // Try multiple paths: relative, root, and current directory
+  const paths = ['./assets/food-sprites.png', '/assets/food-sprites.png', 'assets/food-sprites.png'];
+  const tryNext = (index) => {
+    if(index >= paths.length){
+      console.error('✗ All sprite grid paths failed');
+      PK_SPRITE_IMAGE_READY = false;
+      if(callback) callback();
+      return;
+    }
+    img.src = paths[index];
+    img.onerror = function(){
+      console.warn(`✗ Sprite load failed: ${paths[index]}`);
+      tryNext(index + 1);
+    };
+  };
+  tryNext(0);
 }
 
 function drawSpriteFromGrid(ctx, emoji, cx, cy, size){
