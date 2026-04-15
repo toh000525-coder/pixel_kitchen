@@ -465,13 +465,116 @@ reg('🥟',{k:'#1e1511',a:'#483a30',b:'#847e70',c:'#b0aa9b',d:'#d6d0c2',e:'#f7f1
 
 })();
 
+// ── Image grid loading (960×1120, 6 cols × 7 rows, 160px per cell) ────────
+let PK_SPRITE_IMAGE = null;
+let PK_SPRITE_IMAGE_READY = false;
+
+const PK_SPRITE_GRID_INDEX = {
+  // Row 1 (0-5)
+  '🥩': 0,   // Beef
+  '🍗': 1,   // Chicken
+  '🦐': 2,   // Shrimp
+  '🥚': 3,   // Egg
+  '🍳': 4,   // Fried Egg
+  '🥓': 5,   // Bacon
+  // Row 2 (6-11)
+  '🥬': 6,   // Lettuce
+  '🍅': 7,   // Tomato
+  '🧅': 8,   // Onion
+  '🥕': 9,   // Carrot
+  '🌶️': 10,  // Chili
+  '🧄': 11,  // Garlic
+  // Row 3 (12-17)
+  '🥦': 12,  // Broccoli
+  '🍄': 13,  // Mushroom
+  '🫑': 14,  // Bell Pepper
+  '🌽': 15,  // Corn
+  '🍠': 16,  // Sweet Potato
+  '🧀': 17,  // Cheese
+  // Row 4 (18-23)
+  '🧈': 18,  // Butter
+  '🍞': 19,  // Bread
+  '🫒': 20,  // Olive
+  '🥟': 21,  // Dumpling
+  // Row 5 (24-29) — Future items
+  '🍎': 22,  // Apple
+  '🍊': 23,  // Orange
+  '🍌': 24,  // Banana
+  '🍇': 25,  // Grapes
+  '🍓': 26,  // Strawberry
+  '🍉': 27,  // Watermelon
+  // Row 6 (30-35)
+  '🐟': 28,  // Fish
+  '🦀': 29,  // Crab
+  '🥛': 30,  // Milk
+  '🧋': 31,  // Yogurt (using bubble tea emoji as stand-in)
+  '🍚': 32,  // Rice
+  '🍜': 33,  // Noodles
+  // Row 7 (36-41)
+  '🫛': 34,  // Peas
+  '🫘': 35,  // Black Beans
+  '🥜': 36,  // Peanuts
+  '🍯': 37,  // Honey
+  '🧂': 38,  // Salt
+  '🍫': 39,  // Chocolate
+};
+
+function initImageSprites(callback){
+  if(PK_SPRITE_IMAGE_READY){
+    if(callback) callback();
+    return;
+  }
+  const img = new Image();
+  img.onload = function(){
+    PK_SPRITE_IMAGE = img;
+    PK_SPRITE_IMAGE_READY = true;
+    if(callback) callback();
+  };
+  img.onerror = function(){
+    console.warn('Failed to load sprite grid image');
+    PK_SPRITE_IMAGE_READY = false;
+    if(callback) callback();
+  };
+  img.src = 'assets/food-sprites.png';
+}
+
+function drawSpriteFromGrid(ctx, emoji, cx, cy, size){
+  if(!PK_SPRITE_IMAGE_READY || !PK_SPRITE_IMAGE) return false;
+
+  const gridIndex = PK_SPRITE_GRID_INDEX[emoji];
+  if(gridIndex === undefined) return false;
+
+  const cols = 6;
+  const cellSize = 160;
+  const gridCol = gridIndex % cols;
+  const gridRow = Math.floor(gridIndex / cols);
+
+  const sx = gridCol * cellSize;
+  const sy = gridRow * cellSize;
+
+  ctx.save();
+  ctx.translate(cx, cy);
+  ctx.scale(size / cellSize, size / cellSize);
+  ctx.translate(-cellSize / 2, -cellSize / 2);
+  ctx.drawImage(PK_SPRITE_IMAGE, sx, sy, cellSize, cellSize, 0, 0, cellSize, cellSize);
+  ctx.restore();
+
+  return true;
+}
+
 // Public API
 function drawPixelSprite(ctx, emoji, cx, cy, size){
+  // Try grid image first
+  if(PK_SPRITE_IMAGE_READY && drawSpriteFromGrid(ctx, emoji, cx, cy, size)) {
+    return;
+  }
+
+  // Fallback to hand-drawn pixel art
   const fn = PK_SPRITES[emoji];
   if(fn){
     fn(ctx, cx, cy, size);
   } else {
-    // Fallback: system emoji
+    // Final fallback: system emoji
     ctx.save();
     ctx.font = `${Math.round(size * 0.82)}px serif`;
     ctx.textAlign = 'center';

@@ -124,6 +124,11 @@ document.addEventListener('DOMContentLoaded', ()=>{
   b.textContent = '📡 NO CONNECTION — LEADERBOARDS UNAVAILABLE';
   document.body.appendChild(b);
   if(!navigator.onLine) _pkSetOffline(true);
+
+  // Load sprite grid image if available
+  if(typeof initImageSprites === 'function') {
+    initImageSprites();
+  }
 });
 window.addEventListener('offline', ()=> _pkSetOffline(true));
 window.addEventListener('online',  ()=> _pkSetOffline(false));
