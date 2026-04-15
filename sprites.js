@@ -22,504 +22,445 @@ function reg(emoji, pal, rows){
   };
 }
 
-// ── CARROT 🥕 ─────────────────────────────────────────────
-reg('🥕',{
-  k:'#0d0400', a:'#194d06', b:'#3a8c14', c:'#60cc28',
-  D:'#b85200', E:'#e87800', F:'#ffaa44',
-},[
-  '........k.......',
-  '.....kakak......',
-  '....kbbcbbk.....',
-  '.....kbbbk......',
-  '......kbk.......',
-  '.....kFFEk......',
-  '....kFFEEDk.....',
-  '....kFFEEDk.....',
-  '.....kFEEDk.....',
-  '.....kFEDDk.....',
-  '......kEDk......',
-  '......kEDk......',
-  '.......kDk......',
-  '.......kDk......',
-  '........k.......',
+// ── BEEF 🥩 ───────────────────────────────────────────────────
+reg('🥩',{k:'#221415',a:'#511b22',b:'#892534',c:'#c43b4d',d:'#f9a9ba',e:'#ddc9a2',},[
+  '................',
+  '..kkkkkkk.......',
+  '.kaaaaaaakk.....',
+  '.kabbcbbcbbk....',
+  '.kaccccccccbk...',
+  '.kbcddeededdk...',
+  '.kbceeeededdbk..',
+  '.kbcddeededdbk..',
+  '.kaeeeceededdbk.',
+  '.kaeeeceedeeddbk',
+  '.kaeeeceeededdbk',
+  '.kaeeeeeeeeeedbk',
+  '.kaeeeeeceedeedk',
+  '.kbbbbbbbbbbbbk.',
+  '..kkkkkkkkkkkk..',
   '................',
 ]);
 
-// ── TOMATO 🍅 ─────────────────────────────────────────────
-reg('🍅',{
-  k:'#0d0000', a:'#1a4a06', b:'#3a8810', c:'#5ec422',
-  R:'#8b0000', S:'#cc1100', T:'#ff3322', U:'#ff7766',
-},[
-  '.......k........',
-  '......kbk.......',
-  '.....kbbck......',
-  '......kbk.......',
-  '....kSSSSSk.....',
-  '...kSTTTTTSk....',
-  '..kSTUTTTTSSk...',
-  '..kSTUTTTTSSk...',
-  '..kSSTTTTTSk....',
-  '..kSSSTTTSk.....',
-  '...kSSSSSk......',
-  '....kSSSk.......',
-  '.....kSSk.......',
-  '......kk........',
+// ── CHICKEN 🍗 ────────────────────────────────────────────────
+reg('🍗',{k:'#221415',a:'#321c17',b:'#5e3223',c:'#8d583e',d:'#b87c5e',e:'#ecc693',f:'#ffffff',},[
+  '................',
+  '......kkk.......',
+  '....kkccckk.....',
+  '...kaddddeek....',
+  '..kadeeeefek....',
+  '..kaeeeeeeeek...',
+  '..kceeeeeeek....',
+  '..kceeeeeeek....',
+  '...kceeeeeek....',
+  '....kddeekkk....',
+  '.....kkkdkkbk...',
+  '.......kdkbkk...',
+  '......kkbkk.....',
+  '......kkk.......',
   '................',
   '................',
 ]);
 
-// ── BROCCOLI 🥦 ───────────────────────────────────────────
-reg('🥦',{
-  k:'#0a1a02', b:'#2d6612', c:'#4a9e22', d:'#66cc33',
-  S:'#3a4a10', T:'#5a7a20',
-},[
-  '................',
-  '....kddddk......',
-  '...kdddddddk....',
-  '...kdcddcdk.....',
-  '..kddkdddkddk...',
-  '..kddddddddddk..',
-  '...kddkddkddk...',
-  '....kkTTTkk.....',
-  '.....kTTTTk.....',
-  '......kTTk......',
-  '......kTTk......',
-  '......kTTk......',
-  '.......kTk......',
-  '.......kk.......',
+// ── SHRIMP 🦐 ─────────────────────────────────────────────────
+reg('🦐',{k:'#130b0b',a:'#3c1a21',b:'#772c2f',c:'#b24740',d:'#eb7a5b',e:'#ffd3a3',},[
+  '....kk..........',
+  '..kkaakk........',
+  '..kbcbcckkkk....',
+  '...kbccddeeekk..',
+  '...kbceeeeeeedk.',
+  '..kbceeeeeddedk.',
+  '..kbceeeeeeedk..',
+  '...kbceeeeeekk..',
+  '...kbccdddeek...',
+  '..kbccccckk.....',
+  '..kaaacckk......',
+  '..kcccbbaak.....',
+  '..kcacckk.......',
+  '..kkk...........',
   '................',
   '................',
 ]);
 
-// ── MUSHROOM 🍄 ───────────────────────────────────────────
-reg('🍄',{
-  k:'#0d0500', b:'#8b3200', c:'#cc5500', d:'#e87a22',
-  W:'#f0e8d0', X:'#c8b890', Y:'#a09070',
-},[
+// ── EGG 🥚 ────────────────────────────────────────────────────
+reg('🥚',{k:'#1e1511',a:'#483a30',b:'#847e70',c:'#b0aa9b',d:'#d6d0c2',e:'#f7f1e6',f:'#ffffff',},[
   '................',
-  '.....kcccck.....',
-  '...kccbbbcck....',
-  '..kccdbbbbbcck..',
-  '..kccdbbbbbcck..',
-  '..kcccbbbbbcck..',
-  '..kccccccccck...',
-  '.....kWWWk......',
-  '....kWWWWWk.....',
-  '....kWXWWWk.....',
-  '.....kWWWk......',
-  '.....kYYYk......',
-  '....kYYYYYk.....',
-  '.....kYYYk......',
-  '................',
-  '................',
-]);
-
-// ── CORN 🌽 ───────────────────────────────────────────────
-reg('🌽',{
-  k:'#0d0800', a:'#1a4a06', b:'#2d7a14', c:'#5ec422',
-  Y:'#8b6600', Z:'#e8c000', W:'#ffdc3a', X:'#fff488',
-},[
-  '......kck.......',
-  '.....kccck......',
-  '....kcbbcck.....',
-  '...kcbbbccck....',
-  '...kZWXWZWZk....',
-  '..kZXWWZZWWZk...',
-  '..kZXWWZZWWZk...',
-  '..kZZWWZZWWZk...',
-  '..kZZWWZZWWZk...',
-  '..kZZZZZZZZZk...',
-  '...kZZZZZZZk....',
-  '....kZZZZZk.....',
-  '.....kYYYk......',
-  '......kYk.......',
-  '................',
-  '................',
-]);
-
-// ── CHILI 🌶️ ──────────────────────────────────────────────
-reg('🌶️',{
-  k:'#0d0000', a:'#1a4a06', b:'#3a8810',
-  R:'#6b0000', S:'#aa0000', T:'#dd2200', U:'#ff4422', V:'#ff8877',
-},[
-  '....kbk.........',
-  '....kbk.........',
-  '.....kak........',
-  '......kTTk......',
-  '.....kTUTTk.....',
-  '....kTUVTTTk....',
-  '....kTUVTTTk....',
-  '.....kTTTTk.....',
-  '.....kSTTSk.....',
-  '......kSSk......',
-  '......kSSk......',
-  '.......kSk......',
-  '.......kRk......',
-  '........k.......',
-  '................',
-  '................',
-]);
-
-// ── LETTUCE 🥬 ────────────────────────────────────────────
-reg('🥬',{
-  k:'#081a02', a:'#1a4208', b:'#2d7014', c:'#48a822', d:'#6acc33', e:'#8aee55',
-},[
-  '................',
-  '.....kdddddk....',
-  '...kdddddddddk..',
-  '..kdddcdddddddk.',
-  '..kdddcccdddddk.',
-  '.kddddcddcdddddk',
-  '.kdddddddddddddk',
-  '.kdddddddddddddk',
-  '..kdddddddddddk.',
-  '..kdddddddddddk.',
-  '...kddddddddddk.',
-  '....kbdddddbk...',
-  '.....kbbbbk.....',
-  '......kbbk......',
-  '................',
-  '................',
-]);
-
-// ── ONION 🧅 ──────────────────────────────────────────────
-reg('🧅',{
-  k:'#0d0800', b:'#7a4010', c:'#c87830', d:'#e8a855', e:'#f5cc88',
-  L:'#f0eecc', M:'#c8c690',
-},[
-  '................',
-  '.....kdek.......',
-  '....kdeeeekk....',
-  '...kdeeeeLMdk...',
-  '..kdeLLLMLMddk..',
-  '..kdedLLMLLddk..',
-  '..kdedLMLLLddk..',
-  '..kdecddLLddck..',
-  '..kdecddddddck..',
-  '..kdecccddcck...',
-  '...kdcccccck....',
-  '....kdcccck.....',
-  '....kbcbbk......',
-  '.....kbbk.......',
-  '......kk........',
-  '................',
-]);
-
-// ── EGG 🥚 ────────────────────────────────────────────────
-reg('🥚',{
-  k:'#0d0a00', W:'#f5f0e0', X:'#ddd8c0', Y:'#b8b090',
-},[
-  '................',
-  '......kWk.......',
-  '....kWWWWk......',
-  '...kWXWWWWk.....',
-  '..kWXWWWWWWk....',
-  '..kWWWWWWWWk....',
-  '..kWWWWWWWXk....',
-  '..kWWWWWWXYk....',
-  '..kXWWWWXYYk....',
-  '..kXXWWXYYYk....',
-  '...kXXXYYYk.....',
-  '....kXXYYk......',
-  '.....kXYk.......',
-  '......kk........',
-  '................',
-  '................',
-]);
-
-// ── FRIED EGG 🍳 ──────────────────────────────────────────
-reg('🍳',{
-  k:'#0d0a00', W:'#f5f0e0', X:'#ddd8c0',
-  Y:'#cc9900', Z:'#ffcc00', V:'#ffee88',
-},[
-  '................',
-  '................',
-  '...kXXXXXXk.....',
-  '..kXWWWWWWXk....',
-  '..kXWWZZWWXk....',
-  '..kXWZVVZWXk....',
-  '..kXWZVVZWXk....',
-  '..kXWWZZWWXk....',
-  '..kXWWWWWWXk....',
-  '...kXXWWXXk.....',
-  '....kXXXXk......',
-  '................',
-  '................',
-  '................',
-  '................',
-  '................',
-]);
-
-// ── BEEF 🥩 ───────────────────────────────────────────────
-reg('🥩',{
-  k:'#0d0000', b:'#8b1818', c:'#cc2828', d:'#ee4444',
-  W:'#f0e0d0', X:'#c8a890',
-},[
-  '................',
-  '..kbbk.....kbbk.',
-  '..kccbbkkbbcck..',
-  '..kccccccccck...',
-  '...kcdddddcck...',
-  '...kcddeeddck...',
-  '...kcddeeddck...',
-  '...kWXddddck....',
-  '...kWXddddck....',
-  '....kXXdddck....',
-  '....kXXddck.....',
-  '.....kXXkbk.....',
-  '.....kbbbbk.....',
-  '......kbbk......',
-  '................',
-  '................',
-]);
-
-// ── CHICKEN 🍗 ────────────────────────────────────────────
-reg('🍗',{
-  k:'#0d0500', b:'#8b5000', c:'#cc8822', d:'#e8aa44', e:'#f5cc88',
-  W:'#f0f0f0', X:'#d0d0d0',
-},[
-  '................',
-  '....kWWk........',
-  '...kWWWWk.......',
-  '...kXWWWk.......',
-  '....kXXk........',
-  '.....kek........',
-  '....keeek.......',
-  '...keeeeeek.....',
-  '...kedddeek.....',
-  '...kedddeek.....',
-  '....keddek......',
-  '....kcddck......',
-  '.....kbbk.......',
-  '......kk........',
-  '................',
-  '................',
-]);
-
-// ── SHRIMP 🦐 ─────────────────────────────────────────────
-reg('🦐',{
-  k:'#0d0000', b:'#8b3030', c:'#cc5544', d:'#ee8877', e:'#ffbbaa',
-  W:'#f0e0d0',
-},[
-  '........kck.....',
-  '.......kcdck....',
-  '......kcdddck...',
-  '.....kcdddddck..',
-  '....kcddddddck..',
-  '...kcdddddddck..',
-  '..kcdddddddck...',
-  '..kcdddddcck....',
-  '...kcdddck......',
-  '....kcdck.......',
-  '.....kck........',
-  '....kWWk........',
-  '...kWWWk........',
-  '....kWk.........',
-  '................',
-  '................',
-]);
-
-// ── BACON 🥓 ──────────────────────────────────────────────
-reg('🥓',{
-  k:'#0d0000', P:'#cc4466', Q:'#ee6688', R:'#ff99aa',
-  W:'#f5e0cc', X:'#e0c0a0',
-},[
-  '................',
-  '..kPPQQRRWWXk...',
-  '..kPQQRRWWXXk...',
-  '..kQQRRWWXXXk...',
-  '..kPPQQRRWWXk...',
-  '..kPQQRRWWXXk...',
-  '..kQQRRWWXXXk...',
-  '..kPPQQRRWWXk...',
-  '..kPQQRRWWXXk...',
-  '..kQQRRWWXXXk...',
-  '..kPPQQRRWWXk...',
-  '..kPQQRRWWXXk...',
-  '..kQQRRWWXXXk...',
-  '...kkkkkkkkkk...',
-  '................',
-  '................',
-]);
-
-// ── GARLIC 🧄 ─────────────────────────────────────────────
-reg('🧄',{
-  k:'#0d0a0d', b:'#5a3a6a', c:'#9a8aaa',
-  W:'#f0eef0', X:'#d0ccd8', Y:'#b0a8c0', G:'#3a7010',
-},[
-  '................',
-  '.......kGk......',
-  '......kGGk......',
-  '......kGGk......',
-  '.....kWWWWk.....',
-  '....kWXWWXWk....',
-  '...kWXWbWXWWk...',
-  '...kWXbbbXWk....',
-  '...kWXbbbXWk....',
-  '...kWWXbXWWk....',
-  '....kWXXXWk.....',
-  '....kWWWWWk.....',
-  '.....kXXXk......',
-  '......kYk.......',
-  '.......kk.......',
-  '................',
-]);
-
-// ── BELL PEPPER 🫑 ────────────────────────────────────────
-reg('🫑',{
-  k:'#0a1a02', b:'#2d7a14', c:'#44aa22', d:'#66cc33', e:'#88ee55',
-  S:'#3a6610',
-},[
-  '......kSk.......',
-  '.....kSSk.......',
-  '...kSddSk.......',
-  '...kdddddk......',
-  '..kdeeeddddk....',
-  '.kdeeedddddddk..',
-  '.kdeeedddddddk..',
-  '.kdeeeddddddk...',
-  '.kdddddddddk....',
-  '.kddddddddddk...',
-  '..kdddddddddk...',
-  '...kdddddddk....',
-  '....kddddddk....',
-  '.....kddddak....',
+  '.....kkkkkk.....',
+  '...kkedededkk...',
+  '..kdedfffffekk..',
+  '..keffffffefek..',
+  '..kffffffffffee.',
+  '..kfffffffffefe.',
+  '..kfffffffffffk.',
+  '..kfffffffffffk.',
+  '..kfffffffffffk.',
+  '..kfffffffffffk.',
+  '..kefffffffffek.',
+  '...kffffffffk...',
+  '....kkeddedkk...',
   '......kkkkk.....',
   '................',
 ]);
 
-// ── SWEET POTATO 🍠 ───────────────────────────────────────
-reg('🍠',{
-  k:'#0d0500', b:'#8b2a00', c:'#cc5500', d:'#e87a22', e:'#f5aa66',
-  G:'#2d6610',
-},[
+// ── FRIED EGG 🍳 ──────────────────────────────────────────────
+reg('🍳',{k:'#211815',a:'#2d211a',b:'#544c45',c:'#777169',d:'#9c988f',e:'#fcf8ee',f:'#f8961d',g:'#fcc145',h:'#fee879',},[
   '................',
-  '......kGk.......',
-  '.....kGGk.......',
-  '....kGGGk.......',
-  '....keeedddk....',
-  '...keeeedddddk..',
-  '..keeeeeddddddk.',
-  '..keeeeedddddk..',
-  '..keeeddddddk...',
-  '..keeddddddk....',
-  '...kedddddk.....',
-  '....kedddk......',
-  '.....kddk.......',
-  '......kk........',
+  '....kkkkkkkk....',
+  '..kkeeefeeeeek..',
+  '..keehgggfeeee..',
+  '..kefghhhgffek..',
+  '..kefghhhgffek..',
+  '..keehgggfeeee..',
+  '..kbeefefefffbk.',
+  '..kcbbbbbbbbcbk.',
+  '..kkccccccccccc.',
+  '....kdddddddddd.',
+  '.....kkbbbbbbb..',
+  '.......kaaaaa...',
+  '........kkkk....',
   '................',
   '................',
 ]);
 
-// ── CHEESE 🧀 ─────────────────────────────────────────────
-reg('🧀',{
-  k:'#0d0800', H:'#cc9900', Z:'#e8c000', W:'#ffdc3a', X:'#fff488',
-},[
+// ── BACON 🥓 ──────────────────────────────────────────────────
+reg('🥓',{k:'#261817',a:'#492622',b:'#803831',c:'#b15549',d:'#dc7e71',e:'#a37267',f:'#c4a29a',g:'#e7cfc8',},[
   '................',
-  '.kWWWWWWWWWWWk..',
-  '.kXWWWXXWWWWHk..',
-  '.kXWWX..XWWWHk..',
-  '.kXWX....XWWHk..',
-  '.kXX......XXHk..',
-  '.kZZZZZZZZZZHk..',
-  '.kZZX..XZZZZHk..',
-  '.kZZX..XZZZZHk..',
-  '.kZZZZZZZZZZHk..',
-  '.kZHHHHHHHHHHk..',
-  '..kkkkkkkkkkk...',
-  '................',
+  'kkkkkkkkkkkkkkkk',
+  'kbccdddcccdddcck',
+  'kaceffecceffefek',
+  'kbceggebcceggeck',
+  'kaeffffbeeffffek',
+  'kbbbbbbbbbbbbbbk',
+  'kadeeeeadeeeeebk',
+  'kaceffeeceffeebk',
+  'kbceggebcceggeck',
+  'kaeffffbeeffffek',
+  'kbcddddbcddddcck',
+  'kkkkkkkkkkkkkkkk',
   '................',
   '................',
   '................',
 ]);
 
-// ── BREAD 🍞 ──────────────────────────────────────────────
-reg('🍞',{
-  k:'#0d0500', b:'#8b4400', c:'#c87030', d:'#e8aa66', e:'#f5cc99', f:'#ffe0b0',
-},[
+// ── LETTUCE 🥬 ────────────────────────────────────────────────
+reg('🥬',{k:'#0d160c',a:'#133519',b:'#295b2d',c:'#4a8e45',d:'#7fcd6a',e:'#a1ed93',f:'#ccf8b8',},[
   '................',
-  '....kffk........',
-  '...kfeeefk......',
-  '..kfeeeeeefk....',
-  '..kfeeeeeeefk...',
-  '..kfeeeeeeefk...',
-  '..kfeeeeeefk....',
-  '..kfddddddfk....',
-  '..kfddddddddfk..',
-  '..kfddddddddfk..',
-  '..kddddddddfk...',
-  '..kdddddddddk...',
-  '..kccccccccck...',
-  '...kbbbbbbbk....',
-  '....kkkkkkk.....',
-  '................',
+  '........kffk....',
+  '.......kfefk....',
+  '..kk..kededk....',
+  '..kaffedededakk.',
+  '..kbdffedededck.',
+  '...kadffedefdbk.',
+  '....kbdffededck.',
+  '.....kadffeedbk.',
+  '......kbdfeedck.',
+  '.......kadfedbk.',
+  '........kbfeedc.',
+  '.........kadded.',
+  '..........kade..',
+  '...........ka...',
+  '............k...',
 ]);
 
-// ── BUTTER 🧈 ─────────────────────────────────────────────
-reg('🧈',{
-  k:'#0d0800', H:'#cc9900', Z:'#e8c000', W:'#ffdc3a', X:'#fff488',
-},[
+// ── TOMATO 🍅 ─────────────────────────────────────────────────
+reg('🍅',{k:'#2d100c',a:'#173618',b:'#2e6b21',c:'#690f0d',d:'#a81d11',e:'#d92f1d',f:'#f95a3d',g:'#ff9a6d',},[
   '................',
-  '...kXXXXXXXk....',
-  '..kXXWWWWXXXk...',
-  '..kXWWWWWWXXk...',
-  '..kXWWWWWWXXk...',
-  '..kXWWWWWWXXk...',
-  '..kXWWWWWWXXk...',
-  '..kXXWWWWXXXk...',
-  '..kZZZZZZZZZk...',
-  '..kZZZZZZZZZk...',
-  '..kHHZZZZHHHk...',
-  '...kHHHHHHHk....',
-  '....kkkkkkk.....',
-  '................',
+  '.......kbbk.....',
+  '....kkkbafkk....',
+  '...kbdccacdk....',
+  '..kbdddeddddk...',
+  '..kddeeeeeeedk..',
+  '..kdefffffeedk..',
+  '..kefgggggfeedk.',
+  '..kefgggggfeedk.',
+  '..kefgggggfeedk.',
+  '..kdefffffeedk..',
+  '..kadeeeeeaadk..',
+  '...kbdddddcck...',
+  '....kkkkkkkk....',
   '................',
   '................',
 ]);
 
-// ── OLIVE 🫒 ──────────────────────────────────────────────
-reg('🫒',{
-  k:'#0a1008', b:'#2d5010', c:'#447820', d:'#6aa030',
-  G:'#2d5010', e:'#88cc44',
-},[
+// ── ONION 🧅 ──────────────────────────────────────────────────
+reg('🧅',{k:'#2b1a13',a:'#4f3a2c',b:'#8c6c54',c:'#b3937a',d:'#d2bba8',e:'#ebdccd',f:'#f7eddf',g:'#fffaf2',},[
   '................',
-  '......kGk.......',
-  '.....kGGk.......',
-  '....kcdddck.....',
-  '...kcdddddck....',
-  '..kcdddddddck...',
-  '..kcdddddddck...',
-  '..kbdddddddck...',
-  '..kbbddddddck...',
-  '..kbbbdddcck....',
-  '...kbbbdcck.....',
-  '....kbbbck......',
-  '.....kbbk.......',
-  '......kk........',
+  '.......kkk......',
+  '......kaffk.....',
+  '....kkaffffk....',
+  '...kbfffffffk...',
+  '...kbffffffgfk..',
+  '..kcfffffffgfgk.',
+  '..kcffffffggfgk.',
+  '..kcfffffgggggk.',
+  '..kcfffffgggggk.',
+  '..kcffffffgggk..',
+  '...kbffffffffk..',
+  '....kbffffffk...',
+  '.....kaaffaa....',
+  '......kkkkk.....',
+  '................',
+]);
+
+// ── CARROT 🥕 ─────────────────────────────────────────────────
+reg('🥕',{k:'#331d0b',a:'#133519',b:'#2e6b21',c:'#59ac3b',d:'#911d04',e:'#ce3c08',f:'#f26514',g:'#ff9c2a',h:'#ffc766',},[
+  '................',
+  '.....kabakk.....',
+  '....kbccccbk....',
+  '...kddddddekk...',
+  '..kdefefefeefkk.',
+  '..kefgggggeeeekk',
+  '..kegghhhggeeeek',
+  '..keghhhgggeeeek',
+  '..kegghhgggeeeek',
+  '..kefgggggeeeek.',
+  '..kdefefeefeek..',
+  '...kddddddeek...',
+  '....kdddedeek...',
+  '.....kdddeek....',
+  '......kkkk......',
+  '................',
+]);
+
+// ── CHILI 🌶️ ──────────────────────────────────────────────────
+reg('🌶️',{k:'#2d100c',a:'#173618',b:'#2e6b21',c:'#690f0d',d:'#a81d11',e:'#d92f1d',f:'#f95a3d',g:'#ff9a6d',},[
+  '.........kk.....',
+  '........kaakk...',
+  '.......kbbakkk..',
+  '.......kccddek..',
+  '......kedeeeek..',
+  '.....kefeeeek...',
+  '.....kefffeek...',
+  '.....kfgggfek...',
+  '....kfggggfek...',
+  '....kfggggfek...',
+  '...kfgggggfk....',
+  '..kfgggggfk.....',
+  '..kfggggfk......',
+  '...kffefk.......',
+  '....kkkk........',
+  '................',
+]);
+
+// ── GARLIC 🧄 ─────────────────────────────────────────────────
+reg('🧄',{k:'#2b1a13',a:'#4f3a2c',b:'#a49080',c:'#ccbcb0',d:'#ebddd3',e:'#f6ede5',f:'#fffaf5',},[
+  '.......kkk......',
+  '......kaffk.....',
+  '....kkaffffk....',
+  '...kbffffffek...',
+  '..kcffffffffek..',
+  '..kcffffffffefk.',
+  '..kdddddddddddk.',
+  '..keffffffffekk.',
+  '..keffffffffek..',
+  '..keffffffffek..',
+  '..kefffffffffek.',
+  '..kdffffffffek..',
+  '...kefffffffek..',
+  '....kefffffeek..',
+  '.....kaaeaa.....',
+  '.......kk.......',
+]);
+
+// ── BROCCOLI 🥦 ───────────────────────────────────────────────
+reg('🥦',{k:'#0d160c',a:'#123a1a',b:'#2a642e',c:'#112f12',d:'#1a4f1a',e:'#2e8a3a',f:'#61b255',g:'#98eb81',},[
+  '......kkkkk.....',
+  '....kkggfffkk...',
+  '..kkggggffffbkk.',
+  '..kfggggfffdabk.',
+  '..kdfffgedcaabbk',
+  '...kabccdabcccb.',
+  '...kbcccccbbbb..',
+  '....kbcccccc....',
+  '.....kbbccc.....',
+  '......kdde......',
+  '......kdde......',
+  '......kdde......',
+  '......kdde......',
+  '......kdee......',
+  '......kbbe......',
+  '......kkkk......',
+]);
+
+// ── MUSHROOM 🍄 ───────────────────────────────────────────────
+// Note: added 'd' (#f04030) which Gemini omitted from palette
+reg('🍄',{k:'#2a1811',a:'#690f0d',b:'#a81d11',c:'#d92f1d',d:'#f04030',e:'#f95a3d',f:'#ff9a6d',g:'#fcf8ee',h:'#d6d0c2',i:'#b0aa9b',},[
+  '....kkkkkkkk....',
+  '...keeeeffffk...',
+  '..keddddeeeefk..',
+  '..kedeedeeefefk.',
+  '..kdeeddeeeeeek.',
+  '..keeeeeeeeeeek.',
+  '..keeeeeeeeeefk.',
+  '..keeeeeeeeeffk.',
+  '..kkkkkkkkkkkkk.',
+  '......kiig......',
+  '......kiig......',
+  '......kiig......',
+  '......khhg......',
+  '......kghhg.....',
+  '......kiig......',
+  '.......kk.......',
+]);
+
+// ── BELL PEPPER 🫑 ────────────────────────────────────────────
+reg('🫑',{k:'#0d160c',a:'#133519',b:'#2e6b21',c:'#184013',d:'#1b631d',e:'#288c3a',f:'#4db254',g:'#7fcd6a',},[
+  '......kbbk......',
+  '....kkkbafkk....',
+  '...kbccddecbk...',
+  '..kbdeefeeffkk..',
+  '..kdefffffffgkk.',
+  '..keffggggggfef.',
+  '..kfgggggggffek.',
+  '..kfgggggggffek.',
+  '..kfgggggggffek.',
+  '..kfgggggggffek.',
+  '..keffggggggff..',
+  '..kdeeeeeeeeec..',
+  '...kcbbbbbbcc...',
+  '....kkkkkkkk....',
   '................',
   '................',
 ]);
 
-// ── DUMPLING 🥟 ───────────────────────────────────────────
-reg('🥟',{
-  k:'#0d0a00', W:'#f5f0e0', X:'#e0d8c0', Y:'#c0b898', Z:'#a09070',
-},[
+// ── CORN 🌽 ───────────────────────────────────────────────────
+reg('🌽',{k:'#331d0b',a:'#133519',b:'#2e6b21',c:'#4a8e45',d:'#533b1e',e:'#7c613c',f:'#ac8d60',g:'#ffc766',h:'#ff9c2a',i:'#ce3c08',},[
+  '....kk...kk.....',
+  '...kaak.kbbk....',
+  '...kaccbaacck...',
+  '..kacebfffbbck..',
+  '..kaffdefefbek..',
+  '..kfdefefefbcek.',
+  '..kdeggghhhiiek.',
+  '..kebghhhiiiek..',
+  '..kebghhhiiiek..',
+  '..keghhhiiieek..',
+  '..kegghhhiiek...',
+  '...kghhhiiek....',
+  '...kghhhiie.....',
+  '....khhhiik.....',
+  '.....khhii......',
+  '......kkk.......',
+]);
+
+// ── SWEET POTATO 🍠 ───────────────────────────────────────────
+reg('🍠',{k:'#2a1811',a:'#321c17',b:'#5e3223',c:'#38101a',d:'#5e1c2a',e:'#8e2d42',f:'#bc4863',g:'#9d8e75',h:'#c2b59e',i:'#e0d6c5',},[
+  '.....kkk........',
+  '...kkffffk......',
+  '..kffffffek.....',
+  '..kfeeeeeedk....',
+  '..keeeeeddddk...',
+  '..kedddccccck...',
+  '..kccccbbbabk...',
+  '..kbbbaaaaagk...',
+  '..kaaaagggghk...',
+  '..kgggghhhhiik..',
+  '..khhhhiiiiiik..',
+  '..kiiiiiiiiiik..',
+  '..kiiiiiiiik....',
+  '...kiiiiiik.....',
+  '....kkkkkk......',
   '................',
+]);
+
+// ── CHEESE 🧀 ─────────────────────────────────────────────────
+reg('🧀',{k:'#331d0b',a:'#703e1c',b:'#a16a2b',c:'#d69a4e',d:'#f2c070',e:'#fee19b',f:'#fff4c4',},[
   '................',
-  '.....kWWWk......',
-  '...kWWWWWWWk....',
-  '..kWXWWWWXXWk...',
-  '..kWXWWWWXXWk...',
-  '..kWWWWWWWWWk...',
-  '..kYZZZZZZZk....',
-  '...kYYYYYYk.....',
-  '....kZZZZk......',
-  '....kYYYYk......',
-  '.....kYYk.......',
-  '......kk........',
+  '..kkkkkkkkkkkkk.',
+  '..kdddddddddddk.',
+  '..kdfeeffedfffk.',
+  '..kffdeefedffdk.',
+  '..kfddeededffdk.',
+  '..kfdeeeffeddcc.',
+  '..kfdeeefeebdcc.',
+  '..kffeedeeebbbk.',
+  '..kffffffedbbbk.',
+  '..kefeededbbaak.',
+  '..kdddddddbaakk.',
+  '..kkkkkkkkkaak..',
+  '.........kkka...',
+  '..........kka...',
+  '...........k....',
+]);
+
+// ── BUTTER 🧈 ─────────────────────────────────────────────────
+reg('🧈',{k:'#331d0b',a:'#703e1c',b:'#a16a2b',c:'#d69a4e',d:'#f2c070',e:'#fee19b',f:'#fff4c4',g:'#ffffff',},[
   '................',
+  '.......kkkkk....',
+  '.....kkffffee...',
+  '...kkffggffee...',
+  '..kfffgggffeee..',
+  '..kfgggffffeedd.',
+  '..kfgggffffeedd.',
+  '..kfgggffffeedd.',
+  '..kfffggffeeedd.',
+  '..kfffeeeeeeddd.',
+  '..keeeeeeddddcc.',
+  '..kddddddccccba.',
+  '..kccccccbbbbak.',
+  '..kbbbbbaaaakkk.',
+  '...kaaaakkkkk...',
+  '.....kkk........',
+]);
+
+// ── BREAD 🍞 ──────────────────────────────────────────────────
+reg('🍞',{k:'#331d0b',a:'#703e1c',b:'#a16a2b',c:'#d69a4e',d:'#f2c070',e:'#fee19b',f:'#fff4c4',g:'#ffffff',},[
+  '....kkkkk.......',
+  '..kkfeeeeff.....',
+  '..keeeefeeeee...',
+  '..keeffefeeeee..',
+  '..keeeeeeeeeeee.',
+  '..kdddddddddddd.',
+  '..kfeefffefeffd.',
+  '..kefefeefeffff.',
+  '..kfeeeeffefefd.',
+  '..kefeffefeeffd.',
+  '..kfeeeffeffefd.',
+  '..kefeffeefeeff.',
+  '..kfeefeffeffed.',
+  '..kdddddddddddd.',
+  '..kccccccccccck.',
+  '...kkkkkkkkkkk..',
+]);
+
+// ── OLIVE 🫒 ──────────────────────────────────────────────────
+reg('🫒',{k:'#1e1511',a:'#133519',b:'#2e6b21',c:'#4a8e45',d:'#7fcd6a',e:'#fcf8ee',},[
+  '.......kkk......',
+  '......kbbbk.....',
+  '....kkbcbcbk....',
+  '...kaccbcbcck...',
+  '..kacdccbccbck..',
+  '..kabcdccccbcck.',
+  '..kbcedcccccbck.',
+  '..kacedccbcccck.',
+  '..kabcdccccbcck.',
+  '..kabcdccbcccck.',
+  '..kabccbccbcck..',
+  '...kabccbccbk...',
+  '....kabbbbak....',
+  '.....kaaaaa.....',
+  '......kkkk......',
   '................',
+]);
+
+// ── DUMPLING 🥟 ───────────────────────────────────────────────
+reg('🥟',{k:'#1e1511',a:'#483a30',b:'#847e70',c:'#b0aa9b',d:'#d6d0c2',e:'#f7f1e6',f:'#ffffff',},[
   '................',
+  '.......kk.......',
+  '.....kkffk......',
+  '....kfefefk.....',
+  '...kfefefefk....',
+  '...kefefefefk...',
+  '..kefefefefefk..',
+  '..kffffffffffee.',
+  '..kffffffffffee.',
+  '..kffffffffffek.',
+  '..kffffffffffek.',
+  '..kffffffffffek.',
+  '..kefffffffffek.',
+  '...kfffffffffk..',
+  '....kkededdedkk.',
+  '......kkkkkkk...',
 ]);
 
 })();
