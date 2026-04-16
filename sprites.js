@@ -525,7 +525,15 @@ function initImageSprites(callback){
     return;
   }
 
-  const paths = ['./assets/food-sprites.png', '/assets/food-sprites.png', 'assets/food-sprites.png'];
+  // Try WebP first (much smaller), fallback to PNG
+  const paths = [
+    './assets/food-sprites.webp',
+    '/assets/food-sprites.webp',
+    'assets/food-sprites.webp',
+    './assets/food-sprites.png',
+    '/assets/food-sprites.png',
+    'assets/food-sprites.png'
+  ];
   let currentIndex = 0;
 
   function tryLoad(index){
@@ -584,12 +592,10 @@ function drawSpriteFromGrid(ctx, emoji, cx, cy, size){
 
 // Public API
 function drawPixelSprite(ctx, emoji, cx, cy, size){
-  // TEMPORARILY DISABLED: Grid image loading (causing performance issues)
-  // Grid image will be re-enabled once loading issues are resolved
-
-  // if(PK_SPRITE_IMAGE_READY && drawSpriteFromGrid(ctx, emoji, cx, cy, size)) {
-  //   return;
-  // }
+  // Try grid image first (now using optimized WebP format)
+  if(PK_SPRITE_IMAGE_READY && drawSpriteFromGrid(ctx, emoji, cx, cy, size)) {
+    return;
+  }
 
   // Fallback to hand-drawn pixel art
   const fn = PK_SPRITES[emoji];
@@ -603,5 +609,14 @@ function drawPixelSprite(ctx, emoji, cx, cy, size){
     ctx.textBaseline = 'middle';
     ctx.fillText(emoji, cx, cy);
     ctx.restore();
+  }
+}
+
+// Initialize grid image loading
+if(typeof initImageSprites === 'function') {
+  if(document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initImageSprites);
+  } else {
+    initImageSprites();
   }
 }
