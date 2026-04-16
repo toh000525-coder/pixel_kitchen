@@ -519,21 +519,53 @@ const PK_SPRITE_GRID_INDEX = {
   '🍫': 39,  // Chocolate
 };
 
+function getGameName(){
+  // 从 URL 或全局变量检测游戏名
+  const pathname = window.location.pathname;
+  const matches = pathname.match(/(\d+_)?(\w+)\.html/);
+  if(matches && matches[2]){
+    const name = matches[2];
+    // 映射文件名到游戏目录名
+    const gameMap = {
+      'kitchen_scene': 'kitchen_scene',
+      'pantry_peek': 'pantry_peek',
+      'chop_chop': 'chop_chop',
+      'recipe_rush': 'recipe_rush',
+      'kitchen_chaos': 'kitchen_chaos',
+      'plate_perfect': 'plate_perfect',
+    };
+    return gameMap[name] || null;
+  }
+  return null;
+}
+
 function initImageSprites(callback){
   if(PK_SPRITE_IMAGE_READY){
     if(callback) callback();
     return;
   }
 
-  // Try WebP first (much smaller), fallback to PNG
-  const paths = [
+  // 尝试加载按游戏优化的文件，然后降级到完整文件
+  const gameName = getGameName();
+  const paths = [];
+
+  if(gameName){
+    // 优先加载按游戏优化的文件
+    paths.push(`./assets/food-${gameName}.webp`);
+    paths.push(`/assets/food-${gameName}.webp`);
+    paths.push(`assets/food-${gameName}.webp`);
+  }
+
+  // 降级到完整的食材集合
+  paths.push(
     './assets/food-sprites.webp',
     '/assets/food-sprites.webp',
     'assets/food-sprites.webp',
     './assets/food-sprites.png',
     '/assets/food-sprites.png',
     'assets/food-sprites.png'
-  ];
+  );
+
   let currentIndex = 0;
 
   function tryLoad(index){
