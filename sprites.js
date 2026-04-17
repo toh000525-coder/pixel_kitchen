@@ -560,10 +560,7 @@ function initImageSprites(callback){
   paths.push(
     './assets/food-sprites.webp',
     '/assets/food-sprites.webp',
-    'assets/food-sprites.webp',
-    './assets/food-sprites.png',
-    '/assets/food-sprites.png',
-    'assets/food-sprites.png'
+    'assets/food-sprites.webp'
   );
 
   let currentIndex = 0;

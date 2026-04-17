@@ -1,12 +1,12 @@
 // ═══════════════════════════════════════════
 //  sw.js — Pixel Kitchen  Service Worker
 // ═══════════════════════════════════════════
-const CACHE = 'pk-v13';
+const CACHE = 'pk-v14';
 
 const STATIC = [
   './',
   './index.html',
-  './1_kitchen_scene.html',
+  './1_dish_detective.html',
   './2_pantry_peek.html',
   './3_chop_chop.html',
   './4_recipe_rush.html',
@@ -19,7 +19,7 @@ const STATIC = [
   './achievements.js',
   './icon.svg',
   './manifest.json',
-  './assets/food-sprites.png',
+  './assets/food-sprites.webp',
   'https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap',
 ];
 

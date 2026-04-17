@@ -81,12 +81,28 @@ function checkRotate() {
 ## Architecture
 
 ### Files
-| File | Game | Canvas size | Panel size | GAME_W |
-|---|---|---|---|---|
-| `index.html` | Hub | — | 1100×620 | — |
-| `kitchen_scene.html` | Dish Detective | varies | — | — |
-| `pantry_peek.html` | Pantry Peek | — | 936×530 | 936 |
-| `chop_chop.html` | Chop Chop | 480×480 | 280×480 | 776 |
+| File | Game |
+|---|---|
+| `index.html` | Hub (1100×620) |
+| `1_dish_detective.html` | Dish Detective |
+| `2_pantry_peek.html` | Pantry Peek |
+| `3_chop_chop.html` | Chop Chop |
+| `4_recipe_rush.html` | Recipe Rush |
+| `5_kitchen_chaos.html` | Kitchen Chaos |
+| `6_plate_perfect.html` | Plate Perfect |
+
+All game pages use GAME_W=936, GAME_H=564 (see "Game page layout" below).
+
+### Shared modules
+| File | Purpose |
+|---|---|
+| `shared.css` / `shared.js` | Common styles + helpers (coin ticker, SFX, haptics, SW toast) |
+| `sprites.js` | 22 pixel-art food sprites (renders from `assets/food-sprites.webp`) |
+| `menu.js` | 100-dish recipe dataset |
+| `achievements.js` | 25-badge achievement system |
+| `sw.js` | Service Worker (bump `CACHE = 'pk-vN'` on any asset change) |
+| `manifest.json` / `icon.svg` | PWA install metadata |
+| `sprite_preview.html` | Dev-only sprite preview (not linked from hub) |
 
 ### Shared localStorage keys
 | Key | Value |
@@ -100,8 +116,13 @@ PERFECT = +10, GOOD = +5, OK = +2, MISS = +0
 ### Firebase paths
 | Game | Path |
 |---|---|
-| Chop Chop | `chop_chop/scores` |
 | Pantry Peek | `pantry_peek/scores` |
+| Chop Chop | `chop_chop/scores` |
+| Recipe Rush | `recipe_rush/scores` |
+| Kitchen Chaos | `kitchen_chaos/scores` |
+| Plate Perfect | `plate_perfect/scores` |
+
+(Dish Detective has no leaderboard.)
 
 ### Hub layout
 ```
@@ -112,7 +133,7 @@ PERFECT = +10, GOOD = +5, OK = +2, MISS = +0
     └── .hub-right (flex:1 game grid)
 ```
 
-### Game page layout (all 3 games)
+### Game page layout (all 6 games)
 ```
 #gameWrap (GAME_W × GAME_H, flex column)
 ├── .game-topbar (transparent, no border — ★ PIXEL KITCHEN ★ left + 🪙 coins right)
