@@ -477,13 +477,12 @@ function drawIdle(){
   drawPlateGraphic(PCX,PCY+bob,PR);
   // Orbiting ingredients
   const ems=['🍅','🧀','🥩','🥬','🌶️','🧄'];
-  ctx.font='32px serif'; ctx.textAlign='center'; ctx.textBaseline='middle';
   ems.forEach((e,i)=>{
     const a=t*0.5+(i/ems.length)*Math.PI*2;
     ctx.globalAlpha=0.75;
-    ctx.fillText(e,PCX+Math.cos(a)*(PR+44),PCY+bob+Math.sin(a)*(PR+44)*0.45);
+    drawPixelSprite(ctx, e, PCX+Math.cos(a)*(PR+44), PCY+bob+Math.sin(a)*(PR+44)*0.45, 32);
   });
-  ctx.globalAlpha=1; ctx.textBaseline='alphabetic';
+  ctx.globalAlpha=1;
   ctx.globalAlpha=0.5+Math.sin(t*2)*0.3; ctx.fillStyle='#00c8d7';
   ctx.font='8px "Press Start 2P"'; ctx.textAlign='center';
   ctx.fillText('SELECT DIFFICULTY →',CW/2,CH-28);
@@ -851,8 +850,7 @@ function drawInstructionCard(){
       const cx=rightX+i*iw+iw/2;
       ctx.globalAlpha=done?0.22:1.0;
       // Emoji row
-      ctx.font='30px serif'; ctx.textAlign='center'; ctx.textBaseline='middle';
-      ctx.fillText(it.emoji,cx,cardY+30);
+      drawPixelSprite(ctx, it.emoji, cx, cardY+30, 30);
       // Zone label row
       ctx.fillStyle=done?'#0a3050':'#00e8ff';
       ctx.font='8px "Press Start 2P"';
@@ -876,9 +874,7 @@ function drawInstructionCard(){
 function drawPlacedItems(){
   slots.forEach(s=>{
     if(!s.placed)return;
-    ctx.font='40px serif'; ctx.textAlign='center'; ctx.textBaseline='middle';
-    ctx.fillText(s.emoji,s.x,s.y);
-    ctx.textBaseline='alphabetic'; ctx.textAlign='left';
+    drawPixelSprite(ctx, s.emoji, s.x, s.y, 40);
   });
 }
 
@@ -920,18 +916,15 @@ function drawDrawTimer(){
 function drawPool(){
   pool.forEach(p=>{
     if(!p.available)return;
-    ctx.font='38px serif'; ctx.textAlign='center'; ctx.textBaseline='middle';
-    ctx.fillText(p.emoji,p.x,p.y);
-    ctx.textBaseline='alphabetic'; ctx.textAlign='left';
+    drawPixelSprite(ctx, p.emoji, p.x, p.y, 38);
   });
 }
 
 function drawDragged(){
   if(!dragging)return;
-  ctx.font='44px serif'; ctx.textAlign='center'; ctx.textBaseline='middle';
   ctx.globalAlpha=0.9;
-  ctx.fillText(dragging.emoji,dragging.x,dragging.y);
-  ctx.globalAlpha=1; ctx.textBaseline='alphabetic'; ctx.textAlign='left';
+  drawPixelSprite(ctx, dragging.emoji, dragging.x, dragging.y, 44);
+  ctx.globalAlpha=1;
 }
 
 function drawEffects(){

@@ -865,7 +865,7 @@ function drawFood(x,y,scale){
   ctx.scale(s,s);
   ctx.font='72px serif';
   ctx.textAlign='center'; ctx.textBaseline='bottom';
-  ctx.fillText(currentFood,0,0);
+  drawPixelSprite(ctx, currentFood, 0, -36, 72);
   ctx.restore();
 }
 
@@ -900,7 +900,7 @@ function drawHalves(){
     ctx.clip();
     ctx.font='72px serif';
     ctx.textAlign='center'; ctx.textBaseline='bottom';
-    ctx.fillText(currentFood,0,0);
+    drawPixelSprite(ctx, currentFood, 0, -36, 72);
     ctx.restore();
   });
 }
