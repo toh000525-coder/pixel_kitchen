@@ -28,7 +28,7 @@ if(_sd)document.querySelector(`.d-btn[onclick*="'${_sd}'"]`)?.classList.add('act
 
 ### pkName guard (must be first line of startGame/selectDiff)
 ```js
-if(!localStorage.getItem('pkName')){ location.href='index.html'; return; }
+if(!localStorage.getItem('pkName')){ location.href='0_hub.html'; return; }
 ```
 
 ### pkRecordGame call (result screen)

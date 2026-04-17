@@ -229,7 +229,7 @@ canvas { display:block; }
       </button>
     </div>
     <div style="display:flex;gap:6px;padding:2px 10px 6px;">
-      <button class="btn-back" style="flex:1;margin:0;" onclick="goTo('index.html?from=game')">◀ HUB</button>
+      <button class="btn-back" style="flex:1;margin:0;" onclick="goTo('0_hub.html?from=game')">◀ HUB</button>
       <button class="btn-back" style="flex:1;margin:0;" onclick="openLeaderFromTitle()">🏆 RANKS</button>
     </div>
   </div>
@@ -272,7 +272,7 @@ canvas { display:block; }
       <div class="save-status" id="saveStatus"></div>
       <button class="btn-green" onclick="replayGame()">▶ PLAY AGAIN</button>
       <button class="btn-gold"  onclick="showLeader()">🏆 LEADERBOARD</button>
-      <button class="btn-back"  onclick="goTo('index.html?from=game')" style="margin:4px 8px;width:calc(100% - 16px);">◀ HUB</button>
+      <button class="btn-back"  onclick="goTo('0_hub.html?from=game')" style="margin:4px 8px;width:calc(100% - 16px);">◀ HUB</button>
     </div>
   </div>
 
@@ -517,7 +517,7 @@ function showPane(id){
 //  GAME FLOW
 // ══════════════════════════════════════════
 function startGame(diff){
-  if(!localStorage.getItem('pkName')){ location.href='index.html'; return; }
+  if(!localStorage.getItem('pkName')){ location.href='0_hub.html'; return; }
   localStorage.setItem('pkDiff_3',diff);
   document.querySelectorAll('.d-btn').forEach(b=>b.classList.remove('active'));
   document.querySelector(`.d-btn[onclick*="'${diff}'"]`)?.classList.add('active');

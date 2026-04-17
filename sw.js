@@ -1,11 +1,12 @@
 // ═══════════════════════════════════════════
 //  sw.js — Pixel Kitchen  Service Worker
 // ═══════════════════════════════════════════
-const CACHE = 'pk-v14';
+const CACHE = 'pk-v15';
 
 const STATIC = [
   './',
   './index.html',
+  './0_hub.html',
   './1_dish_detective.html',
   './2_pantry_peek.html',
   './3_chop_chop.html',

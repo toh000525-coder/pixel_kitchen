@@ -164,7 +164,7 @@ canvas { display:block; border:3px solid #00c8d7; box-shadow:0 0 18px #003a5088;
           </button>
         </div>
         <div style="display:flex;gap:6px;padding:2px 10px 6px;">
-          <button class="btn-back" style="flex:1;margin:0;" onclick="goTo('index.html?from=game')">◀ HUB</button>
+          <button class="btn-back" style="flex:1;margin:0;" onclick="goTo('0_hub.html?from=game')">◀ HUB</button>
           <button class="btn-back" style="flex:1;margin:0;" onclick="showPane('paneLeader')">🏆 RANKS</button>
         </div>
       </div>
@@ -195,7 +195,7 @@ canvas { display:block; border:3px solid #00c8d7; box-shadow:0 0 18px #003a5088;
           <div class="save-status" id="saveStatus"></div>
           <button class="btn-silver" onclick="restartGame()">▶ PLAY AGAIN</button>
           <button class="btn-gold"   onclick="showPane('paneLeader')">🏆 LEADERBOARD</button>
-          <button class="btn-back"   onclick="goTo('index.html?from=game')" style="margin:4px 8px;width:calc(100% - 16px);">◀ HUB</button>
+          <button class="btn-back"   onclick="goTo('0_hub.html?from=game')" style="margin:4px 8px;width:calc(100% - 16px);">◀ HUB</button>
         </div>
       </div>
 
@@ -460,7 +460,7 @@ function showPane(id){
   if(id==='paneTitle')startIdleCanvas(); else stopIdleCanvas();
   if(id==='paneLeader')loadLeader(diffKey||'apprenti');
 }
-function selectDiff(key){if(!localStorage.getItem('pkName')){location.href='index.html';return;}localStorage.setItem('pkDiff_6',key);diffKey=key;cfg=DIFF[key];setTimeout(()=>startGame(),300);}
+function selectDiff(key){if(!localStorage.getItem('pkName')){location.href='0_hub.html';return;}localStorage.setItem('pkDiff_6',key);diffKey=key;cfg=DIFF[key];setTimeout(()=>startGame(),300);}
 
 // ══════ IDLE CANVAS ══════
 function startIdleCanvas(){

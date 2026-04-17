@@ -2,7 +2,7 @@
   "name": "Pixel Kitchen",
   "short_name": "PxlKitch",
   "description": "Pixel-art cooking mini-games",
-  "start_url": "./",
+  "start_url": "./0_hub.html",
   "display": "standalone",
   "orientation": "landscape",
   "background_color": "#110d00",

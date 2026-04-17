@@ -83,7 +83,8 @@ function checkRotate() {
 ### Files
 | File | Game |
 |---|---|
-| `index.html` | Hub (1100×620) |
+| `0_hub.html` | Hub (1100×620) — main landing page |
+| `index.html` | Redirect stub → `0_hub.html` (required by GitHub Pages) |
 | `1_dish_detective.html` | Dish Detective |
 | `2_pantry_peek.html` | Pantry Peek |
 | `3_chop_chop.html` | Chop Chop |
@@ -148,7 +149,7 @@ PERFECT = +10, GOOD = +5, OK = +2, MISS = +0
 All game pages use the SAME dimensions so screen size is consistent across pages:
 - **Standard: GAME_W=936, GAME_H=564** (all three games)
 - `.game-content` must have `justify-content:center; flex:1` so smaller canvases centre
-- Hub (index.html) stays at 1100×620 — it's a lobby, different layout
+- Hub (`0_hub.html`) stays at 1100×620 — it's a lobby, different layout
 
 ### Topbar style (approved, do not change sizes)
 ```css
