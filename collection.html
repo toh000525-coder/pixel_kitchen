@@ -84,6 +84,35 @@ body { background:radial-gradient(ellipse at 50% 30%,#1e1630 0%,#0d0a16 100%); f
 .rotate-phone { font-size:52px; }
 .rotate-text { color:#ffd97d; font-size:.50rem; letter-spacing:2px; text-align:center; line-height:2.4; }
 .rotate-sub  { color:#a890c0; font-size:.32rem; letter-spacing:2px; }
+
+/* ── Recipe Modal ──────────────────────────────────── */
+#recipeModal { display:none; position:fixed; inset:0; z-index:9000; background:rgba(13,10,22,.85); backdrop-filter:blur(4px); align-items:center; justify-content:center; padding:24px; animation:modalIn .2s ease-out; }
+#recipeModal.visible { display:flex; }
+@keyframes modalIn { from{opacity:0} to{opacity:1} }
+.modal-box { width:100%; max-width:920px; max-height:90vh; background:#1e1630; border:4px solid #c87eb8; box-shadow:6px 6px 0 #0d0a16, 0 0 60px rgba(200,126,184,0.25); display:flex; flex-direction:column; position:relative; overflow:hidden; animation:modalPop .25s cubic-bezier(.34,1.56,.64,1); }
+@keyframes modalPop { from{transform:scale(0.9);opacity:0} to{transform:scale(1);opacity:1} }
+.modal-close { position:absolute; top:10px; right:12px; z-index:10; width:36px; height:36px; background:#1e1630; border:2px solid #c87eb8; color:#ffd97d; font-family:'Press Start 2P',monospace; font-size:.70rem; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:all .12s; }
+.modal-close:hover { background:#271d3c; border-color:#ffd97d; transform:rotate(90deg); }
+.modal-header { background:#140f1e; padding:16px 20px; border-bottom:3px solid #5c3a78; display:flex; align-items:center; gap:18px; flex-shrink:0; position:relative; overflow:hidden; }
+.modal-header::before { content:''; position:absolute; top:0; left:0; right:0; height:3px; background:linear-gradient(90deg,transparent,#ff8fb0,#ffd97d,#ff8fb0,transparent); }
+.modal-sprite { width:96px; height:96px; background:#0d0a16; border:3px solid #c87eb8; padding:6px; flex-shrink:0; }
+.modal-head-text { flex:1; min-width:0; display:flex; flex-direction:column; gap:6px; }
+.modal-name { font-size:.88rem; letter-spacing:3px; color:#ffd97d; text-shadow:2px 2px #3a1a4e; line-height:1.4; }
+.modal-sub-row { display:flex; gap:10px; align-items:center; flex-wrap:wrap; }
+.modal-cuisine { font-size:.40rem; color:#ff8fb0; letter-spacing:2px; }
+.modal-chip { font-size:.40rem; color:#c0a8d4; letter-spacing:1.5px; padding:4px 8px; background:#271d3c; border:1px solid #5c3a78; }
+.modal-chip b { color:#ffd97d; font-weight:normal; }
+.modal-body { flex:1; overflow-y:auto; padding:18px 22px; display:flex; flex-direction:column; gap:14px; min-height:0; }
+.modal-body::-webkit-scrollbar { width:6px; }
+.modal-body::-webkit-scrollbar-thumb { background:#5c3a78; }
+.modal-section { display:flex; flex-direction:column; gap:6px; }
+.modal-section-title { font-size:.50rem; letter-spacing:3px; color:#ffd97d; padding:4px 0; border-bottom:2px solid #c87eb8; margin-bottom:2px; }
+.modal-desc { font-size:.46rem; line-height:2; color:#ffe890; padding:2px 4px; }
+.modal-ing-row { display:grid; grid-template-columns:repeat(auto-fill, minmax(240px, 1fr)); gap:6px 10px; }
+.modal-ing-item { font-size:.42rem; color:#ffe890; padding:7px 10px; background:#140f1e; border-left:3px solid #ff8fb0; line-height:1.6; }
+.modal-step-list { display:flex; flex-direction:column; gap:6px; }
+.modal-step-item { font-size:.44rem; color:#ffffff; padding:9px 12px; background:#140f1e; border:2px solid #5c3a78; display:flex; gap:12px; align-items:flex-start; line-height:1.8; }
+.modal-step-num { color:#ffd97d; font-size:.52rem; flex-shrink:0; min-width:18px; }
 </style>
 </head>
 <body>
@@ -111,6 +140,38 @@ body { background:radial-gradient(ellipse at 50% 30%,#1e1630 0%,#0d0a16 100%); f
 
     <div class="dish-grid-wrap">
       <div class="dish-grid" id="dishGrid"></div>
+    </div>
+  </div>
+</div>
+
+<div id="recipeModal" onclick="if(event.target===this)closeRecipeModal()">
+  <div class="modal-box" id="modalBox">
+    <button class="modal-close" onclick="closeRecipeModal()" aria-label="Close">✕</button>
+    <div class="modal-header">
+      <canvas class="modal-sprite" id="modalSprite" width="160" height="160"></canvas>
+      <div class="modal-head-text">
+        <div class="modal-name" id="modalName"></div>
+        <div class="modal-sub-row">
+          <span class="modal-cuisine" id="modalCuisine"></span>
+          <span class="modal-chip">⏱ <b id="modalCookTime">—</b> MIN</span>
+          <span class="modal-chip">🥄 <b id="modalItems">—</b> ITEMS</span>
+          <span class="modal-chip">🔓 <b id="modalUnlock">—</b></span>
+        </div>
+      </div>
+    </div>
+    <div class="modal-body">
+      <div class="modal-section">
+        <div class="modal-section-title">▶ ABOUT</div>
+        <div class="modal-desc" id="modalDesc"></div>
+      </div>
+      <div class="modal-section">
+        <div class="modal-section-title">▶ INGREDIENTS</div>
+        <div class="modal-ing-row" id="modalIngList"></div>
+      </div>
+      <div class="modal-section">
+        <div class="modal-section-title">▶ HOW TO COOK</div>
+        <div class="modal-step-list" id="modalStepList"></div>
+      </div>
     </div>
   </div>
 </div>
@@ -211,7 +272,7 @@ function renderGrid(){
     cuisineLbl.textContent = d.cuisine;
     card.appendChild(cuisineLbl);
     if(unlocked){
-      card.onclick = () => goTo('recipe.html?id=' + id);
+      card.onclick = () => openRecipeModal(id);
     }
     grid.appendChild(card);
     // Draw sprite into canvas
@@ -221,6 +282,49 @@ function renderGrid(){
     }
   });
 }
+
+function openRecipeModal(id){
+  const dish = DISHES_INDEX[id];
+  const recipe = PK_DISH_RECIPES[id];
+  if(!dish || !recipe) return;
+  const unlockTs = pkGetCollection()[id];
+  const unlockDate = unlockTs ? new Date(unlockTs).toLocaleDateString('en-US',
+    {month:'short', day:'numeric', year:'numeric'}).toUpperCase() : '—';
+
+  document.getElementById('modalName').textContent = dish.name;
+  document.getElementById('modalCuisine').textContent = dish.cuisine.toUpperCase();
+  document.getElementById('modalCookTime').textContent = recipe.cookTime;
+  document.getElementById('modalItems').textContent = dish.items.length;
+  document.getElementById('modalUnlock').textContent = unlockDate;
+  document.getElementById('modalDesc').textContent = recipe.description;
+
+  document.getElementById('modalIngList').innerHTML =
+    recipe.realIngredients.map(ing => `<div class="modal-ing-item">• ${ing}</div>`).join('');
+  document.getElementById('modalStepList').innerHTML =
+    recipe.steps.map((s,i) => `<div class="modal-step-item"><span class="modal-step-num">${i+1}.</span><span>${s}</span></div>`).join('');
+
+  // Draw sprite
+  const canvas = document.getElementById('modalSprite');
+  const ctx = canvas.getContext('2d');
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+  if(PK_DISH_IMAGE_READY){
+    pkDrawDishSprite(ctx, id, 0, 0, canvas.width);
+  } else {
+    pkLoadDishImage().then(() => pkDrawDishSprite(ctx, id, 0, 0, canvas.width)).catch(()=>{});
+  }
+
+  document.getElementById('recipeModal').classList.add('visible');
+  document.body.style.overflow = 'hidden';
+}
+function closeRecipeModal(){
+  document.getElementById('recipeModal').classList.remove('visible');
+  document.body.style.overflow = '';
+}
+document.addEventListener('keydown', e => {
+  if(e.key === 'Escape' && document.getElementById('recipeModal').classList.contains('visible')){
+    closeRecipeModal();
+  }
+});
 
 function refreshProgress(){
   const collection = pkGetCollection();
