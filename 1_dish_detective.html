@@ -294,10 +294,7 @@ canvas { display:block; image-rendering:pixelated; image-rendering:crisp-edges; 
           <button class="btn-play-again" style="flex:1;" onclick="showTitle()">▶ PLAY AGAIN</button>
           <button class="btn-leader" style="flex:1;" onclick="showLeader()">🏆 LEADERBOARD</button>
         </div>
-        <div style="display:flex;gap:6px;width:100%;margin-top:4px;">
-          <button class="btn-back" style="flex:1;margin:0;" onclick="pkShareLast()">📤 SHARE</button>
-          <button class="btn-back" style="flex:1;margin:0;" onclick="goTo('0_hub.html?from=game')">◀ HUB</button>
-        </div>
+        <button class="btn-back" style="width:100%;margin-top:4px;" onclick="goTo('0_hub.html?from=game')">◀ HUB</button>
       </div>
     </div>
 
@@ -1434,12 +1431,6 @@ function showCelebration(icon, title, score, msg){
   btn.onclick=function(){
     cel.classList.remove('show');
     const _p1=gCorrect/10; pkRecordGame({gameId:1,stars:_p1>=0.9?3:_p1>=0.7?2:1,hardest:gDiff==='chef'});
-    window._pkLastResult = {
-      gameName:'DISH DETECTIVE', gameEmoji:'🍳', themeColor:'#f5c842',
-      score: gScore, stars: _p1>=0.9?3:_p1>=0.7?2:1,
-      difficulty: (gDiff||'').toUpperCase(),
-      subtitle: gCorrect + '/10 DISHES · BEST x' + gBestCombo,
-    };
     showPane('paneResult');
     spawnSparkles();
     animGrade(document.getElementById('resultGrade'));

@@ -197,10 +197,7 @@ canvas { display:block; border:3px solid #00c8d7; box-shadow:0 0 18px #003a5088;
             <button class="btn-silver" style="flex:1;" onclick="restartGame()">▶ PLAY AGAIN</button>
             <button class="btn-gold"   style="flex:1;" onclick="showPane('paneLeader')">🏆 LEADERBOARD</button>
           </div>
-          <div style="display:flex;gap:6px;width:100%;margin-top:4px;padding:0 8px;">
-            <button class="btn-back" style="flex:1;margin:0;" onclick="pkShareLast()">📤 SHARE</button>
-            <button class="btn-back" style="flex:1;margin:0;" onclick="goTo('0_hub.html?from=game')">◀ HUB</button>
-          </div>
+          <button class="btn-back" onclick="goTo('0_hub.html?from=game')" style="margin:4px 8px;width:calc(100% - 16px);">◀ HUB</button>
         </div>
       </div>
 
@@ -981,12 +978,6 @@ function endGame(){
   const _s5=diffKey==='chef'?(gDishes>=6?3:gDishes>=3?2:1):diffKey==='cuisinier'?(gDishes>=7?3:gDishes>=4?2:1):(gDishes>=8?3:gDishes>=4?2:1);
   pkRecordGame({gameId:5,stars:_s5,hardest:diffKey==='chef'});
   pkStatAdd('pkCoinsEarned',earned); pkStatMax('pkBestScore_5',gScore); pkStatAdd('pkPlayTime_5',Math.max(1,Math.round((Date.now()-window._pkT0)/60000)));
-  window._pkLastResult = {
-    gameName:'PLATE PERFECT', gameEmoji:'🍽️', themeColor:'#00c8d7',
-    score: gScore, stars: _s5,
-    difficulty: (diffKey||'').toUpperCase(),
-    subtitle: gDishes + ' DISHES PLATED',
-  };
   showPane('paneResult');
   animGrade(document.getElementById('resultGrade'));
   animCount(document.getElementById('resultScore'),gScore,800);
