@@ -44,7 +44,7 @@ canvas { display:block; border:3px solid #6878a0; box-shadow:0 0 18px #2a2a4a; }
 
 /* ══ GAME PANEL ══ */
 .game-panel {
-  width:280px; height:480px;
+  width:200px; height:480px;
   background:#1a1a24;
   border:4px solid #6878a0;
   box-shadow:4px 4px 0 #2a2a3a, inset 0 0 0 1px #2e2e44;
@@ -264,7 +264,7 @@ canvas { display:block; border:3px solid #6878a0; box-shadow:0 0 18px #2a2a4a; }
   <div class="game-content">
     <!-- CANVAS -->
     <div class="canvas-wrap">
-      <canvas id="gameCanvas" width="620" height="480"></canvas>
+      <canvas id="gameCanvas" width="700" height="480"></canvas>
     </div>
 
     <!-- PANEL -->
@@ -423,7 +423,7 @@ fbDb = firebase.database(fbApp);
 //  CONSTANTS
 // ══════════════════════════════════════════
 const GAME_W = 936, GAME_H = 564;
-const CW = 620, CH = 480;
+const CW = 700, CH = 480;
 const BELT_Y = 240; // belt center Y
 
 // Ingredient pool + recipes from shared menu.js
@@ -691,7 +691,7 @@ function drawIdle() {
     const spacing = (CW + 80) / IDLE_EMOJIS.length;
     const x = ((CW + 80) - (t * 80 + i * spacing) % (CW + 80));
     const bob = Math.sin(t * 3 + i * 1.1) * 3;
-    drawPixelSprite(ctx, emoji, x, BELT_Y + bob, 32);
+    drawPixelSprite(ctx, emoji, x, BELT_Y + bob, 44);
   });
 
   // --- Mini order card preview ---
@@ -705,7 +705,7 @@ function drawIdle() {
   ['🍅','🧀','🌶️'].forEach((e, i) => {
     const alpha = 0.4 + Math.sin(t * 2 + i) * 0.3;
     ctx.globalAlpha = Math.max(0.2, alpha);
-    drawPixelSprite(ctx, e, CW/2 - 30 + i * 32, 72, 22);
+    drawPixelSprite(ctx, e, CW/2 - 36 + i * 36, 72, 28);
   });
   ctx.globalAlpha = 1;
   ctx.textAlign = 'left';
@@ -1072,7 +1072,7 @@ function drawItems() {
   const t = performance.now() / 1000;
   items.forEach(it => {
     const bob = Math.sin(t * 4 + it.bobT) * 3;
-    drawPixelSprite(ctx, it.emoji, it.x, it.y + bob, 30);
+    drawPixelSprite(ctx, it.emoji, it.x, it.y + bob, 42);
   });
 }
 
@@ -1130,7 +1130,7 @@ function drawOrders() {
       P(sx, sy, slotW, 2, done ? '#50c840' : '#3a4060');
 
       ctx.globalAlpha = done ? 1 : 0.45;
-      drawPixelSprite(ctx, emoji, sx + slotW/2, sy + slotH/2, 22);
+      drawPixelSprite(ctx, emoji, sx + slotW/2, sy + slotH/2, 26);
       ctx.globalAlpha = 1;
 
       if (done) {
