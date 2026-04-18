@@ -1,7 +1,7 @@
 // ═══════════════════════════════════════════
 //  sw.js — Pixel Kitchen  Service Worker
 // ═══════════════════════════════════════════
-const CACHE = 'pk-v34';
+const CACHE = 'pk-v35';
 
 const STATIC = [
   './',
@@ -14,7 +14,6 @@ const STATIC = [
   './5_plate_perfect.html',
   './6_kitchen_chaos.html',
   './collection.html',
-  './recipe.html',
   './menu.js',
   './shared.css',
   './shared.js',
