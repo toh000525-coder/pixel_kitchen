@@ -476,14 +476,17 @@ function drawIdle(){
   drawBg();
   const bob=Math.sin(t*1.4)*5;
   drawPlateGraphic(PCX,PCY+bob,PR);
-  // Orbiting ingredients
-  const ems=['🍅','🧀','🥩','🥬','🌶️','🧄'];
-  ems.forEach((e,i)=>{
-    const a=t*0.5+(i/ems.length)*Math.PI*2;
-    ctx.globalAlpha=0.75;
-    drawPixelSprite(ctx, e, PCX+Math.cos(a)*(PR+44), PCY+bob+Math.sin(a)*(PR+44)*0.45, 32);
-  });
-  ctx.globalAlpha=1;
+  // Orbiting ingredients — only once the sprite sheet is loaded, to avoid
+  // a visible flash when the WebP swaps in over the JS pixel-art fallback
+  if(typeof PK_SPRITE_IMAGE_READY !== 'undefined' && PK_SPRITE_IMAGE_READY){
+    const ems=['🍅','🧀','🥩','🥬','🌶️','🧄'];
+    ems.forEach((e,i)=>{
+      const a=t*0.5+(i/ems.length)*Math.PI*2;
+      ctx.globalAlpha=0.75;
+      drawPixelSprite(ctx, e, PCX+Math.cos(a)*(PR+44), PCY+bob+Math.sin(a)*(PR+44)*0.45, 32);
+    });
+    ctx.globalAlpha=1;
+  }
   ctx.globalAlpha=0.5+Math.sin(t*2)*0.3; ctx.fillStyle='#00c8d7';
   ctx.font='8px "Press Start 2P"'; ctx.textAlign='center';
   ctx.fillText('SELECT DIFFICULTY →',CW/2,CH-28);
