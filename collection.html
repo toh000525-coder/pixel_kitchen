@@ -186,6 +186,8 @@ body { background:radial-gradient(ellipse at 50% 30%,#1e1630 0%,#0d0a16 100%); f
 const COLLECTION_IDS = Object.keys(PK_DISH_RECIPES);
 const DISHES_INDEX = {};
 PK_DISHES.forEach(d => { if(COLLECTION_IDS.includes(d.id)) DISHES_INDEX[d.id] = d; });
+// Cache collection size so hub's profile can show progress without loading menu.js
+try { localStorage.setItem('pkCollectionTotal', COLLECTION_IDS.length); } catch(e){}
 
 const CUISINES = [...new Set(COLLECTION_IDS.map(id => DISHES_INDEX[id]?.cuisine).filter(Boolean))].sort();
 
