@@ -465,7 +465,7 @@ reg('🥟',{k:'#1e1511',a:'#483a30',b:'#847e70',c:'#b0aa9b',d:'#d6d0c2',e:'#f7f1
 
 })();
 
-// ── Image grid loading (960×1120, 6 cols × 7 rows, 160px per cell) ────────
+// ── Image grid loading (960×1280, 6 cols × 8 rows, 160px per cell) ────────
 let PK_SPRITE_IMAGE = null;
 let PK_SPRITE_IMAGE_READY = false;
 
@@ -510,13 +510,22 @@ const PK_SPRITE_GRID_INDEX = {
   '🧋': 31,  // Yogurt (using bubble tea emoji as stand-in)
   '🍚': 32,  // Rice
   '🍜': 33,  // Noodles
-  // Row 7 (36-41)
+  // Row 6 (30-35)
   '🫛': 34,  // Peas
   '🫘': 35,  // Black Beans
+  // Row 7 (36-41)
   '🥜': 36,  // Peanuts
   '🍯': 37,  // Honey
   '🧂': 38,  // Salt
   '🍫': 39,  // Chocolate
+  '🥔': 40,  // Potato
+  '🐷': 41,  // Pork
+  // Row 8 (42-47) — Phase B additions
+  '🧊': 42,  // Tofu (ice-cube emoji used as visually-distinct key)
+  '🍆': 43,  // Eggplant
+  '🥒': 44,  // Cucumber
+  '🫚': 45,  // Ginger
+  '🌿': 46,  // Basil
 };
 
 function getGameName(){

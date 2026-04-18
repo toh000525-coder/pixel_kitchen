@@ -37,6 +37,21 @@ const PK_INGREDIENTS = [
   // Other
   {emoji:'🫒', name:'OLIVE',       cat:'other'},
   {emoji:'🥟', name:'DUMPLING',    cat:'other'},
+  // ── Phase B additions ─────────────────────────────────────────
+  // Carbs
+  {emoji:'🍚', name:'RICE',        cat:'carb'},
+  {emoji:'🍜', name:'NOODLES',     cat:'carb'},
+  {emoji:'🥔', name:'POTATO',      cat:'carb'},
+  // Proteins
+  {emoji:'🐟', name:'FISH',        cat:'protein'},
+  {emoji:'🐷', name:'PORK',        cat:'protein'},
+  {emoji:'🧊', name:'TOFU',        cat:'protein'},
+  // Veggies
+  {emoji:'🍆', name:'EGGPLANT',    cat:'veggie'},
+  {emoji:'🥒', name:'CUCUMBER',    cat:'veggie'},
+  // Herbs & aromatics
+  {emoji:'🫚', name:'GINGER',      cat:'veggie'},
+  {emoji:'🌿', name:'BASIL',       cat:'veggie'},
 ];
 
 // ── DISHES ──────────────────────────────────────────────────────
