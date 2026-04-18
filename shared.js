@@ -203,7 +203,23 @@ document.addEventListener('DOMContentLoaded', ()=>{
   document.body.appendChild(d);
 });
 
-const _PK_MILESTONES = { 10: 50, 20: 100, 27: 500 };
+// Milestone config — self-scaling so adding more dishes later Just Works.
+// • Every `STEP` dishes unlocked → `STEP_COIN` coins bonus (10, 20, 30, ...)
+// • First time user owns ALL curated dishes → `COMPLETE_COIN` coins
+// Each milestone is only paid once per unique key, tracked in
+// localStorage.pkMilestonesClaimed so expansion doesn't re-award old ones
+// and expanding the collection surfaces a fresh "complete-N" reward.
+const _PK_MILESTONE_STEP       = 10;
+const _PK_MILESTONE_STEP_COIN  = 50;
+const _PK_MILESTONE_COMPLETE   = 500;
+
+function _pkClaimedMs(){
+  try { return new Set(JSON.parse(localStorage.getItem('pkMilestonesClaimed') || '[]')); }
+  catch(e){ return new Set(); }
+}
+function _pkSaveClaimed(set){
+  localStorage.setItem('pkMilestonesClaimed', JSON.stringify([...set]));
+}
 
 function pkUnlockDish(dishId){
   if(!dishId) return false;
@@ -224,20 +240,38 @@ function pkUnlockDish(dishId){
       title:   (dish?.name || dishId).toUpperCase(),
     });
 
-    // Milestone check — count only curated dishes (those in PK_DISH_RECIPES)
+    // Milestone checks — only curated dishes (those with a recipe entry)
     if(typeof PK_DISH_RECIPES !== 'undefined'){
+      const totalCurated = Object.keys(PK_DISH_RECIPES).length;
       const owned = Object.keys(map).filter(id => PK_DISH_RECIPES[id]).length;
-      const bonus = _PK_MILESTONES[owned];
-      if(bonus){
-        pkAddCoins(bonus);
-        const complete = owned === 27;
+      const claimed = _pkClaimedMs();
+
+      // Step milestone (10, 20, 30, ...)
+      const stepKey = 'step-' + owned;
+      if(owned > 0 && owned % _PK_MILESTONE_STEP === 0 && !claimed.has(stepKey)){
+        claimed.add(stepKey);
+        pkAddCoins(_PK_MILESTONE_STEP_COIN);
         _pkShowColToast({
           variant: 'milestone',
-          emoji:   complete ? '🏆' : '🏅',
-          label:   complete ? 'COLLECTION COMPLETE!' : 'MILESTONE REACHED!',
-          title:   owned + ' DISHES  +' + bonus + ' 🪙',
+          emoji:   '🏅',
+          label:   'MILESTONE REACHED!',
+          title:   owned + ' DISHES  +' + _PK_MILESTONE_STEP_COIN + ' 🪙',
         });
       }
+      // Complete milestone — scaled to current collection size (so future
+      // expansions hand out a fresh "complete" when the user tops up).
+      const completeKey = 'complete-' + totalCurated;
+      if(owned === totalCurated && !claimed.has(completeKey)){
+        claimed.add(completeKey);
+        pkAddCoins(_PK_MILESTONE_COMPLETE);
+        _pkShowColToast({
+          variant: 'milestone',
+          emoji:   '🏆',
+          label:   'COLLECTION COMPLETE!',
+          title:   totalCurated + ' / ' + totalCurated + '  +' + _PK_MILESTONE_COMPLETE + ' 🪙',
+        });
+      }
+      _pkSaveClaimed(claimed);
     }
     return true; // newly unlocked
   } catch(e) { return false; }

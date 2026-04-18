@@ -129,7 +129,7 @@ body { background:radial-gradient(ellipse at 50% 30%,#1e1630 0%,#0d0a16 100%); f
       <div class="col-progress">
         <div class="col-progress-top">
           <span class="col-progress-lbl">DISHES UNLOCKED</span>
-          <span class="col-progress-count"><span id="unlockCount">0</span> / 27</span>
+          <span class="col-progress-count"><span id="unlockCount">0</span> / <span id="totalCount">—</span></span>
         </div>
         <div class="col-progress-bar"><div class="col-progress-fill" id="progressFill" style="width:0%;"></div></div>
       </div>
@@ -329,8 +329,10 @@ document.addEventListener('keydown', e => {
 function refreshProgress(){
   const collection = pkGetCollection();
   const owned = COLLECTION_IDS.filter(id => collection[id]).length;
+  const total = COLLECTION_IDS.length;
   document.getElementById('unlockCount').textContent = owned;
-  document.getElementById('progressFill').style.width = (owned/COLLECTION_IDS.length*100) + '%';
+  document.getElementById('totalCount').textContent = total;
+  document.getElementById('progressFill').style.width = (owned/total*100) + '%';
 }
 
 document.addEventListener('DOMContentLoaded', async () => {
