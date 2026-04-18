@@ -504,14 +504,22 @@ body {
   padding:10px 20px; cursor:pointer; width:100%;
 }
 .nm-btn:hover { filter:brightness(1.3); }
-/* player name in sidebar */
-.hub-player { color:#f0d090; font-size:.70rem; line-height:2; text-align:center; }
-.hub-change {
-  font-family:'Press Start 2P',monospace; font-size:.38rem;
-  background:none; border:1px solid #664420; color:#664420;
-  padding:9px 14px; cursor:pointer; text-align:center; width:100%;
+/* player name in sidebar — tap to rename */
+.hub-player {
+  color:#f0d090; font-size:.70rem; line-height:1.6; text-align:center;
+  cursor:pointer; padding:4px 8px; border-radius:2px;
+  transition:color .12s;
+  touch-action:manipulation; -webkit-tap-highlight-color:transparent;
+  user-select:none;
 }
-.hub-change:hover { border-color:#c8904a; color:#c8904a; }
+.hub-player:hover { color:#ffe890; }
+.hub-player:empty { display:none; }
+.hub-player-hint { color:#664420; font-size:.30rem; letter-spacing:1.5px; margin-top:2px; }
+
+/* 2-col grid for main actions — halves vertical space */
+.hub-actions { display:grid; grid-template-columns:1fr 1fr; gap:6px; width:100%; }
+.hub-actions .hub-ranks-btn { padding:8px 6px; font-size:.34rem; letter-spacing:1px; }
+.hub-actions-wide { width:100%; }
 .hub-ranks-btn {
   font-family:'Press Start 2P',monospace; font-size:.38rem;
   background:none; border:2px solid var(--border-hi); color:var(--pink);
@@ -741,16 +749,18 @@ body {
 
     <div class="hub-divider-v"></div>
 
-    <!-- BOTTOM: player info + ranks -->
+    <!-- BOTTOM: player info + actions -->
     <div class="hub-bottom">
-      <div class="hub-player" id="hubPlayerName"></div>
-      <button class="hub-change" id="hubChangeName" onclick="showNameModal()" style="display:none;">✎ CHANGE NAME</button>
+      <div class="hub-player" id="hubPlayerName" onclick="showNameModal()"></div>
+      <div class="hub-player-hint" id="hubPlayerHint" style="display:none;">✎ TAP NAME TO EDIT</div>
 
-      <button class="hub-ranks-btn" id="hubProfileBtn" onclick="openProfileModal()">👤 MY PROFILE</button>
-      <button class="hub-ranks-btn" id="hubRanksBtn" onclick="openRankModal()">🏆 MY RANKS</button>
-      <button class="hub-ranks-btn" onclick="openAchModal()" id="achBtn">🎖️ ACHIEVEMENTS</button>
-      <button class="hub-ranks-btn" onclick="goTo('collection.html')" id="collectionBtn">📖 COLLECTION</button>
-      <button class="hub-ranks-btn" onclick="openSettingsModal()" id="settingsBtn">⚙️ SETTINGS</button>
+      <div class="hub-actions">
+        <button class="hub-ranks-btn" id="hubProfileBtn" onclick="openProfileModal()">👤 PROFILE</button>
+        <button class="hub-ranks-btn" id="hubRanksBtn"   onclick="openRankModal()">🏆 RANKS</button>
+        <button class="hub-ranks-btn" id="achBtn"        onclick="openAchModal()">🎖️ BADGES</button>
+        <button class="hub-ranks-btn" id="collectionBtn" onclick="goTo('collection.html')">📖 COLLECT</button>
+      </div>
+      <button class="hub-ranks-btn hub-actions-wide" id="settingsBtn" onclick="openSettingsModal()">⚙️ SETTINGS</button>
     </div>
 
     <div class="hub-version">v1.5</div>
@@ -1083,7 +1093,8 @@ function updateHubPlayerName(){
   const name = localStorage.getItem('pkName');
   if(!name) return;
   document.getElementById('hubPlayerName').textContent = '▶ ' + name + ' ◀';
-  document.getElementById('hubChangeName').style.display = '';
+  const hint = document.getElementById('hubPlayerHint');
+  if(hint) hint.style.display = '';
 }
 
 // ── MY RANKS ──
