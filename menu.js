@@ -417,3 +417,182 @@ function pkDecoys(dish, count = 4) {
 function pkDishPool() {
   return PK_DISHES.map(d => ({emoji: d.emoji, name: d.name}));
 }
+
+// ═══════════════════════════════════════════════════════════════
+//  FUTURE USE — 候选食谱库（未启用）
+//  一旦通过 Gemini 生成新的食材 sprite，这些食谱即可启用。
+//  每道菜后面列出了目前菜单中【尚未存在】的食材。
+// ═══════════════════════════════════════════════════════════════
+/*
+── 建议新增食材（NEW INGREDIENTS TO GENERATE）──────────────────
+  Carbs:     🍚 RICE     🍜 NOODLES   🥔 POTATO    🥖 FLOUR     🍙 NORI
+  Proteins:  🐟 FISH     🍣 SALMON    🍤 TUNA      🐷 PORK      🍖 LAMB
+             🧈 TOFU     🦆 DUCK      🦑 SQUID     🦞 LOBSTER   🌭 SAUSAGE
+  Veggies:   🥑 AVOCADO  🥒 CUCUMBER  🥬 CABBAGE   🍆 EGGPLANT  🥒 ZUCCHINI
+             🌿 SPINACH  🫛 PEAS      🫘 BEANS     🌰 CHICKPEA  🌱 SCALLION
+  Herbs:     🌿 CILANTRO 🌿 BASIL     🌿 PARSLEY   🫚 GINGER
+  Fruits:    🍋 LEMON    🟢 LIME      🍎 APPLE     🥭 MANGO     🥥 COCONUT
+  Other:     🧂 SOY      🥛 MILK      🍶 YOGURT    🍯 HONEY     🥜 PEANUT
+             🌶️ KIMCHI   🍙 RICE CAKE 🧊 ICE       🍫 CHOCOLATE
+
+── Japanese ─────────────────────────────────────────────────────
+  SUSHI              rice, salmon, nori
+  TEMPURA            shrimp, flour
+  TONKATSU           pork, bread, cabbage
+  OKONOMIYAKI        cabbage, pork, flour
+  ONIGIRI            rice, nori, salmon
+  KATSUDON           pork, egg, onion, rice
+  GYUDON             beef, onion, rice
+  TAMAGOYAKI         egg, soy
+  CHIRASHI DON       rice, salmon, egg, nori
+  SHABU SHABU        beef, cabbage, mushroom, tofu
+  CHICKEN KATSU      chicken, bread, cabbage
+  SOBA               noodles, onion, egg
+  TAKOYAKI           squid, flour, cabbage
+
+── Chinese ──────────────────────────────────────────────────────
+  FRIED RICE         rice, egg, onion, peas
+  CHOW MEIN          noodles, chicken, cabbage, onion
+  PEKING DUCK        duck, cucumber, onion
+  CHAR SIU           pork, garlic, honey
+  XIAO LONG BAO      pork, dumpling, ginger
+  HOT & SOUR SOUP    tofu, mushroom, egg, chili
+  SCALLION PANCAKE   flour, scallion
+  BEEF NOODLE SOUP   beef, noodles, onion, chili
+  SCALLION PORK      pork, scallion, garlic
+  LION HEAD MEATBALL pork, cabbage, ginger
+  SALT & PEPPER SHRIMP shrimp, chili, garlic
+  FISH FILLET        fish, chili, garlic, ginger
+  STEAMED EGG        egg, soy, scallion
+  CONGEE (ORIGINAL)  rice, ginger, scallion
+
+── Korean ───────────────────────────────────────────────────────
+  KIMCHI STEW        kimchi, pork, tofu
+  TTEOKBOKKI         rice cake, chili, onion
+  GIMBAP             rice, nori, carrot, egg
+  DAKGALBI           chicken, cabbage, rice cake, chili
+  SAMGYETANG         chicken, garlic, rice, ginger
+  HAEMUL PAJEON      squid, scallion, flour, shrimp
+  MANDU              dumpling, pork, cabbage
+  NAENGMYEON         noodles, cucumber, egg, beef
+  SOFT TOFU STEW     tofu, chili, egg, onion
+
+── Thai ─────────────────────────────────────────────────────────
+  TOM YUM            shrimp, chili, mushroom, lime
+  SOM TAM            carrot, chili, lime, peanut
+  KHAO SOI           noodles, chicken, chili, onion
+  PAD KRAPOW         chicken, basil, chili, egg
+  PANANG CURRY       beef, chili, coconut, basil
+  MANGO STICKY RICE  rice, mango, coconut
+  THAI FRIED RICE    rice, shrimp, egg, scallion
+
+── Vietnamese ───────────────────────────────────────────────────
+  BANH MI            bread, pork, carrot, cucumber, cilantro
+  BUN CHA            pork, noodles, lettuce, carrot
+  BANH XEO           shrimp, pork, flour, beans
+  CA KHO TO          fish, chili, garlic, onion
+  COM TAM            rice, pork, egg, cucumber
+
+── Indian ───────────────────────────────────────────────────────
+  BUTTER CHICKEN     chicken, tomato, butter, yogurt
+  TANDOORI CHICKEN   chicken, yogurt, chili, garlic
+  SAMOSA             potato, peas, chili, flour
+  NAAN               flour, butter, garlic, yogurt
+  SAAG PANEER        spinach, cheese, garlic, chili
+  VINDALOO           pork, chili, garlic, onion
+  DOSA               flour, potato, onion
+  ROGAN JOSH         lamb, tomato, yogurt, onion
+  KORMA              chicken, yogurt, onion, garlic
+  RAITA              yogurt, cucumber, onion
+
+── Italian ──────────────────────────────────────────────────────
+  LASAGNA            pasta, beef, tomato, cheese
+  GNOCCHI            potato, cheese, tomato, butter
+  FOCACCIA           bread, olive, garlic, tomato
+  CALZONE            bread, cheese, tomato, mushroom
+  BOLOGNESE          pasta, beef, tomato, carrot
+  OSSO BUCO          beef, tomato, carrot, onion
+  CACIO E PEPE       pasta, cheese, butter
+  SALTIMBOCCA        chicken, butter, garlic
+  PICCATA            chicken, butter, garlic, lemon
+
+── French ───────────────────────────────────────────────────────
+  BEEF BOURGUIGNON   beef, mushroom, onion, carrot, bacon
+  QUICHE             egg, cheese, bacon, butter
+  CROQUE MONSIEUR    bread, cheese, butter
+  BOUILLABAISSE      fish, shrimp, tomato, garlic
+  CASSOULET          beans, sausage, duck, onion
+  CREPES             flour, egg, butter
+  DUCK CONFIT        duck, garlic, butter
+  SOUFFLE            egg, cheese, butter
+
+── Spanish ──────────────────────────────────────────────────────
+  PATATAS BRAVAS     potato, tomato, chili, garlic
+  CROQUETAS          potato, cheese, butter
+  GAMBAS AL AJILLO   shrimp, garlic, chili
+  PAN CON TOMATE     bread, tomato, garlic
+  CHORIZO POT        sausage, onion, tomato, chili
+
+── Mexican ──────────────────────────────────────────────────────
+  FAJITAS            beef, bell pepper, onion
+  GUACAMOLE          avocado, tomato, onion, lime
+  CEVICHE            fish, lime, onion, chili
+  HUEVOS RANCHEROS   egg, tomato, chili, beans
+  TAMALES            corn, chili, pork
+  MOLE               chicken, chili, chocolate, garlic
+  CHILAQUILES        egg, tomato, chili, cheese
+
+── American ─────────────────────────────────────────────────────
+  MAC & CHEESE       pasta, cheese, butter
+  PANCAKES           flour, egg, butter, honey
+  CLAM CHOWDER       potato, onion, bacon, butter
+  MEATLOAF           beef, egg, onion, bread
+  PHILLY CHEESESTEAK beef, bread, cheese, onion, bell pepper
+  LOBSTER ROLL       lobster, bread, butter, lettuce
+  GUMBO              shrimp, sausage, bell pepper, onion
+  WAFFLES            flour, egg, butter, honey
+  BISCUITS & GRAVY   flour, sausage, butter
+  CORN BREAD         flour, corn, butter, egg
+
+── British ──────────────────────────────────────────────────────
+  FISH & CHIPS       fish, potato, flour
+  SHEPHERDS PIE      lamb, potato, carrot, onion
+  BANGERS & MASH     sausage, potato, onion
+  FULL ENGLISH       egg, bacon, tomato, mushroom, bread
+  SCOTCH EGG         egg, sausage, bread
+  COTTAGE PIE        beef, potato, carrot, onion
+
+── Greek ────────────────────────────────────────────────────────
+  GYROS              beef, bread, tomato, onion, yogurt
+  SOUVLAKI           chicken, onion, bread, yogurt
+  SPANAKOPITA        spinach, cheese, flour, butter
+  TZATZIKI           yogurt, cucumber, garlic
+  DOLMADES           lettuce, rice, onion, lemon
+
+── Middle Eastern ───────────────────────────────────────────────
+  HUMMUS             chickpea, garlic, olive, lemon
+  FALAFEL            chickpea, onion, garlic, parsley
+  SHAWARMA           chicken, bread, tomato, yogurt
+  BABA GHANOUSH      eggplant, garlic, olive, lemon
+  TABBOULEH          parsley, tomato, lemon, onion
+  MANSAF             lamb, yogurt, rice, onion
+
+── Others ───────────────────────────────────────────────────────
+  PIEROGI (POL)      flour, potato, cheese, onion
+  POUTINE (CAN)      potato, cheese
+  JERK CHICKEN (JAM) chicken, chili, onion, garlic
+  JOLLOF RICE (NGA)  rice, tomato, chili, onion
+  EMPANADAS (ARG)    flour, beef, onion, egg
+  MOQUECA (BRA)      fish, tomato, onion, coconut
+  GOULASH (HUN)      beef, onion, chili, potato
+  PIEROGI RUSKIE     flour, potato, cheese
+  PHO GA             chicken, noodles, onion, ginger
+  KHINKALI (GEO)     dumpling, beef, onion, garlic
+
+── Dessert / Breakfast（可选全新分类）──────────────────────────
+  CHOCOLATE CAKE     flour, egg, butter, chocolate
+  APPLE PIE          flour, apple, butter
+  TIRAMISU           egg, cheese, chocolate
+  FRENCH TOAST       bread, egg, butter, honey
+  YOGURT PARFAIT     yogurt, honey, apple
+*/
