@@ -435,6 +435,7 @@ const BAD_ITEMS = [
 ];
 // Convert PK_DISHES to Kitchen Chaos format: {name, emoji, need:[...emojis]}
 const RECIPES = PK_DISHES.map(d => ({
+  id: d.id,
   name: d.name,
   emoji: d.emoji,
   need: d.items.map(i => i.emoji),
@@ -936,6 +937,7 @@ function checkOrderComplete(ord, idx) {
   gServed++;
   sndServed();
   spawnEffect(CW/2, BELT_Y - 60, '★ ORDER UP! ' + ord.recipe.emoji + ' +' + bonus, '#f5c842');
+  if(typeof pkUnlockDish === 'function') pkUnlockDish(ord.recipe.id);
   orders[idx] = makeOrder();
 }
 

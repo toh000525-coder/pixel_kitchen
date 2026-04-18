@@ -1168,6 +1168,7 @@ function resetKitchen(){
   );
   const _E2K = Object.fromEntries(PK_INGREDIENTS.map(i => [i.emoji, toKey(i.name)]));
   window.DISHES = PK_DISHES.map(d => ({
+    id: d.id,
     name: toLabel(d.name),
     e: d.emoji,
     ok: d.items.map(it => _E2K[it.emoji]).filter(Boolean)
@@ -1362,6 +1363,7 @@ function selectIngr(id,tile){
 function completeDish(){
   const isGolden=gGolden.has(gDishIdx);
   gCombo++; gCorrect++;
+  if(typeof pkUnlockDish === 'function') pkUnlockDish(gDishes[gDishIdx]?.id);
   if(gCombo>gBestCombo) gBestCombo=gCombo;
   const timeCfg=DIFF_CFG[gDiff].time;
   const goldenBonus=isGolden?15:0;

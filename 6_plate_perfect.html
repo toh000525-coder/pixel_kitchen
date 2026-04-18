@@ -602,6 +602,7 @@ function finishSauceDraw(){
   // Total dish score
   const dishScore=lastPlaceScore+lastSauceScore;
   gScore+=dishScore; gDishes++;
+  if(typeof pkUnlockDish === 'function') pkUnlockDish(currentRecipe?.id);
   sndDish();
   showFlash('★ +'+dishScore+' pts');
   spawnEffect(PCX,PCY-80,'PLATE +'+lastPlaceScore, '#00c8d7');

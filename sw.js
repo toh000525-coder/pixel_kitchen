@@ -13,14 +13,18 @@ const STATIC = [
   './4_recipe_rush.html',
   './5_kitchen_chaos.html',
   './6_plate_perfect.html',
+  './collection.html',
+  './recipe.html',
   './menu.js',
   './shared.css',
   './shared.js',
   './sprites.js',
+  './dishes.js',
   './achievements.js',
   './icon.svg',
   './manifest.json',
   './assets/food-sprites.webp',
+  './assets/dishes-sprites.webp',
   'https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap',
 ];
 

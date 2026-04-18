@@ -419,6 +419,365 @@ function pkDishPool() {
 }
 
 // ═══════════════════════════════════════════════════════════════
+//  PK_DISH_RECIPES — Real, simplified home-cooking recipes
+//  Keyed by dish id. Used by collection.html & recipe.html.
+//  Only the curated 27 dishes have entries (others render as "coming soon").
+// ═══════════════════════════════════════════════════════════════
+const PK_DISH_RECIPES = {
+  'omelette': {
+    description: "A classic French breakfast — soft folded eggs with melted cheese and crispy bacon.",
+    cookTime: 10,
+    realIngredients: ["3 eggs", "1/4 cup shredded cheese", "2 slices bacon, chopped", "1 tbsp butter", "Salt & pepper"],
+    steps: [
+      "Cook the bacon in a nonstick pan until crispy, then set aside.",
+      "Whisk eggs with a pinch of salt and pepper.",
+      "Melt butter in the same pan over medium-low heat.",
+      "Pour in eggs. Let them set 30 sec, then gently push edges toward center.",
+      "When mostly set but still glossy on top, scatter bacon and cheese on one half.",
+      "Fold the other half over and slide onto a plate."
+    ]
+  },
+  'steak': {
+    description: "Pan-seared beef steak with a garlic butter finish.",
+    cookTime: 15,
+    realIngredients: ["1 ribeye or sirloin steak (2cm thick)", "2 tbsp butter", "2 garlic cloves, crushed", "Salt & pepper", "Oil for searing"],
+    steps: [
+      "Pat the steak dry and season generously with salt and pepper.",
+      "Heat a heavy pan over high heat until smoking.",
+      "Add a little oil and sear steak 2-3 min per side for medium-rare.",
+      "Lower heat, add butter and crushed garlic to the pan.",
+      "Spoon the foaming butter over the steak for 1 min.",
+      "Rest on a board for 5 min before slicing."
+    ]
+  },
+  'ratatouille': {
+    description: "A rustic Provençal vegetable stew of summer vegetables in tomato sauce.",
+    cookTime: 45,
+    realIngredients: ["1 eggplant", "1 zucchini", "1 bell pepper", "3 tomatoes", "1 onion", "3 garlic cloves", "Olive oil", "Thyme, salt, pepper"],
+    steps: [
+      "Slice eggplant, zucchini, pepper, and tomatoes into thin rounds.",
+      "Sauté diced onion and minced garlic in olive oil until soft.",
+      "Blend a few tomatoes with the onion mix to make the sauce base.",
+      "Spread sauce in a baking dish and arrange veggie slices on top in a spiral.",
+      "Drizzle with olive oil, sprinkle thyme, salt, pepper.",
+      "Cover and bake at 180°C for 40 min, uncover for last 10 min."
+    ]
+  },
+  'pizza': {
+    description: "A simple Margherita-style pizza with olives and chili — homemade and crispy.",
+    cookTime: 30,
+    realIngredients: ["Pizza dough (store-bought ok)", "1/2 cup tomato sauce", "1 cup shredded mozzarella", "8 black olives", "Chili flakes", "Olive oil"],
+    steps: [
+      "Preheat oven to 240°C (as hot as it goes).",
+      "Roll out the dough on a floured surface into a 30cm circle.",
+      "Spread tomato sauce evenly, leaving a 2cm border for the crust.",
+      "Scatter mozzarella, then olives. Drizzle with olive oil.",
+      "Bake on the top rack for 10-12 min until crust is golden.",
+      "Sprinkle chili flakes and serve immediately."
+    ]
+  },
+  'carbonara': {
+    description: "A creamy Roman pasta made with eggs, cheese, bacon, and black pepper — no cream.",
+    cookTime: 20,
+    realIngredients: ["200g spaghetti", "100g bacon or pancetta, diced", "2 eggs + 1 yolk", "50g parmesan, grated", "Black pepper, salt"],
+    steps: [
+      "Boil spaghetti in well-salted water until al dente. Save 1 cup pasta water.",
+      "While pasta cooks, fry bacon until crispy. Turn off heat.",
+      "In a bowl, whisk eggs, parmesan, and plenty of black pepper.",
+      "Drain pasta and immediately add to the bacon pan (heat off).",
+      "Pour egg mix over and toss quickly, adding pasta water to loosen.",
+      "Serve with extra parmesan and pepper on top."
+    ]
+  },
+  'risotto': {
+    description: "A creamy Italian rice dish slowly cooked with mushrooms and parmesan.",
+    cookTime: 35,
+    realIngredients: ["1 cup arborio rice", "200g mushrooms, sliced", "1 onion, diced", "1L warm chicken or veg stock", "50g butter", "50g parmesan", "Olive oil"],
+    steps: [
+      "Sauté mushrooms in butter until golden, set aside.",
+      "In the same pan, cook diced onion in olive oil until translucent.",
+      "Add rice, stir for 1 min until edges look glassy.",
+      "Ladle in warm stock one scoop at a time, stirring until absorbed before adding more.",
+      "After ~20 min, when rice is creamy and al dente, stir in mushrooms.",
+      "Turn off heat. Stir in remaining butter and parmesan. Rest 2 min before serving."
+    ]
+  },
+  'burger': {
+    description: "A classic American cheeseburger — juicy beef patty with cheese, lettuce, and tomato.",
+    cookTime: 15,
+    realIngredients: ["2 burger buns", "300g ground beef (80/20)", "2 slices cheddar", "2 lettuce leaves", "2 tomato slices", "Salt & pepper"],
+    steps: [
+      "Divide beef into 2 portions, shape into patties slightly larger than buns.",
+      "Press a thumb-dimple in the center (prevents puffing up).",
+      "Season both sides with salt and pepper.",
+      "Cook patties in a hot skillet 3 min per side for medium.",
+      "Top with cheese in the last minute and let it melt.",
+      "Toast bun halves, layer lettuce, tomato, patty, and close."
+    ]
+  },
+  'blt': {
+    description: "The classic American sandwich — bacon, lettuce, tomato on toasted bread.",
+    cookTime: 10,
+    realIngredients: ["4 slices white bread", "6 strips bacon", "4 lettuce leaves", "1 tomato, sliced", "Mayonnaise"],
+    steps: [
+      "Cook bacon until crispy, drain on paper towels.",
+      "Toast bread slices until golden.",
+      "Spread mayo on one side of each toast.",
+      "Layer lettuce, tomato slices (salt lightly), and bacon on 2 slices.",
+      "Top with remaining toast, mayo-side down.",
+      "Slice diagonally and serve."
+    ]
+  },
+  'caesar': {
+    description: "Crisp romaine lettuce with creamy dressing, parmesan, croutons, and bacon.",
+    cookTime: 15,
+    realIngredients: ["1 head romaine lettuce", "1/2 cup parmesan, grated", "1 cup croutons", "4 strips bacon, crumbled", "Caesar dressing"],
+    steps: [
+      "Wash and dry romaine, then chop into bite-size pieces.",
+      "Cook bacon until crispy, crumble into small pieces.",
+      "In a large bowl, toss romaine with enough dressing to coat lightly.",
+      "Add half the parmesan and half the croutons, toss again.",
+      "Transfer to a serving bowl.",
+      "Top with remaining parmesan, croutons, and bacon crumbles."
+    ]
+  },
+  'ramen': {
+    description: "Japanese noodle soup in rich broth with soft egg, corn, and seaweed.",
+    cookTime: 25,
+    realIngredients: ["2 packs fresh ramen noodles", "1L chicken stock", "2 tbsp miso paste", "2 soft-boiled eggs", "1/2 cup corn", "2 nori sheets", "Green onions"],
+    steps: [
+      "Soft-boil eggs for 6.5 min, chill in ice water, then peel and halve.",
+      "In a pot, heat stock and whisk in miso paste until smooth.",
+      "Cook ramen noodles separately according to pack (usually 3 min).",
+      "Divide noodles between 2 bowls, ladle hot broth over.",
+      "Top each bowl with half an egg, corn, nori, sliced green onions.",
+      "Serve immediately with chopsticks."
+    ]
+  },
+  'teriyaki': {
+    description: "Japanese-style grilled chicken glazed with a sweet soy sauce.",
+    cookTime: 25,
+    realIngredients: ["2 chicken thighs, boneless", "1 head broccoli", "Cooked rice for serving", "For sauce: 3 tbsp soy sauce, 2 tbsp mirin, 2 tbsp sugar, 1 garlic clove minced", "Sesame seeds"],
+    steps: [
+      "Mix soy sauce, mirin, sugar, and garlic in a bowl for the teriyaki glaze.",
+      "Steam broccoli florets for 4 min until bright green and tender.",
+      "Sear chicken thighs skin-side down in a hot pan until golden (5 min).",
+      "Flip and cook 4 more min. Drain excess fat.",
+      "Pour in the sauce and simmer until it thickens and coats the chicken.",
+      "Slice chicken, serve over rice with broccoli. Sprinkle sesame seeds."
+    ]
+  },
+  'katsu_curry': {
+    description: "Japanese comfort food — breaded chicken cutlet with mild curry sauce and rice.",
+    cookTime: 40,
+    realIngredients: ["2 chicken breasts", "1 cup panko breadcrumbs", "1 egg, beaten", "Flour for dusting", "1 Japanese curry roux block", "1 carrot, 1 onion, diced", "Cooked rice", "Oil for frying"],
+    steps: [
+      "Sauté onion and carrot in a pot until soft. Add 500ml water and simmer 10 min.",
+      "Break in the curry roux and stir until dissolved and thickened.",
+      "Pound chicken to even thickness. Season with salt.",
+      "Dredge chicken in flour, then egg, then panko — press to coat.",
+      "Shallow-fry in hot oil 3-4 min per side until golden. Rest on paper towel.",
+      "Slice chicken, plate over rice, pour curry sauce beside."
+    ]
+  },
+  'bibimbap': {
+    description: "Korean rice bowl with colorful vegetables, beef, fried egg, and spicy gochujang.",
+    cookTime: 35,
+    realIngredients: ["2 cups cooked rice", "200g ground beef", "1 carrot, julienned", "2 cups spinach", "2 eggs", "2 tbsp gochujang", "Soy sauce, sesame oil, garlic"],
+    steps: [
+      "Season beef with soy sauce, minced garlic, and sesame oil. Stir-fry until browned.",
+      "Blanch spinach 30 sec, squeeze dry, toss with sesame oil and salt.",
+      "Sauté julienned carrot with a pinch of salt until just tender.",
+      "Fry eggs sunny-side up (runny yolk).",
+      "Divide rice between 2 bowls. Arrange beef, spinach, carrot in sections on top.",
+      "Top with fried egg and a dollop of gochujang. Mix everything before eating."
+    ]
+  },
+  'bulgogi': {
+    description: "Thin slices of marinated beef grilled Korean-style with onion and garlic.",
+    cookTime: 30,
+    realIngredients: ["400g beef sirloin, thinly sliced", "1 onion, sliced", "4 garlic cloves, minced", "For marinade: 4 tbsp soy sauce, 2 tbsp sugar, 1 tbsp sesame oil, 1 pear grated (or 1 tbsp sugar)", "Lettuce for wrapping"],
+    steps: [
+      "Mix marinade ingredients in a bowl.",
+      "Add sliced beef, onion, and garlic. Toss to coat and rest 20 min.",
+      "Heat a skillet or grill pan over high heat.",
+      "Cook the beef and onion in batches — don't overcrowd. 2 min per side.",
+      "Transfer to a platter and serve hot.",
+      "Eat with lettuce wraps and rice."
+    ]
+  },
+  'kung_pao': {
+    description: "Spicy Sichuan stir-fry with chicken, chilies, and peanuts.",
+    cookTime: 20,
+    realIngredients: ["2 chicken breasts, cubed", "1/2 cup roasted peanuts", "8-10 dried red chilies", "3 garlic cloves, sliced", "3 green onions, white parts", "For sauce: 2 tbsp soy sauce, 1 tbsp vinegar, 1 tbsp sugar, 1 tsp cornstarch + 2 tbsp water"],
+    steps: [
+      "Marinate chicken cubes with 1 tsp soy sauce and 1 tsp cornstarch for 10 min.",
+      "Mix sauce ingredients in a small bowl.",
+      "Heat wok over high heat with 2 tbsp oil until smoking.",
+      "Add dried chilies and garlic, stir 10 sec until fragrant (don't burn).",
+      "Add chicken, stir-fry until mostly cooked (3 min).",
+      "Pour in sauce, add peanuts and green onion. Toss until glossy. Serve with rice."
+    ]
+  },
+  'mapo_tofu': {
+    description: "Sichuan classic — silky tofu in a fiery red chili-bean sauce with ground pork.",
+    cookTime: 20,
+    realIngredients: ["1 block (400g) soft tofu, cubed", "150g ground pork", "2 tbsp doubanjiang (chili bean paste)", "3 garlic cloves, minced", "2 green onions, sliced", "1 cup chicken stock", "1 tbsp cornstarch + 2 tbsp water"],
+    steps: [
+      "Gently simmer tofu cubes in lightly salted water for 2 min, then drain.",
+      "Brown ground pork in a hot wok until cooked through.",
+      "Push pork to the side, add garlic and doubanjiang. Stir until oil turns red.",
+      "Add stock and bring to a simmer. Slide in tofu gently.",
+      "Simmer 5 min, then stir in cornstarch slurry to thicken.",
+      "Top with green onions. Serve with rice."
+    ]
+  },
+  'dan_dan': {
+    description: "Sichuan street noodles topped with spicy minced pork and chili oil.",
+    cookTime: 25,
+    realIngredients: ["200g wheat noodles", "200g ground pork", "2 tbsp chili oil", "2 tbsp soy sauce", "1 tbsp black vinegar", "2 tbsp tahini or peanut butter", "2 garlic cloves, minced", "2 green onions, sliced", "Crushed peanuts"],
+    steps: [
+      "Stir-fry ground pork with minced garlic and 1 tbsp soy sauce until crispy.",
+      "In each serving bowl, mix 1 tbsp chili oil, 1 tbsp soy sauce, 1 tsp vinegar, 1 tbsp tahini.",
+      "Cook noodles according to package. Drain but save 1/4 cup cooking water.",
+      "Place noodles in the bowls over the sauce. Add a splash of cooking water.",
+      "Top with crispy pork, sliced green onions, and crushed peanuts.",
+      "Mix everything before eating."
+    ]
+  },
+  'pad_thai': {
+    description: "Thailand's famous stir-fried rice noodles with shrimp, egg, and peanuts.",
+    cookTime: 25,
+    realIngredients: ["200g flat rice noodles", "200g shrimp, peeled", "2 eggs", "1 cup bean sprouts", "3 green onions, chopped", "3 garlic cloves, minced", "For sauce: 3 tbsp fish sauce, 3 tbsp tamarind paste (or lime juice), 2 tbsp sugar", "Crushed peanuts, lime wedges"],
+    steps: [
+      "Soak rice noodles in warm water for 15 min until soft but firm.",
+      "Mix sauce ingredients in a small bowl.",
+      "Heat oil in wok, stir-fry garlic and shrimp until pink (2 min).",
+      "Push to side, crack in eggs and scramble quickly.",
+      "Add drained noodles and sauce, toss for 2 min until sauce absorbs.",
+      "Add bean sprouts and green onions. Toss 30 sec. Serve with peanuts and lime."
+    ]
+  },
+  'green_curry': {
+    description: "Creamy Thai curry with coconut milk, chicken, and Thai basil.",
+    cookTime: 25,
+    realIngredients: ["2 chicken breasts, sliced", "400ml coconut milk", "3 tbsp green curry paste", "1 green bell pepper, sliced", "1 cup broccoli florets", "1 tbsp fish sauce", "1 tbsp sugar", "Handful Thai basil leaves", "2 red chilies"],
+    steps: [
+      "Heat 1/2 cup of the thickest coconut milk in a pot until it splits (oil separates).",
+      "Stir in curry paste and fry 2 min until fragrant.",
+      "Add chicken, stir until sealed.",
+      "Pour in remaining coconut milk, fish sauce, and sugar. Simmer 10 min.",
+      "Add bell pepper and broccoli, simmer 5 more min.",
+      "Turn off heat, stir in basil and chilies. Serve with rice."
+    ]
+  },
+  'pho': {
+    description: "Vietnamese beef noodle soup with aromatic clear broth.",
+    cookTime: 60,
+    realIngredients: ["200g rice noodles", "300g beef sirloin, very thinly sliced", "1.5L beef stock", "1 onion, halved", "3cm ginger, sliced", "2 star anise, 1 cinnamon stick, 3 cloves", "1 tbsp fish sauce", "Bean sprouts, Thai basil, lime, chili — to serve"],
+    steps: [
+      "Char the onion and ginger over open flame or under broiler 3 min.",
+      "Toast star anise, cinnamon, cloves in a dry pot 1 min.",
+      "Add stock, charred onion & ginger, fish sauce. Simmer 45 min. Strain.",
+      "Cook rice noodles according to package, divide into bowls.",
+      "Place raw thinly-sliced beef on noodles.",
+      "Pour boiling hot broth over — it will cook the beef. Serve with sprouts, basil, lime, chili."
+    ]
+  },
+  'curry': {
+    description: "A hearty Indian-style beef curry with vegetables.",
+    cookTime: 60,
+    realIngredients: ["500g beef chuck, cubed", "2 onions, diced", "3 garlic cloves, minced", "2 tbsp curry powder", "1 can tomatoes", "2 carrots, chunked", "1 sweet potato, cubed", "500ml beef stock", "1 red chili, sliced"],
+    steps: [
+      "Brown beef cubes in oil over high heat, then set aside.",
+      "In same pot, sauté onion and garlic until soft (5 min).",
+      "Stir in curry powder and cook 30 sec until fragrant.",
+      "Return beef, add tomatoes, stock, and chili. Bring to a simmer.",
+      "Cover and simmer 40 min until beef is tender.",
+      "Add carrots and sweet potato, cook 15 more min until soft. Serve with rice."
+    ]
+  },
+  'biryani': {
+    description: "Fragrant Indian rice baked with spiced meat, saffron, and fried onions.",
+    cookTime: 75,
+    realIngredients: ["2 cups basmati rice", "500g beef or lamb, cubed", "2 onions, thinly sliced (fried until golden)", "1/2 cup yogurt", "3 garlic cloves, 3cm ginger, minced", "2 tsp garam masala, 1 tsp turmeric, 1 tsp chili powder", "Pinch saffron in 2 tbsp warm milk", "Fresh cilantro"],
+    steps: [
+      "Marinate meat with yogurt, garlic-ginger, and spices for 30 min.",
+      "Fry onion slices in oil until deep golden and crispy. Drain.",
+      "Cook meat in its marinade with half the fried onions, simmer until tender (45 min).",
+      "Meanwhile, parboil basmati rice (about 70% done), drain.",
+      "In a pot, layer: meat, rice, saffron milk, fried onions, cilantro. Repeat.",
+      "Cover tightly and steam on low heat for 20 min. Fluff gently before serving."
+    ]
+  },
+  'tacos': {
+    description: "Mexican soft tacos with seasoned ground beef and fresh toppings.",
+    cookTime: 20,
+    realIngredients: ["8 small corn tortillas", "400g ground beef", "1 onion, diced", "2 garlic cloves, minced", "2 tsp taco seasoning (cumin + paprika + chili powder)", "1 tomato, diced", "1 cup shredded cheese", "1/2 cup corn kernels", "Lime wedges"],
+    steps: [
+      "Brown ground beef in a skillet, breaking it up.",
+      "Add onion and garlic, cook until soft (3 min).",
+      "Stir in taco seasoning and 3 tbsp water. Simmer 2 min until thick.",
+      "Warm tortillas in a dry pan 20 sec per side.",
+      "Fill each tortilla with beef, diced tomato, corn, and cheese.",
+      "Squeeze lime over and serve."
+    ]
+  },
+  'enchiladas': {
+    description: "Mexican rolled tortillas smothered in red chili sauce and melted cheese.",
+    cookTime: 45,
+    realIngredients: ["8 corn tortillas", "400g cooked shredded beef or chicken", "1 onion, diced", "2 cups enchilada sauce (or tomato + chili powder)", "2 cups shredded cheese", "Fresh cilantro", "Oil"],
+    steps: [
+      "Preheat oven to 180°C.",
+      "Sauté diced onion, mix with shredded meat.",
+      "Warm tortillas in a dry pan or microwave (10 sec) so they don't crack.",
+      "Fill each tortilla with meat, roll, and place seam-down in a baking dish.",
+      "Pour enchilada sauce over to cover, top with shredded cheese.",
+      "Bake 20 min until cheese bubbles. Garnish with cilantro."
+    ]
+  },
+  'paella': {
+    description: "Spanish rice dish cooked in a wide pan with shrimp, peppers, and saffron.",
+    cookTime: 45,
+    realIngredients: ["1.5 cups paella rice", "300g shrimp", "1 onion, diced", "1 bell pepper, sliced", "3 garlic cloves, minced", "1 tomato, grated", "Pinch saffron", "700ml warm chicken stock", "1 tsp paprika", "Olive oil, lemon wedges"],
+    steps: [
+      "In a wide pan, sauté onion, pepper, and garlic in olive oil until soft.",
+      "Add grated tomato and paprika, cook until thickened (3 min).",
+      "Stir in rice to coat with the tomato mix.",
+      "Pour in warm stock with saffron dissolved in. Shake pan to settle (DO NOT STIR from now).",
+      "Simmer uncovered 15 min on medium, then add shrimp on top.",
+      "Cook 5 more min until rice absorbs liquid and bottom crisps. Rest 5 min, serve with lemon."
+    ]
+  },
+  'greek_salad': {
+    description: "A classic Greek salad with tomato, feta, olives, and olive oil.",
+    cookTime: 10,
+    realIngredients: ["3 tomatoes, chunked", "1 red onion, thinly sliced", "200g feta cheese, cubed", "1/2 cup Kalamata olives", "1 head romaine or 1 cucumber", "3 tbsp olive oil", "1 tbsp red wine vinegar", "Dried oregano, salt & pepper"],
+    steps: [
+      "Cut tomatoes into bite-size chunks.",
+      "Thinly slice red onion and soak in cold water 5 min to mellow (optional).",
+      "Chop romaine or slice cucumber.",
+      "In a serving bowl, combine tomatoes, onion, romaine, olives.",
+      "Whisk olive oil, vinegar, oregano, salt, pepper. Pour over salad.",
+      "Top with feta cubes. Toss gently and serve."
+    ]
+  },
+  'shakshuka': {
+    description: "North African / Middle Eastern dish of eggs poached in spiced tomato-pepper sauce.",
+    cookTime: 30,
+    realIngredients: ["4 eggs", "1 can whole tomatoes (400g)", "1 red bell pepper, diced", "1 onion, diced", "3 garlic cloves, minced", "1 tsp cumin, 1 tsp paprika, pinch chili flakes", "Fresh parsley, olive oil"],
+    steps: [
+      "Heat olive oil in a wide skillet over medium heat.",
+      "Sauté onion and pepper until soft (5 min). Add garlic, cumin, paprika.",
+      "Pour in tomatoes, crushing with a spoon. Add chili flakes and salt.",
+      "Simmer 10 min until thick and saucy.",
+      "Make 4 wells with a spoon, crack an egg into each.",
+      "Cover and cook 6-8 min until whites are set, yolks still runny. Top with parsley."
+    ]
+  }
+};
+
+// ═══════════════════════════════════════════════════════════════
 //  FUTURE USE — 候选食谱库（未启用）
 //  一旦通过 Gemini 生成新的食材 sprite，这些食谱即可启用。
 //  每道菜后面列出了目前菜单中【尚未存在】的食材。
