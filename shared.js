@@ -2,8 +2,9 @@
 //  shared.js — Pixel Kitchen  Common Utilities
 // ═══════════════════════════════════════════
 
-// Page navigation with fade-out transition
+// Page navigation with fade-out transition + haptic tap for mobile feel
 function goTo(url){
+  try { pkVibrate('tap'); } catch(e){}
   document.body.style.animation='pkPageOut 0.18s ease-in both';
   setTimeout(()=>location.href=url, 190);
 }
@@ -72,7 +73,12 @@ function pkStatMax(key, val){
 // Haptic feedback — respects devices that don't support vibrate
 function pkVibrate(type){
   if(!navigator.vibrate) return;
-  const p = { combo:[40,30,40,30,80], fail:[100], ach:[30,20,30,20,80] };
+  const p = {
+    tap:   [12],                // soft click — button/card taps
+    combo: [40,30,40,30,80],
+    fail:  [100],
+    ach:   [30,20,30,20,80],
+  };
   navigator.vibrate(p[type] || [30]);
 }
 
@@ -239,6 +245,11 @@ function pkUnlockDish(dishId){
       label:   'NEW RECIPE!  +5 🪙',
       title:   (dish?.name || dishId).toUpperCase(),
     });
+
+    // Collection-based achievements (First Recipe, Library Builder, etc.)
+    if(typeof pkCheckCollectionAchievements === 'function'){
+      pkCheckCollectionAchievements(map);
+    }
 
     // Milestone checks — only curated dishes (those with a recipe entry)
     if(typeof PK_DISH_RECIPES !== 'undefined'){

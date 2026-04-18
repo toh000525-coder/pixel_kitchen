@@ -290,6 +290,9 @@ body {
   position:relative;
   overflow:hidden;
   transition:transform .08s, filter .08s, box-shadow .08s;
+  touch-action:manipulation;
+  -webkit-tap-highlight-color:transparent;
+  user-select:none;
 }
 .game-card:not(.soon):hover {
   transform:translate(-2px,-2px);

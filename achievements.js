@@ -35,6 +35,11 @@ const PK_ACHIEVEMENTS = [
   // ── Special ──────────────────────────────────────────────────
   { id:'comeback',     emoji:'🔁', name:'COMEBACK',          desc:'Play again after a 1-star result',       cat:'SPECIAL'  },
   { id:'master_chef',  emoji:'👨‍🍳', name:'MASTER CHEF',     desc:'Unlock 20 achievements',                 cat:'SPECIAL'  },
+  // ── Collection ───────────────────────────────────────────────
+  { id:'first_recipe',     emoji:'🔓', name:'FIRST RECIPE',     desc:'Unlock your first dish',                 cat:'COLLECT'  },
+  { id:'library_builder',  emoji:'📖', name:'LIBRARY BUILDER',  desc:'Unlock 10 dishes in the collection',     cat:'COLLECT'  },
+  { id:'cuisine_explorer', emoji:'🌍', name:'CUISINE EXPLORER', desc:'Unlock dishes from 5 different cuisines', cat:'COLLECT'  },
+  { id:'master_collector', emoji:'🌟', name:'MASTER COLLECTOR', desc:'Unlock every dish in the collection',    cat:'COLLECT'  },
 ];
 
 // ── Storage helpers ───────────────────────────────────────────
@@ -187,3 +192,43 @@ document.addEventListener('DOMContentLoaded', ()=>{
     </div>`;
   document.body.appendChild(d);
 });
+
+// ── Collection achievement checks ────────────────────────────
+// Called by shared.js pkUnlockDish() right after a new dish is recorded.
+// `collectionMap` is the full {dishId: timestamp} map (already includes the
+// just-unlocked dish).
+function pkCheckCollectionAchievements(collectionMap){
+  if(!collectionMap) return [];
+  const unlocked = pkGetUnlocked();
+  const newOnes  = [];
+  const ownedIds = Object.keys(collectionMap);
+
+  // Count only dishes that are part of the curated collection.
+  let curatedCount = 0;
+  const cuisines = new Set();
+  if(typeof PK_DISH_RECIPES !== 'undefined' && typeof PK_DISHES !== 'undefined'){
+    ownedIds.forEach(id => {
+      if(PK_DISH_RECIPES[id]){
+        curatedCount++;
+        const dish = PK_DISHES.find(d => d.id === id);
+        if(dish && dish.cuisine) cuisines.add(dish.cuisine);
+      }
+    });
+  }
+  const totalCurated = (typeof PK_DISH_RECIPES !== 'undefined')
+    ? Object.keys(PK_DISH_RECIPES).length : 0;
+
+  function chk(id, cond){
+    if(!unlocked[id] && cond && pkUnlockAchievement(id)) newOnes.push(id);
+  }
+  chk('first_recipe',     curatedCount >= 1);
+  chk('library_builder',  curatedCount >= 10);
+  chk('cuisine_explorer', cuisines.size >= 5);
+  chk('master_collector', totalCurated > 0 && curatedCount >= totalCurated);
+
+  // Re-check master_chef since new achievements may push us past 20
+  chk('master_chef', Object.keys(pkGetUnlocked()).length >= 20);
+
+  if(newOnes.length) pkShowAchToasts(newOnes);
+  return newOnes;
+}
