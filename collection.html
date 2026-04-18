@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Collection — Pixel Kitchen</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#110d00">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="shared.css">
+<script src="menu.js"></script>
+<script src="dishes.js"></script>
+<script src="shared.js"></script>
+<style>
+* { margin:0; padding:0; box-sizing:border-box; image-rendering:pixelated; }
+body { background:radial-gradient(ellipse at 50% 30%,#1a0d04 0%,#0a0500 100%); font-family:'Press Start 2P',monospace; width:100vw; height:100vh; overflow:hidden; color:#f5c842; }
+#colWrap { position:fixed; top:50%; left:50%; transform-origin:center center; width:1100px; height:620px; transform:translate(-50%,-50%); display:flex; flex-direction:column; }
+
+.col-topbar { flex-shrink:0; background:transparent; display:flex; align-items:center; padding:10px 14px 6px; gap:12px; }
+.col-topbar-brand { font-size:1rem; letter-spacing:3px; color:#f5c842; text-shadow:2px 2px #8b3a00, 0 0 20px #f5a700; flex:1; }
+.col-topbar-coins { color:#f5c842; font-size:.72rem; }
+.col-topbar-lbl { color:#5a4a20; font-size:.42rem; }
+
+.col-body { flex:1; display:flex; flex-direction:column; min-height:0; padding:10px 24px 20px; gap:12px; }
+
+.col-header { display:flex; align-items:center; gap:18px; }
+.col-title { font-size:.82rem; letter-spacing:3px; color:#f5c842; text-shadow:2px 2px #8b3a00; }
+.col-title span { font-size:1.4rem; margin-right:8px; }
+.col-progress { flex:1; display:flex; flex-direction:column; gap:4px; }
+.col-progress-top { display:flex; justify-content:space-between; align-items:baseline; }
+.col-progress-lbl { font-size:.38rem; color:#8b6520; letter-spacing:2px; }
+.col-progress-count { font-size:.55rem; color:#f5c842; }
+.col-progress-bar { height:10px; background:#1a0d04; border:2px solid #3a2810; position:relative; }
+.col-progress-fill { height:100%; background:linear-gradient(90deg,#f5c842,#ffe890); transition:width .4s ease; }
+
+.col-back { padding:8px 14px; background:#1a0d04; border:2px solid #5a4020; color:#c8904a; font-family:'Press Start 2P',monospace; font-size:.42rem; cursor:pointer; transition:border-color .12s,color .12s; }
+.col-back:hover { border-color:#f5c842; color:#f5c842; }
+
+.col-tabs { display:flex; gap:4px; flex-wrap:wrap; flex-shrink:0; }
+.cuisine-tab { padding:7px 11px; background:#1a0d04; border:2px solid #3a2810; color:#8b6520; font-family:'Press Start 2P',monospace; font-size:.36rem; letter-spacing:1px; cursor:pointer; transition:all .12s; }
+.cuisine-tab:hover { color:#f5c842; border-color:#5a4020; }
+.cuisine-tab.active { background:#3a2810; border-color:#f5c842; color:#f5c842; }
+
+.dish-grid-wrap { flex:1; overflow-y:auto; border:3px solid #3a2810; background:#0a0500; padding:16px; box-shadow:inset 0 0 0 1px #1a0d04; min-height:0; }
+.dish-grid-wrap::-webkit-scrollbar { width:6px; }
+.dish-grid-wrap::-webkit-scrollbar-thumb { background:#3a2810; }
+.dish-grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(140px, 1fr)); gap:12px; }
+
+.dish-card { background:#1a0d04; border:3px solid #3a2810; padding:10px 6px; text-align:center; cursor:pointer; transition:all .15s; position:relative; }
+.dish-card.unlocked:hover { border-color:#f5c842; transform:translateY(-2px); box-shadow:0 4px 0 #1a0d04; }
+.dish-card.locked { cursor:default; opacity:.55; }
+
+.dish-sprite { width:96px; height:96px; margin:0 auto 6px; display:block; }
+.dish-card.locked .dish-sprite { filter:brightness(0) opacity(.45); }
+
+.dish-name { font-size:.40rem; letter-spacing:1px; color:#f5c842; line-height:1.4; min-height:2.1em; }
+.dish-card.locked .dish-name { color:#5a4020; }
+.dish-card.locked .dish-name::after { content:' ???'; }
+.dish-card.locked .real-name { display:none; }
+
+.dish-cuisine { font-size:.30rem; color:#8b6520; margin-top:3px; letter-spacing:1px; }
+.dish-card.locked .dish-cuisine { visibility:hidden; }
+
+.dish-new { position:absolute; top:4px; right:4px; font-size:.30rem; padding:2px 4px; background:#e05050; color:#fff; letter-spacing:1px; animation:pkPulse 1.2s ease-in-out infinite; }
+@keyframes pkPulse { 0%,100%{transform:scale(1)} 50%{transform:scale(1.12)} }
+
+.col-empty-msg { text-align:center; padding:40px; color:#5a4020; font-size:.50rem; line-height:2.2; }
+
+#rotateMsg { display:none; position:fixed; inset:0; z-index:99999; background:#030a10; flex-direction:column; align-items:center; justify-content:center; gap:24px; }
+@media (orientation:portrait) { #rotateMsg { display:flex; } }
+.rotate-phone { font-size:52px; }
+.rotate-text { color:#f5c842; font-size:.50rem; letter-spacing:2px; text-align:center; line-height:2.4; }
+.rotate-sub  { color:#8b6520; font-size:.32rem; letter-spacing:2px; }
+</style>
+</head>
+<body>
+<div id="colWrap">
+  <div class="col-topbar">
+    <span class="col-topbar-brand">★ PIXEL KITCHEN ★</span>
+    <span class="col-topbar-coins">🪙 <span id="topbarCoins">0</span></span>
+    <span class="col-topbar-lbl">COINS</span>
+  </div>
+
+  <div class="col-body">
+    <div class="col-header">
+      <div class="col-title"><span>📖</span>COLLECTION</div>
+      <div class="col-progress">
+        <div class="col-progress-top">
+          <span class="col-progress-lbl">DISHES UNLOCKED</span>
+          <span class="col-progress-count"><span id="unlockCount">0</span> / 27</span>
+        </div>
+        <div class="col-progress-bar"><div class="col-progress-fill" id="progressFill" style="width:0%;"></div></div>
+      </div>
+      <button class="col-back" onclick="goTo('0_hub.html')">◀ HUB</button>
+    </div>
+
+    <div class="col-tabs" id="tabRow"></div>
+
+    <div class="dish-grid-wrap">
+      <div class="dish-grid" id="dishGrid"></div>
+    </div>
+  </div>
+</div>
+
+<div id="rotateMsg">
+  <span class="rotate-phone">📱</span>
+  <div class="rotate-text">ROTATE YOUR<br>DEVICE</div>
+  <div class="rotate-sub">LANDSCAPE MODE ONLY</div>
+</div>
+
+<script>
+const COLLECTION_IDS = Object.keys(PK_DISH_RECIPES);
+const DISHES_INDEX = {};
+PK_DISHES.forEach(d => { if(COLLECTION_IDS.includes(d.id)) DISHES_INDEX[d.id] = d; });
+
+const CUISINES = [...new Set(COLLECTION_IDS.map(id => DISHES_INDEX[id]?.cuisine).filter(Boolean))].sort();
+
+let activeCuisine = 'ALL';
+
+function scaleWrap(){
+  const vw=window.visualViewport?window.visualViewport.width:window.innerWidth;
+  const vh=window.visualViewport?window.visualViewport.height:window.innerHeight;
+  const wrap=document.getElementById('colWrap');
+  const scale=Math.min((vw-8)/1100,(vh-8)/620);
+  wrap.style.transform=`translate(-50%,-50%) scale(${scale})`;
+}
+function checkRotate(){
+  const vw=window.visualViewport?window.visualViewport.width:window.innerWidth;
+  const vh=window.visualViewport?window.visualViewport.height:window.innerHeight;
+  document.getElementById('rotateMsg').style.display=(vw<vh)?'flex':'';
+}
+function onResize(){ scaleWrap(); checkRotate(); }
+window.addEventListener('resize', onResize);
+window.addEventListener('orientationchange', ()=>setTimeout(onResize,100));
+if(window.visualViewport) window.visualViewport.addEventListener('resize', onResize);
+
+function refreshCoins(){
+  const el = document.getElementById('topbarCoins');
+  if(el) el.textContent = localStorage.getItem('pkCoins') || 0;
+}
+
+function renderTabs(){
+  const row = document.getElementById('tabRow');
+  row.innerHTML = '';
+  const all = document.createElement('button');
+  all.className = 'cuisine-tab' + (activeCuisine==='ALL'?' active':'');
+  all.textContent = 'ALL';
+  all.onclick = () => { activeCuisine='ALL'; renderTabs(); renderGrid(); };
+  row.appendChild(all);
+  CUISINES.forEach(c => {
+    const btn = document.createElement('button');
+    btn.className = 'cuisine-tab' + (activeCuisine===c?' active':'');
+    btn.textContent = c.toUpperCase();
+    btn.onclick = () => { activeCuisine=c; renderTabs(); renderGrid(); };
+    row.appendChild(btn);
+  });
+}
+
+function renderGrid(){
+  const grid = document.getElementById('dishGrid');
+  grid.innerHTML = '';
+  const collection = pkGetCollection();
+  const visible = COLLECTION_IDS.filter(id => {
+    const d = DISHES_INDEX[id];
+    if(!d) return false;
+    if(activeCuisine==='ALL') return true;
+    return d.cuisine === activeCuisine;
+  });
+  if(visible.length === 0){
+    grid.innerHTML = '<div class="col-empty-msg" style="grid-column:1/-1;">No dishes in this cuisine yet.</div>';
+    return;
+  }
+  visible.forEach(id => {
+    const d = DISHES_INDEX[id];
+    const unlocked = !!collection[id];
+    const card = document.createElement('div');
+    card.className = 'dish-card ' + (unlocked ? 'unlocked' : 'locked');
+    // Recently unlocked (<= 60s) gets a NEW badge
+    if(unlocked && (Date.now() - collection[id]) < 60000){
+      const badge = document.createElement('div');
+      badge.className = 'dish-new';
+      badge.textContent = 'NEW';
+      card.appendChild(badge);
+    }
+    const canvas = document.createElement('canvas');
+    canvas.className = 'dish-sprite';
+    canvas.width = 160; canvas.height = 160;
+    card.appendChild(canvas);
+    const name = document.createElement('div');
+    name.className = 'dish-name';
+    const nameSpan = document.createElement('span');
+    nameSpan.className = 'real-name';
+    nameSpan.textContent = d.name;
+    name.appendChild(nameSpan);
+    card.appendChild(name);
+    const cuisineLbl = document.createElement('div');
+    cuisineLbl.className = 'dish-cuisine';
+    cuisineLbl.textContent = d.cuisine;
+    card.appendChild(cuisineLbl);
+    if(unlocked){
+      card.onclick = () => goTo('recipe.html?id=' + id);
+    }
+    grid.appendChild(card);
+    // Draw sprite into canvas
+    const ctx = canvas.getContext('2d');
+    if(PK_DISH_IMAGE_READY){
+      pkDrawDishSprite(ctx, id, 0, 0, 160);
+    }
+  });
+}
+
+function refreshProgress(){
+  const collection = pkGetCollection();
+  const owned = COLLECTION_IDS.filter(id => collection[id]).length;
+  document.getElementById('unlockCount').textContent = owned;
+  document.getElementById('progressFill').style.width = (owned/COLLECTION_IDS.length*100) + '%';
+}
+
+document.addEventListener('DOMContentLoaded', async () => {
+  onResize();
+  refreshCoins();
+  refreshProgress();
+  renderTabs();
+  renderGrid();
+  try {
+    await pkLoadDishImage();
+    renderGrid(); // redraw now that image is ready
+  } catch(e){
+    console.warn('dish sprite load failed', e);
+  }
+});
+</script>
+</body>
+</html>

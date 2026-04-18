@@ -144,3 +144,32 @@ document.addEventListener('DOMContentLoaded', ()=>{
 });
 window.addEventListener('offline', ()=> _pkSetOffline(true));
 window.addEventListener('online',  ()=> _pkSetOffline(false));
+
+// ═══════════════════════════════════════════
+//  Collection Book — dish unlock tracking
+//  Stores: localStorage 'pkCollection' = {"<dishId>": <unlockTimestamp>}
+//  Called from games when the player successfully completes a dish.
+// ═══════════════════════════════════════════
+function pkUnlockDish(dishId){
+  if(!dishId) return false;
+  try {
+    const raw = localStorage.getItem('pkCollection');
+    const map = raw ? JSON.parse(raw) : {};
+    if(map[dishId]) return false; // already unlocked
+    map[dishId] = Date.now();
+    localStorage.setItem('pkCollection', JSON.stringify(map));
+    return true; // newly unlocked
+  } catch(e) { return false; }
+}
+
+function pkGetCollection(){
+  try {
+    const raw = localStorage.getItem('pkCollection');
+    return raw ? JSON.parse(raw) : {};
+  } catch(e) { return {}; }
+}
+
+function pkIsDishUnlocked(dishId){
+  const c = pkGetCollection();
+  return !!c[dishId];
+}
