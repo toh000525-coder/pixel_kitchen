@@ -149,7 +149,62 @@ window.addEventListener('online',  ()=> _pkSetOffline(false));
 //  Collection Book — dish unlock tracking
 //  Stores: localStorage 'pkCollection' = {"<dishId>": <unlockTimestamp>}
 //  Called from games when the player successfully completes a dish.
+//  Ceremony: +5 coin bonus per new dish, milestone bonuses at 10/20/27.
 // ═══════════════════════════════════════════
+
+// Shared coin helper (games also have local addCoins; this one also updates
+// the topbar wherever the user is).
+function pkAddCoins(n){
+  if(!n) return;
+  const cur = parseInt(localStorage.getItem('pkCoins') || '0');
+  localStorage.setItem('pkCoins', cur + n);
+  pkUpdateCoins();
+}
+
+// Simple sequential queue so multiple toasts don't overlap.
+const _pkColQ = [];
+let _pkColShowing = false;
+function _pkShowColToast(data){
+  _pkColQ.push(data);
+  if(!_pkColShowing) _pkColNext();
+}
+function _pkColNext(){
+  if(_pkColQ.length === 0){ _pkColShowing = false; return; }
+  _pkColShowing = true;
+  const d = _pkColQ.shift();
+  const toast = document.getElementById('pkColToast');
+  if(!toast){ _pkColShowing = false; return; }
+  toast.className = d.variant === 'milestone' ? 'pk-col-milestone' : 'pk-col-dish';
+  toast.style.display = 'flex';
+  document.getElementById('pkColToastEmoji').textContent = d.emoji;
+  document.getElementById('pkColToastLabel').textContent = d.label;
+  document.getElementById('pkColToastTitle').textContent = d.title;
+  toast.style.animation = 'none';
+  void toast.offsetWidth;
+  toast.style.animation = 'pkColIn .45s cubic-bezier(.34,1.56,.64,1) forwards';
+  try { pkVibrate && pkVibrate('ach'); } catch(e){}
+  setTimeout(()=>{
+    toast.style.animation = 'pkColOut .3s ease-in forwards';
+    setTimeout(()=>{ toast.style.display='none'; setTimeout(_pkColNext, 200); }, 300);
+  }, d.variant === 'milestone' ? 3000 : 2400);
+}
+
+// Auto-inject unlock-toast DOM (same pattern as achievements.js)
+document.addEventListener('DOMContentLoaded', ()=>{
+  if(document.getElementById('pkColToast')) return;
+  const d = document.createElement('div');
+  d.id = 'pkColToast';
+  d.innerHTML = `
+    <span id="pkColToastEmoji" style="font-size:1.6rem;flex-shrink:0;">🍽️</span>
+    <div style="display:flex;flex-direction:column;gap:3px;">
+      <div id="pkColToastLabel" style="font-size:.28rem;color:#c87eb8;letter-spacing:2px;">NEW RECIPE!</div>
+      <div id="pkColToastTitle" style="font-size:.38rem;color:#ffd97d;letter-spacing:1px;"></div>
+    </div>`;
+  document.body.appendChild(d);
+});
+
+const _PK_MILESTONES = { 10: 50, 20: 100, 27: 500 };
+
 function pkUnlockDish(dishId){
   if(!dishId) return false;
   try {
@@ -158,6 +213,32 @@ function pkUnlockDish(dishId){
     if(map[dishId]) return false; // already unlocked
     map[dishId] = Date.now();
     localStorage.setItem('pkCollection', JSON.stringify(map));
+
+    // Per-dish +5 coin bonus + unlock toast
+    pkAddCoins(5);
+    const dish = (typeof PK_DISHES !== 'undefined') ? PK_DISHES.find(d => d.id === dishId) : null;
+    _pkShowColToast({
+      variant: 'dish',
+      emoji:   dish?.emoji || '🍽️',
+      label:   'NEW RECIPE!  +5 🪙',
+      title:   (dish?.name || dishId).toUpperCase(),
+    });
+
+    // Milestone check — count only curated dishes (those in PK_DISH_RECIPES)
+    if(typeof PK_DISH_RECIPES !== 'undefined'){
+      const owned = Object.keys(map).filter(id => PK_DISH_RECIPES[id]).length;
+      const bonus = _PK_MILESTONES[owned];
+      if(bonus){
+        pkAddCoins(bonus);
+        const complete = owned === 27;
+        _pkShowColToast({
+          variant: 'milestone',
+          emoji:   complete ? '🏆' : '🏅',
+          label:   complete ? 'COLLECTION COMPLETE!' : 'MILESTONE REACHED!',
+          title:   owned + ' DISHES  +' + bonus + ' 🪙',
+        });
+      }
+    }
     return true; // newly unlocked
   } catch(e) { return false; }
 }

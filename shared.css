@@ -41,6 +41,26 @@ button { touch-action: manipulation; -webkit-tap-highlight-color: transparent; }
 @keyframes pkAchIn  { from{opacity:0;transform:translateX(-50%) translateY(16px)} to{opacity:1;transform:translateX(-50%) translateY(0)} }
 @keyframes pkAchOut { from{opacity:1;transform:translateX(-50%) translateY(0)} to{opacity:0;transform:translateX(-50%) translateY(-12px)} }
 
+/* ── Collection unlock toast ── */
+#pkColToast {
+  display:none; position:fixed; top:64px; left:50%;
+  transform:translateX(-50%);
+  z-index:99999;
+  padding:10px 16px; gap:12px; align-items:center;
+  font-family:'Press Start 2P',monospace;
+  white-space:nowrap;
+}
+#pkColToast.pk-col-dish {
+  background:#1e1630; border:3px solid #c87eb8;
+  box-shadow:0 4px 24px rgba(0,0,0,0.9),0 0 20px rgba(200,126,184,.4);
+}
+#pkColToast.pk-col-milestone {
+  background:#2a1a40; border:3px solid #ffd97d;
+  box-shadow:0 4px 28px rgba(0,0,0,0.9),0 0 30px rgba(255,217,125,.5);
+}
+@keyframes pkColIn  { 0%{opacity:0;transform:translateX(-50%) translateY(-20px) scale(.9)} 60%{transform:translateX(-50%) translateY(2px) scale(1.04)} 100%{opacity:1;transform:translateX(-50%) translateY(0) scale(1)} }
+@keyframes pkColOut { from{opacity:1;transform:translateX(-50%) translateY(0)} to{opacity:0;transform:translateX(-50%) translateY(-16px)} }
+
 /* ── SW update toast ── */
 #pkUpdateToast {
   position:fixed; top:-60px; left:50%; transform:translateX(-50%);
