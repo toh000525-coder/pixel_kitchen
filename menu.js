@@ -161,6 +161,16 @@ const PK_DISHES = [
   {id:'mush_toast',    name:'MUSHROOM TOAST', emoji:'🍄', cuisine:'British',
    items:[{emoji:'🍄',zone:'CENTER'},{emoji:'🍞',zone:'LEFT'  },{emoji:'🧈',zone:'RIGHT'  }]},
 
+  // ── Phase B additions (3-ingredient) ──
+  {id:'sushi',         name:'SUSHI',          emoji:'🍣', cuisine:'Japanese',
+   items:[{emoji:'🍚',zone:'CENTER'},{emoji:'🐟',zone:'TOP'   },{emoji:'🥒',zone:'BOTTOM' }]},
+  {id:'tonkatsu',      name:'TONKATSU',       emoji:'🍖', cuisine:'Japanese',
+   items:[{emoji:'🐷',zone:'CENTER'},{emoji:'🍞',zone:'LEFT'  },{emoji:'🥬',zone:'RIGHT'  }]},
+  {id:'fish_chips',    name:'FISH & CHIPS',   emoji:'🐟', cuisine:'British',
+   items:[{emoji:'🐟',zone:'CENTER'},{emoji:'🥔',zone:'LEFT'  },{emoji:'🧈',zone:'RIGHT'  }]},
+  {id:'mashed_potato', name:'MASHED POTATO',  emoji:'🥔', cuisine:'American',
+   items:[{emoji:'🥔',zone:'CENTER'},{emoji:'🧈',zone:'LEFT'  },{emoji:'🥛',zone:'RIGHT'  }]},
+
 
   // ════════════════════════════════════════════════
   //  4-INGREDIENT  (CUISINIER difficulty)
@@ -273,6 +283,16 @@ const PK_DISHES = [
    items:[{emoji:'🍗',zone:'CENTER'},{emoji:'🥦',zone:'TOP'   },{emoji:'🧄',zone:'LEFT'  },{emoji:'🌶️',zone:'RIGHT' }]},
   {id:'shrimp_sfry',   name:'SHRIMP STIR FRY', emoji:'🦐',cuisine:'Chinese',
    items:[{emoji:'🦐',zone:'CENTER'},{emoji:'🫑',zone:'TOP'   },{emoji:'🧄',zone:'LEFT'  },{emoji:'🥬',zone:'RIGHT' }]},
+
+  // ── Phase B additions (4-ingredient) ──
+  {id:'banh_mi',       name:'BANH MI',        emoji:'🥖', cuisine:'Vietnamese',
+   items:[{emoji:'🍞',zone:'CENTER'},{emoji:'🐷',zone:'TOP'   },{emoji:'🥒',zone:'LEFT'  },{emoji:'🥕',zone:'RIGHT' }]},
+  {id:'fried_rice',    name:'FRIED RICE',     emoji:'🍚', cuisine:'Chinese',
+   items:[{emoji:'🍚',zone:'CENTER'},{emoji:'🥚',zone:'TOP'   },{emoji:'🧅',zone:'LEFT'  },{emoji:'🥕',zone:'RIGHT' }]},
+  {id:'basil_chicken', name:'BASIL CHICKEN', emoji:'🌿', cuisine:'Thai',
+   items:[{emoji:'🍗',zone:'CENTER'},{emoji:'🌿',zone:'TOP'   },{emoji:'🌶️',zone:'LEFT'  },{emoji:'🧅',zone:'RIGHT' }]},
+  {id:'pork_gyoza',    name:'PORK GYOZA',     emoji:'🥟', cuisine:'Japanese',
+   items:[{emoji:'🥟',zone:'CENTER'},{emoji:'🐷',zone:'TOP'   },{emoji:'🥬',zone:'LEFT'  },{emoji:'🫚',zone:'RIGHT' }]},
 
 
   // ════════════════════════════════════════════════
@@ -394,6 +414,16 @@ const PK_DISHES = [
   // — African —
   {id:'sweet_pot_stew',name:'SWEET POT STEW', emoji:'🍲', cuisine:'African',
    items:[{emoji:'🍠',zone:'CENTER'},{emoji:'🧅',zone:'TOP'   },{emoji:'🥬',zone:'LEFT'  },{emoji:'🧄',zone:'RIGHT' },{emoji:'🌶️',zone:'BOTTOM'}]},
+
+  // ── Phase B additions (5-ingredient) ──
+  {id:'tonkotsu',      name:'TONKOTSU RAMEN', emoji:'🍜', cuisine:'Japanese',
+   items:[{emoji:'🍜',zone:'CENTER'},{emoji:'🐷',zone:'TOP'   },{emoji:'🥚',zone:'LEFT'  },{emoji:'🧅',zone:'RIGHT' },{emoji:'🌿',zone:'BOTTOM'}]},
+  {id:'chow_mein',     name:'CHOW MEIN',      emoji:'🍜', cuisine:'Chinese',
+   items:[{emoji:'🍜',zone:'CENTER'},{emoji:'🍗',zone:'TOP'   },{emoji:'🥕',zone:'LEFT'  },{emoji:'🧅',zone:'RIGHT' },{emoji:'🥦',zone:'BOTTOM'}]},
+  {id:'fish_curry',    name:'FISH CURRY',     emoji:'🍛', cuisine:'Indian',
+   items:[{emoji:'🐟',zone:'CENTER'},{emoji:'🌶️',zone:'TOP'   },{emoji:'🧅',zone:'LEFT'  },{emoji:'🧄',zone:'RIGHT' },{emoji:'🫚',zone:'BOTTOM'}]},
+  {id:'ceviche',       name:'CEVICHE',        emoji:'🥗', cuisine:'Peruvian',
+   items:[{emoji:'🐟',zone:'CENTER'},{emoji:'🍅',zone:'TOP'   },{emoji:'🧅',zone:'LEFT'  },{emoji:'🌶️',zone:'RIGHT' },{emoji:'🥒',zone:'BOTTOM'}]},
 ];
 
 // ═══════════════════════════════════════════════════════════════
