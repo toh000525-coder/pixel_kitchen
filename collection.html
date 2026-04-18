@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Collection — Pixel Kitchen</title>
 <link rel="manifest" href="manifest.json">
-<meta name="theme-color" content="#110d00">
+<meta name="theme-color" content="#061424">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
@@ -14,65 +14,75 @@
 <script src="dishes.js"></script>
 <script src="shared.js"></script>
 <style>
+/* ═══ Cyan/Teal palette — high-contrast collection theme ═══
+   bg-deep    #061424   panel bg
+   bg-panel   #0e2440   card panel
+   bg-card    #163050   card itself
+   bg-active  #2a5080   selected tab bg
+   border     #4d96c8   primary border (bright teal)
+   text-dim   #8ed0f0   secondary text
+   text-main  #c8ecff   main text (near-white cyan)
+   accent     #00e8ff   highlight / active
+*/
 * { margin:0; padding:0; box-sizing:border-box; image-rendering:pixelated; }
-body { background:radial-gradient(ellipse at 50% 30%,#1a0d04 0%,#0a0500 100%); font-family:'Press Start 2P',monospace; width:100vw; height:100vh; overflow:hidden; color:#f5c842; }
+body { background:radial-gradient(ellipse at 50% 30%,#0a1828 0%,#030810 100%); font-family:'Press Start 2P',monospace; width:100vw; height:100vh; overflow:hidden; color:#c8ecff; }
 #colWrap { position:fixed; top:50%; left:50%; transform-origin:center center; width:1100px; height:620px; transform:translate(-50%,-50%); display:flex; flex-direction:column; }
 
 .col-topbar { flex-shrink:0; background:transparent; display:flex; align-items:center; padding:10px 14px 6px; gap:12px; }
-.col-topbar-brand { font-size:1rem; letter-spacing:3px; color:#f5c842; text-shadow:2px 2px #8b3a00, 0 0 20px #f5a700; flex:1; }
-.col-topbar-coins { color:#f5c842; font-size:.72rem; }
-.col-topbar-lbl { color:#5a4a20; font-size:.42rem; }
+.col-topbar-brand { font-size:1rem; letter-spacing:3px; color:#c8ecff; text-shadow:2px 2px #003050, 0 0 20px #00aacc; flex:1; }
+.col-topbar-coins { color:#00e8ff; font-size:.72rem; }
+.col-topbar-lbl { color:#4d96c8; font-size:.42rem; }
 
 .col-body { flex:1; display:flex; flex-direction:column; min-height:0; padding:10px 24px 20px; gap:12px; }
 
 .col-header { display:flex; align-items:center; gap:18px; }
-.col-title { font-size:.82rem; letter-spacing:3px; color:#ffd060; text-shadow:2px 2px #8b3a00; }
+.col-title { font-size:.82rem; letter-spacing:3px; color:#00e8ff; text-shadow:2px 2px #003050; }
 .col-title span { font-size:1.4rem; margin-right:8px; }
 .col-progress { flex:1; display:flex; flex-direction:column; gap:5px; }
 .col-progress-top { display:flex; justify-content:space-between; align-items:baseline; }
-.col-progress-lbl { font-size:.46rem; color:#ffc070; letter-spacing:2px; }
-.col-progress-count { font-size:.68rem; color:#ffd060; letter-spacing:2px; }
-.col-progress-bar { height:12px; background:#1a0d04; border:2px solid #a57a30; position:relative; }
-.col-progress-fill { height:100%; background:linear-gradient(90deg,#ffd060,#ffe890); transition:width .4s ease; }
+.col-progress-lbl { font-size:.46rem; color:#8ed0f0; letter-spacing:2px; }
+.col-progress-count { font-size:.68rem; color:#00e8ff; letter-spacing:2px; }
+.col-progress-bar { height:12px; background:#061424; border:2px solid #4d96c8; position:relative; }
+.col-progress-fill { height:100%; background:linear-gradient(90deg,#00e8ff,#b0ecf5); transition:width .4s ease; }
 
-.col-back { padding:10px 16px; background:#2a1810; border:2px solid #ffc070; color:#ffd060; font-family:'Press Start 2P',monospace; font-size:.50rem; cursor:pointer; transition:all .12s; letter-spacing:2px; }
-.col-back:hover { border-color:#ffd060; background:#3a2818; }
+.col-back { padding:10px 16px; background:#0e2440; border:2px solid #4d96c8; color:#8ed0f0; font-family:'Press Start 2P',monospace; font-size:.50rem; cursor:pointer; transition:all .12s; letter-spacing:2px; }
+.col-back:hover { border-color:#00e8ff; color:#c8ecff; background:#163050; }
 
 .col-tabs { display:flex; gap:6px; flex-wrap:wrap; flex-shrink:0; }
-.cuisine-tab { padding:10px 14px; background:#2a1810; border:2px solid #a57a30; color:#ffc070; font-family:'Press Start 2P',monospace; font-size:.48rem; letter-spacing:1.5px; cursor:pointer; transition:all .12s; min-height:36px; }
-.cuisine-tab:hover { color:#ffd060; border-color:#ffd060; background:#3a2818; }
-.cuisine-tab.active { background:#5a3818; border-color:#ffd060; color:#ffe890; box-shadow:0 0 10px rgba(255,208,96,0.4); }
+.cuisine-tab { padding:10px 14px; background:#0e2440; border:2px solid #4d96c8; color:#8ed0f0; font-family:'Press Start 2P',monospace; font-size:.48rem; letter-spacing:1.5px; cursor:pointer; transition:all .12s; min-height:36px; }
+.cuisine-tab:hover { color:#c8ecff; border-color:#00e8ff; background:#163050; }
+.cuisine-tab.active { background:#2a5080; border-color:#00e8ff; color:#ffffff; box-shadow:0 0 10px rgba(0,232,255,0.5); }
 
-.dish-grid-wrap { flex:1; overflow-y:auto; border:3px solid #a57a30; background:#0a0500; padding:16px; box-shadow:inset 0 0 0 1px #1a0d04; min-height:0; }
+.dish-grid-wrap { flex:1; overflow-y:auto; border:3px solid #4d96c8; background:#061424; padding:16px; box-shadow:inset 0 0 0 1px #0e2440; min-height:0; }
 .dish-grid-wrap::-webkit-scrollbar { width:6px; }
-.dish-grid-wrap::-webkit-scrollbar-thumb { background:#a57a30; }
+.dish-grid-wrap::-webkit-scrollbar-thumb { background:#4d96c8; }
 .dish-grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(170px, 1fr)); gap:14px; }
 
-.dish-card { background:#2a1810; border:3px solid #a57a30; padding:12px 8px; text-align:center; cursor:pointer; transition:all .15s; position:relative; }
-.dish-card.unlocked:hover { border-color:#ffd060; transform:translateY(-2px); box-shadow:0 4px 0 #1a0d04; }
-.dish-card.locked { cursor:default; }
+.dish-card { background:#163050; border:3px solid #4d96c8; padding:12px 8px; text-align:center; cursor:pointer; transition:all .15s; position:relative; }
+.dish-card.unlocked:hover { border-color:#00e8ff; transform:translateY(-2px); box-shadow:0 4px 0 #061424, 0 0 12px rgba(0,232,255,0.3); }
+.dish-card.locked { cursor:default; background:#0e2440; }
 .dish-card.locked .dish-sprite { filter:brightness(0) opacity(.70); }
 
 .dish-sprite { width:108px; height:108px; margin:0 auto 8px; display:block; }
 
-.dish-name { font-size:.52rem; letter-spacing:1.5px; color:#ffd060; line-height:1.4; min-height:2em; }
-.dish-card.locked .dish-name { color:#ffc070; }
-.dish-card.locked .dish-name::after { content:' ???'; color:#ffd060; }
+.dish-name { font-size:.52rem; letter-spacing:1.5px; color:#ffffff; line-height:1.4; min-height:2em; }
+.dish-card.locked .dish-name { color:#8ed0f0; }
+.dish-card.locked .dish-name::after { content:' ???'; color:#00e8ff; }
 .dish-card.locked .real-name { display:none; }
 
-.dish-cuisine { font-size:.38rem; color:#ffc070; margin-top:4px; letter-spacing:1.5px; }
+.dish-cuisine { font-size:.38rem; color:#8ed0f0; margin-top:4px; letter-spacing:1.5px; }
 .dish-card.locked .dish-cuisine { visibility:hidden; }
 
-.dish-new { position:absolute; top:4px; right:4px; font-size:.36rem; padding:3px 6px; background:#e05050; color:#fff; letter-spacing:1px; animation:pkPulse 1.2s ease-in-out infinite; }
+.dish-new { position:absolute; top:4px; right:4px; font-size:.36rem; padding:3px 6px; background:#ff3377; color:#fff; letter-spacing:1px; animation:pkPulse 1.2s ease-in-out infinite; }
 @keyframes pkPulse { 0%,100%{transform:scale(1)} 50%{transform:scale(1.12)} }
 
-.col-empty-msg { text-align:center; padding:40px; color:#ffc070; font-size:.52rem; line-height:2.2; }
+.col-empty-msg { text-align:center; padding:40px; color:#8ed0f0; font-size:.52rem; line-height:2.2; }
 
-#rotateMsg { display:none; position:fixed; inset:0; z-index:99999; background:#030a10; flex-direction:column; align-items:center; justify-content:center; gap:24px; }
+#rotateMsg { display:none; position:fixed; inset:0; z-index:99999; background:#030810; flex-direction:column; align-items:center; justify-content:center; gap:24px; }
 @media (orientation:portrait) { #rotateMsg { display:flex; } }
 .rotate-phone { font-size:52px; }
-.rotate-text { color:#f5c842; font-size:.50rem; letter-spacing:2px; text-align:center; line-height:2.4; }
-.rotate-sub  { color:#8b6520; font-size:.32rem; letter-spacing:2px; }
+.rotate-text { color:#00e8ff; font-size:.50rem; letter-spacing:2px; text-align:center; line-height:2.4; }
+.rotate-sub  { color:#4d96c8; font-size:.32rem; letter-spacing:2px; }
 </style>
 </head>
 <body>
