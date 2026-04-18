@@ -86,6 +86,18 @@ function pkShake(){
   el.addEventListener('animationend', ()=> el.classList.remove('pk-shake'), {once:true});
 }
 
+// rAF-coalesced resize — collapses bursts of resize events (iOS Safari address bar,
+// keyboard slide, orientation transition, pinch zoom) into one call per frame.
+// Usage: window.addEventListener('resize', pkOnResize(onResize));
+function pkOnResize(fn){
+  let pending = false;
+  return function(){
+    if(pending) return;
+    pending = true;
+    requestAnimationFrame(()=>{ pending = false; fn(); });
+  };
+}
+
 // Register service worker + update detection
 if('serviceWorker' in navigator){
   window.addEventListener('load', ()=>{

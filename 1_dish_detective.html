@@ -363,8 +363,9 @@ function updateTopbarCoins(){
   if(el) el.textContent=n.toLocaleString();
 }
 document.addEventListener('DOMContentLoaded', ()=>{ scaleGame(); updateTopbarCoins(); const b=document.getElementById('muteBtn');if(b)b.textContent=muted?'🔇':'🔊'; const _sd=localStorage.getItem('pkDiff_1');if(_sd)document.querySelector(`.d-btn[onclick*="'${_sd}'"]`)?.classList.add('active'); });
-window.addEventListener('resize', scaleGame);
-if(window.visualViewport) window.visualViewport.addEventListener('resize', scaleGame);
+const _pkDebResize = pkOnResize(scaleGame);
+window.addEventListener('resize', _pkDebResize);
+if(window.visualViewport) window.visualViewport.addEventListener('resize', _pkDebResize);
 
 // ══════════════════════════════════════════════
 //  CANVAS SETUP  (155×120 logical, scale ×4)

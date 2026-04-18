@@ -435,9 +435,10 @@ document.addEventListener('click',function onFirstClick(){ initAudio(); startBGM
 document.addEventListener('click',e=>{ if(e.target.closest('button')&&e.target.id!=='muteBtn') sndClick(); });
 function onResize(){ scaleGame(); checkRotate(); }
 document.addEventListener('DOMContentLoaded',()=>{ onResize(); updateTopbarCoins(); const b=document.getElementById('muteBtn');if(b)b.textContent=muted?'🔇':'🔊'; const _sd=localStorage.getItem('pkDiff_3');if(_sd)document.querySelector(`.d-btn[onclick*="'${_sd}'"]`)?.classList.add('active'); });
-window.addEventListener('resize',onResize);
-window.addEventListener('orientationchange',()=>setTimeout(onResize,100));
-if(window.visualViewport) window.visualViewport.addEventListener('resize',onResize);
+const _pkDebResize = pkOnResize(onResize);
+window.addEventListener('resize',_pkDebResize);
+window.addEventListener('orientationchange',()=>setTimeout(_pkDebResize,100));
+if(window.visualViewport) window.visualViewport.addEventListener('resize',_pkDebResize);
 
 // ══════════════════════════════════════════
 //  CANVAS

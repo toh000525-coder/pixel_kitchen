@@ -919,9 +919,10 @@ document.addEventListener('DOMContentLoaded', ()=>{
   updateHubCoins();
   if(localStorage.getItem('pkName')){ updateHubPlayerName(); }
 });
-window.addEventListener('resize', onResize);
-window.addEventListener('orientationchange', ()=>{ setTimeout(onResize, 100); });
-if(window.visualViewport) window.visualViewport.addEventListener('resize', onResize);
+const _pkDebResize = pkOnResize(onResize);
+window.addEventListener('resize', _pkDebResize);
+window.addEventListener('orientationchange', ()=>{ setTimeout(_pkDebResize, 100); });
+if(window.visualViewport) window.visualViewport.addEventListener('resize', _pkDebResize);
 
 // ══════════════════════════════════════════
 //  SPLASH SCREEN
