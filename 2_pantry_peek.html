@@ -310,7 +310,18 @@ function drawPixelQ(cx, cy, ps, color){
 // ══════════════════════════════════════════════
 //  FOOD PIXEL ART  (S=3, drawn in 16×16 logical space)
 // ══════════════════════════════════════════════
-const FOOD_EMOJIS=['🍎','🥕','🍓','🌽','🍄','🥛','🥚','🧀','🍫','🥦'];
+// Food emojis get re-picked from PK_INGREDIENTS each game, so matching
+// pairs vary by run instead of being the same 10 every time.
+let FOOD_EMOJIS = [];
+function pickFoodsForGame(n){
+  const pool = (typeof PK_INGREDIENTS !== 'undefined' ? PK_INGREDIENTS : [])
+    .map(i => i.emoji);
+  for(let i=pool.length-1; i>0; i--){
+    const j = Math.floor(Math.random() * (i+1));
+    [pool[i], pool[j]] = [pool[j], pool[i]];
+  }
+  FOOD_EMOJIS = pool.slice(0, n);
+}
 function drawFood(type, cx, cy){
   drawPixelSprite(ctx, FOOD_EMOJIS[type], cx, cy, 48);
 }
@@ -519,6 +530,9 @@ function startGame(diff){
   pkStatAdd('pkPlays_2'); window._pkT0=Date.now();
   gFirstFlip=null; gLocked=false;
   gTimerMax=gConfig.time; gTimer=gConfig.time;
+
+  // Pick fresh food emojis from the shared ingredient pool each game
+  pickFoodsForGame(gConfig.pairs);
 
   // Build & shuffle cards
   const foods=[];

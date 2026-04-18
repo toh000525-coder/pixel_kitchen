@@ -63,6 +63,7 @@ function pkUnlockAchievement(id){
 // data: { gameId:1-6, stars:1-3, hardest:bool }
 function pkRecordGame({ gameId, stars, hardest }){
   if(typeof stars !== 'number') return [];
+  if(typeof pkCheckDailyBonus === 'function') pkCheckDailyBonus();
   const s = pkGetStats();
 
   // init stat fields

@@ -73,6 +73,7 @@ function pkStatMax(key, val){
 // Haptic feedback — respects devices that don't support vibrate
 function pkVibrate(type){
   if(!navigator.vibrate) return;
+  if(localStorage.getItem('pkHapticOff') === '1') return; // user-disabled
   const p = {
     tap:   [12],                // soft click — button/card taps
     combo: [40,30,40,30,80],
@@ -298,4 +299,48 @@ function pkGetCollection(){
 function pkIsDishUnlocked(dishId){
   const c = pkGetCollection();
   return !!c[dishId];
+}
+
+// ═══════════════════════════════════════════
+//  Daily bonus + streak
+//  Called from achievements.js pkRecordGame() on every game completion.
+//  • First game each day  → +25 coins
+//  • Consecutive days     → streak counter (reset if a day is skipped)
+// ═══════════════════════════════════════════
+function _pkToday(){ return new Date().toISOString().slice(0,10); }
+
+function pkCheckDailyBonus(){
+  const today = _pkToday();
+  let awardedBonus = 0;
+
+  if(localStorage.getItem('pkLastBonusDay') !== today){
+    awardedBonus = 25;
+    pkAddCoins(awardedBonus);
+    localStorage.setItem('pkLastBonusDay', today);
+  }
+
+  // Streak
+  const lastPlay = localStorage.getItem('pkLastPlayDay');
+  let streak = parseInt(localStorage.getItem('pkStreak') || '0') || 0;
+  if(lastPlay !== today){
+    const y = new Date(); y.setDate(y.getDate() - 1);
+    const yesterday = y.toISOString().slice(0,10);
+    streak = (lastPlay === yesterday) ? (streak + 1) : 1;
+    localStorage.setItem('pkStreak', streak);
+    localStorage.setItem('pkLastPlayDay', today);
+  }
+
+  if(awardedBonus){
+    const title = streak > 1 ? (streak + '-DAY STREAK 🔥') : 'WELCOME BACK!';
+    _pkShowColToast({
+      variant: 'milestone',
+      emoji:   '📅',
+      label:   'DAILY BONUS!  +' + awardedBonus + ' 🪙',
+      title:   title,
+    });
+  }
+}
+
+function pkGetStreak(){
+  return parseInt(localStorage.getItem('pkStreak') || '0') || 0;
 }

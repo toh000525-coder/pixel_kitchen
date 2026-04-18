@@ -158,6 +158,19 @@ body {
 .profile-stat-val { color:var(--gold); font-size:.72rem; display:block; letter-spacing:1px; }
 .profile-stat-lbl { color:var(--sub); font-size:.38rem; margin-top:6px; display:block; letter-spacing:2px; }
 .profile-join { color:var(--border-hi); font-size:.38rem; text-align:center; padding:4px 0; letter-spacing:1px; }
+.profile-streak { color:#ff7a3a; font-size:.48rem; text-align:center; padding:6px 0; letter-spacing:2px; text-shadow:0 0 8px rgba(255,122,58,.4); }
+.profile-streak:empty { display:none; }
+
+/* ── Settings Modal ── */
+#settingsModal { display:none; position:fixed; inset:0; z-index:9000; background:rgba(10,6,20,.88); align-items:center; justify-content:center; }
+#settingsModal.visible { display:flex; }
+.settings-row { display:flex; align-items:center; gap:14px; padding:12px 16px; background:var(--bg3); border:2px solid var(--border); cursor:pointer; transition:all .12s; touch-action:manipulation; -webkit-tap-highlight-color:transparent; }
+.settings-row:hover { border-color:var(--border-hi); }
+.settings-row:active { transform:scale(0.98); }
+.settings-icon { font-size:1.2rem; flex-shrink:0; width:28px; text-align:center; }
+.settings-label { flex:1; font-size:.50rem; color:var(--sub); letter-spacing:2px; }
+.settings-value { font-size:.52rem; color:var(--gold); letter-spacing:2px; min-width:48px; text-align:right; }
+.settings-value.off { color:var(--border-hi); }
 /* ── RANKS MODAL ── */
 #rankModal {
   display:none; position:fixed; inset:0; z-index:9000;
@@ -635,10 +648,39 @@ body {
         <span class="profile-stat-lbl">🎮 GAMES</span>
       </div>
     </div>
+    <div class="profile-streak" id="profileStreak"></div>
     <div class="profile-join" id="profileJoin"></div>
     <button class="hub-ranks-btn" onclick="closeProfileModal()">✕ CLOSE</button>
   </div>
 </div>
+
+<!-- SETTINGS MODAL -->
+<div id="settingsModal">
+  <div class="profile-box" style="min-width:340px;">
+    <div class="profile-header">
+      <span class="profile-avatar">⚙️</span>
+      <div class="profile-name-wrap">
+        <span class="profile-name">SETTINGS</span>
+      </div>
+    </div>
+    <div class="rank-divider"></div>
+    <div class="settings-row" id="rowSound" onclick="toggleSettingSound()">
+      <span class="settings-icon">🔊</span>
+      <span class="settings-label">SOUND</span>
+      <span class="settings-value" id="settingSoundVal">ON</span>
+    </div>
+    <div class="settings-row" id="rowHaptic" onclick="toggleSettingHaptic()">
+      <span class="settings-icon">📳</span>
+      <span class="settings-label">HAPTIC</span>
+      <span class="settings-value" id="settingHapticVal">ON</span>
+    </div>
+    <div class="rank-divider"></div>
+    <button class="hub-ranks-btn" onclick="confirmResetData()" style="border-color:#e05050;color:#e05050;">🗑 RESET ALL DATA</button>
+    <div class="profile-join">v1.0 · PIXEL KITCHEN</div>
+    <button class="hub-ranks-btn" onclick="closeSettingsModal()">✕ CLOSE</button>
+  </div>
+</div>
+
 <!-- TOUR OVERLAY -->
 <div id="pkTour">
   <div id="pkTourBlock"></div>
@@ -708,6 +750,7 @@ body {
       <button class="hub-ranks-btn" id="hubRanksBtn" onclick="openRankModal()">🏆 MY RANKS</button>
       <button class="hub-ranks-btn" onclick="openAchModal()" id="achBtn">🎖️ ACHIEVEMENTS</button>
       <button class="hub-ranks-btn" onclick="goTo('collection.html')" id="collectionBtn">📖 COLLECTION</button>
+      <button class="hub-ranks-btn" onclick="openSettingsModal()" id="settingsBtn">⚙️ SETTINGS</button>
     </div>
 
     <div class="hub-version">v1.0</div>
@@ -1310,6 +1353,11 @@ function openProfileModal(){
     document.getElementById('profileCollection').textContent =
       totalStr ? owned + '/' + totalStr : String(owned);
   }
+  // streak
+  const streak = (typeof pkGetStreak === 'function') ? pkGetStreak() : 0;
+  document.getElementById('profileStreak').textContent = streak > 0
+    ? '🔥 ' + streak + '-DAY STREAK'
+    : '';
   // join date
   const jd = localStorage.getItem('pkJoinDate');
   document.getElementById('profileJoin').textContent = jd
@@ -1319,6 +1367,51 @@ function openProfileModal(){
 }
 function closeProfileModal(){
   document.getElementById('profileModal').classList.remove('visible');
+}
+
+// ══════════════════════════════════════════
+//  SETTINGS MODAL
+// ══════════════════════════════════════════
+function _refreshSettingsRows(){
+  const soundOff = localStorage.getItem('pkMuted') === '1';
+  const hapticOff= localStorage.getItem('pkHapticOff') === '1';
+  const sEl = document.getElementById('settingSoundVal');
+  const hEl = document.getElementById('settingHapticVal');
+  if(sEl){ sEl.textContent = soundOff ? 'OFF' : 'ON'; sEl.classList.toggle('off', soundOff); }
+  if(hEl){ hEl.textContent = hapticOff? 'OFF' : 'ON'; hEl.classList.toggle('off', hapticOff); }
+}
+function openSettingsModal(){
+  _refreshSettingsRows();
+  document.getElementById('settingsModal').classList.add('visible');
+}
+function closeSettingsModal(){
+  document.getElementById('settingsModal').classList.remove('visible');
+}
+function toggleSettingSound(){
+  const cur = localStorage.getItem('pkMuted') === '1';
+  localStorage.setItem('pkMuted', cur ? '0' : '1');
+  const btn = document.getElementById('muteBtn');
+  if(btn) btn.textContent = cur ? '🔊' : '🔇';
+  _refreshSettingsRows();
+}
+function toggleSettingHaptic(){
+  const cur = localStorage.getItem('pkHapticOff') === '1';
+  localStorage.setItem('pkHapticOff', cur ? '0' : '1');
+  if(!cur) try { /* vibrate on turning ON - impossible, it's being turned OFF */ } catch(e){}
+  if(cur) try { pkVibrate && pkVibrate('tap'); } catch(e){} // feedback when turning back ON
+  _refreshSettingsRows();
+}
+function confirmResetData(){
+  const ok = confirm('Reset ALL progress?\n\nThis clears coins, collection, achievements, best scores, and streak — cannot be undone.\n\nFirebase leaderboard scores are kept.');
+  if(!ok) return;
+  const keepKeys = new Set(['pkMuted', 'pkHapticOff']); // respect current prefs
+  const toRemove = [];
+  for(let i=0; i<localStorage.length; i++){
+    const k = localStorage.key(i);
+    if(k && k.startsWith('pk') && !keepKeys.has(k)) toRemove.push(k);
+  }
+  toRemove.forEach(k => localStorage.removeItem(k));
+  location.reload();
 }
 
 // ══════════════════════════════════════════
