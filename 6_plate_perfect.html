@@ -152,15 +152,15 @@ canvas { display:block; border:3px solid #00c8d7; box-shadow:0 0 18px #003a5088;
         <div class="diff-grid">
           <button class="d-btn d-easy" onclick="selectDiff('apprenti')">
             <span class="d-icon">✨</span>
-            <div class="d-texts"><span class="d-name">APPRENTI</span><span class="d-info">3 items · 90s · 5 lives · 2s preview</span></div>
+            <div class="d-texts"><span class="d-name">APPRENTI</span><span class="d-info">90s · 5 lives · 2.5s preview</span></div>
           </button>
           <button class="d-btn d-medium" onclick="selectDiff('cuisinier')">
             <span class="d-icon">🔥</span>
-            <div class="d-texts"><span class="d-name">CUISINIER</span><span class="d-info">4 items · 75s · 4 lives · 1.5s preview</span></div>
+            <div class="d-texts"><span class="d-name">CUISINIER</span><span class="d-info">75s · 4 lives · 1.5s preview</span></div>
           </button>
           <button class="d-btn d-hard" onclick="selectDiff('chef')">
             <span class="d-icon">💥</span>
-            <div class="d-texts"><span class="d-name">CHEF</span><span class="d-info">5 items · 60s · 3 lives · 1s preview</span></div>
+            <div class="d-texts"><span class="d-name">CHEF</span><span class="d-info">60s · 3 lives · 0.6s preview</span></div>
           </button>
         </div>
         <div style="display:flex;gap:6px;padding:2px 10px 6px;">
@@ -333,13 +333,13 @@ const PATTERNS = [
   })()},
 ];
 
-// Recipes pulled from shared menu.js (grouped by ingredient count)
-const RECIPES = { 3: pkBySize(3), 4: pkBySize(4), 5: pkBySize(5) };
-
+// All 3 difficulties share the full menu pool. Dish size (3/4/5
+// ingredients) is random per order and no longer tied to difficulty.
+// Difficulty scales: game time, lives, and sauce preview duration.
 const DIFF = {
-  apprenti:  {label:'APPRENTI',  size:3, time:90, lives:5, previewSec:2.0, drawSec:9},
-  cuisinier: {label:'CUISINIER', size:4, time:75, lives:4, previewSec:1.5, drawSec:8},
-  chef:      {label:'CHEF',      size:5, time:60, lives:3, previewSec:1.0, drawSec:7},
+  apprenti:  {label:'APPRENTI',  time:90, lives:5, previewSec:2.5},
+  cuisinier: {label:'CUISINIER', time:75, lives:4, previewSec:1.5},
+  chef:      {label:'CHEF',      time:60, lives:3, previewSec:0.6},
 };
 
 // ══════ STATE ══════
@@ -507,8 +507,7 @@ function startGame(){
 }
 
 function makeNextDish(){
-  const pool_r=RECIPES[cfg.size];
-  currentRecipe=pool_r[Math.floor(Math.random()*pool_r.length)];
+  currentRecipe=PK_DISHES[Math.floor(Math.random()*PK_DISHES.length)];
   currentPattern=PATTERNS[Math.floor(Math.random()*PATTERNS.length)];
   slots=currentRecipe.items.map(it=>({emoji:it.emoji,zone:it.zone,placed:false,x:0,y:0}));
   // Pool: shuffled
