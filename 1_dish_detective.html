@@ -76,7 +76,7 @@ canvas { display:block; image-rendering:pixelated; image-rendering:crisp-edges; 
 .combo-tag { color:#f08030; font-size:0.40rem; min-height:16px; margin-top:2px; }
 
 .ingr-grid { display:grid; grid-template-columns:1fr 1fr; gap:5px; padding:4px 8px; align-content:start; overflow-y:auto; flex:1; }
-.ingr-tile { background:#2c1608; border:2px solid #4a2808; padding:10px 5px; cursor:pointer; text-align:center; transition:border-color .1s, background .1s; display:flex; align-items:center; justify-content:center; }
+.ingr-tile { background:#2c1608; border:2px solid #4a2808; padding:6px 5px 8px; cursor:pointer; text-align:center; transition:border-color .1s, background .1s; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:4px; }
 .ingr-tile:hover:not(.locked) { border-color:#8b5e2a; background:#2a1200; }
 .ingr-tile.selected { border-color:#50c840; background:#051a05; }
 .ingr-tile.wrong    { border-color:#e05050; background:#1a0000; animation:tileShake .3s; }
@@ -1310,7 +1310,7 @@ function showDish(){
   // render card
   document.getElementById('dishEmoji').textContent=dish.e;
   document.getElementById('dishName').textContent=dish.name;
-  document.getElementById('dishRecipe').textContent=dish.ok.map(id=>INGR[id].e).join('  ');
+  document.getElementById('dishRecipe').innerHTML=dish.ok.map(id=>pkPxEl(INGR[id].e, 28)).join(' ');
   document.getElementById('dishCard').className='dish-card'+(isGolden?' golden':'');
   document.getElementById('goldenTag').style.display=isGolden?'block':'none';
   document.getElementById('comboTag').textContent='';
@@ -1325,7 +1325,7 @@ function renderGrid(){
     const ing=INGR[id];
     const tile=document.createElement('div');
     tile.className='ingr-tile'; tile.dataset.id=id;
-    tile.innerHTML=`<span class="ingr-label">${ing.l}</span>`;
+    tile.innerHTML=pkPxEl(ing.e, 40)+`<span class="ingr-label">${ing.l}</span>`;
     tile.onclick=()=>selectIngr(id,tile);
     grid.appendChild(tile);
   });

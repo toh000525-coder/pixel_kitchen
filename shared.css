@@ -2,6 +2,11 @@
    shared.css — Pixel Kitchen  Common Styles
    ═══════════════════════════════════════════ */
 
+/* ── Pixel-art sprite (CSS sprite from food-sprites.webp grid) ── */
+.pk-px { display:inline-block; background-image:url('assets/food-sprites.webp'); background-repeat:no-repeat; image-rendering:pixelated; vertical-align:middle; }
+.pk-px-fallback { display:inline-block; vertical-align:middle; }
+
+
 /* ── Topbar (all game pages) ── */
 .game-topbar { flex-shrink:0; background:transparent; display:flex; align-items:center; padding:10px 14px 6px; gap:12px; }
 .game-topbar-brand { font-size:1rem; letter-spacing:3px; color:#f5c842; text-shadow:2px 2px #8b3a00,0 0 20px #f5a700; flex:1; }

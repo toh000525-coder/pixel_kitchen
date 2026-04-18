@@ -641,6 +641,17 @@ function drawPixelSprite(ctx, emoji, cx, cy, size){
   }
 }
 
+// DOM helper — build an HTML string that renders the sprite via CSS background
+// Usage: elem.innerHTML = pkPxEl('🍅', 48)
+function pkPxEl(emoji, size){
+  const idx = PK_SPRITE_GRID_INDEX[emoji];
+  if(idx === undefined) {
+    return `<span class="pk-px-fallback" style="font-size:${Math.round(size*0.82)}px;line-height:${size}px;width:${size}px;height:${size}px;display:inline-block;text-align:center;">${emoji}</span>`;
+  }
+  const col = idx % 6, row = Math.floor(idx/6);
+  return `<span class="pk-px" style="width:${size}px;height:${size}px;background-size:${6*size}px ${7*size}px;background-position:-${col*size}px -${row*size}px;"></span>`;
+}
+
 // Initialize grid image loading
 if(typeof initImageSprites === 'function') {
   if(document.readyState === 'loading') {
