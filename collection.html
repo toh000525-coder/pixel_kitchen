@@ -50,9 +50,18 @@ body { background:radial-gradient(ellipse at 50% 30%,#1e1630 0%,#0d0a16 100%); f
 .col-back:hover { border-color:#ff8fb0; background:#271d3c; }
 
 .col-tabs { display:flex; gap:6px; flex-wrap:wrap; flex-shrink:0; }
-.cuisine-tab { padding:10px 14px; background:#1e1630; border:2px solid #5c3a78; color:#c0a8d4; font-family:'Press Start 2P',monospace; font-size:.48rem; letter-spacing:1.5px; cursor:pointer; transition:all .12s; min-height:36px; }
+.cuisine-tab { padding:10px 12px; background:#1e1630; border:2px solid #5c3a78; color:#c0a8d4; font-family:'Press Start 2P',monospace; font-size:.46rem; letter-spacing:1px; cursor:pointer; transition:all .12s; min-height:36px; display:inline-flex; align-items:center; gap:6px; touch-action:manipulation; }
 .cuisine-tab:hover { color:#ffd97d; border-color:#c87eb8; background:#271d3c; }
 .cuisine-tab.active { background:#271d3c; border-color:#ffd97d; color:#ffe890; box-shadow:0 0 12px rgba(255,217,125,0.4); }
+.cuisine-tab .tab-count { font-size:.38rem; color:#ff8fb0; letter-spacing:0; padding:2px 5px; background:#140f1e; border-radius:2px; }
+.cuisine-tab.active .tab-count { color:#ffd97d; }
+.cuisine-tab.complete .tab-count { color:#50c840; background:#0a1e0a; }
+
+.col-sort-row { display:flex; gap:6px; align-items:center; flex-shrink:0; flex-wrap:wrap; }
+.col-sort-lbl { font-size:.40rem; color:#a890c0; letter-spacing:1.5px; padding:0 4px; }
+.sort-btn { padding:7px 10px; background:#1e1630; border:2px solid #5c3a78; color:#c0a8d4; font-family:'Press Start 2P',monospace; font-size:.40rem; letter-spacing:1px; cursor:pointer; transition:all .12s; touch-action:manipulation; }
+.sort-btn:hover { color:#ffd97d; border-color:#c87eb8; }
+.sort-btn.active { background:#271d3c; border-color:#ffd97d; color:#ffd97d; }
 
 .dish-grid-wrap { flex:1; overflow-y:auto; border:3px solid #5c3a78; background:#140f1e; padding:16px; box-shadow:inset 0 0 0 1px #1e1630; min-height:0; }
 .dish-grid-wrap::-webkit-scrollbar { width:6px; }
@@ -64,6 +73,26 @@ body { background:radial-gradient(ellipse at 50% 30%,#1e1630 0%,#0d0a16 100%); f
 .dish-card.unlocked:hover { border-color:#ffd97d; transform:translateY(-2px); box-shadow:0 4px 0 #140f1e, 0 0 14px rgba(255,217,125,0.35); }
 .dish-card.locked { cursor:default; background:#1e1630; border-color:#5c3a78; }
 .dish-card.locked .dish-sprite { filter:brightness(0) opacity(.70); }
+
+/* Reveal animation for cards unlocked within the last 60s */
+.dish-card.just-unlocked {
+  animation: pkCardReveal .75s cubic-bezier(.34,1.56,.64,1);
+  border-color:#ffd97d;
+  box-shadow:0 0 20px rgba(255,217,125,0.6);
+}
+.dish-card.just-unlocked .dish-sprite {
+  animation: pkSpriteSparkle 1.4s ease-out;
+}
+@keyframes pkCardReveal {
+  0%   { transform:scale(0) rotate(-12deg); opacity:0; }
+  55%  { transform:scale(1.12) rotate(4deg); opacity:1; }
+  100% { transform:scale(1) rotate(0); opacity:1; }
+}
+@keyframes pkSpriteSparkle {
+  0%, 100% { filter:none; }
+  30%      { filter:brightness(1.7) drop-shadow(0 0 10px #ffd97d); }
+  65%      { filter:brightness(1.3) drop-shadow(0 0 14px #ff8fb0); }
+}
 
 .dish-sprite { width:108px; height:108px; margin:0 auto 8px; display:block; }
 
@@ -139,6 +168,13 @@ body { background:radial-gradient(ellipse at 50% 30%,#1e1630 0%,#0d0a16 100%); f
 
     <div class="col-tabs" id="tabRow"></div>
 
+    <div class="col-sort-row">
+      <span class="col-sort-lbl">SORT BY:</span>
+      <button class="sort-btn active" data-sort="default" onclick="setSort('default')">🗺️ CUISINE</button>
+      <button class="sort-btn" data-sort="newest" onclick="setSort('newest')">🆕 NEWEST</button>
+      <button class="sort-btn" data-sort="time" onclick="setSort('time')">⏱️ COOK TIME</button>
+    </div>
+
     <div class="dish-grid-wrap">
       <div class="dish-grid" id="dishGrid"></div>
     </div>
@@ -193,6 +229,8 @@ try { localStorage.setItem('pkCollectionTotal', COLLECTION_IDS.length); } catch(
 const CUISINES = [...new Set(COLLECTION_IDS.map(id => DISHES_INDEX[id]?.cuisine).filter(Boolean))].sort();
 
 let activeCuisine = 'ALL';
+let activeSort = 'default';
+const NEW_WINDOW_MS = 60000;  // "NEW" flash for dishes unlocked within this
 
 function scaleWrap(){
   const vw=window.visualViewport?window.visualViewport.width:window.innerWidth;
@@ -216,44 +254,95 @@ function refreshCoins(){
   if(el) el.textContent = localStorage.getItem('pkCoins') || 0;
 }
 
+function _countOwned(ids, collection){
+  return ids.filter(id => collection[id]).length;
+}
+
 function renderTabs(){
   const row = document.getElementById('tabRow');
+  const collection = pkGetCollection();
   row.innerHTML = '';
-  const all = document.createElement('button');
-  all.className = 'cuisine-tab' + (activeCuisine==='ALL'?' active':'');
-  all.textContent = 'ALL';
-  all.onclick = () => { activeCuisine='ALL'; renderTabs(); renderGrid(); };
-  row.appendChild(all);
+
+  // ALL tab — total progress
+  const allOwned = _countOwned(COLLECTION_IDS, collection);
+  const allBtn = document.createElement('button');
+  allBtn.className = 'cuisine-tab' +
+    (activeCuisine==='ALL' ? ' active' : '') +
+    (allOwned === COLLECTION_IDS.length ? ' complete' : '');
+  allBtn.innerHTML = `ALL <span class="tab-count">${allOwned}/${COLLECTION_IDS.length}</span>`;
+  allBtn.onclick = () => { activeCuisine='ALL'; renderTabs(); renderGrid(); };
+  row.appendChild(allBtn);
+
+  // Per-cuisine tabs with progress
   CUISINES.forEach(c => {
+    const ids = COLLECTION_IDS.filter(id => DISHES_INDEX[id]?.cuisine === c);
+    const owned = _countOwned(ids, collection);
     const btn = document.createElement('button');
-    btn.className = 'cuisine-tab' + (activeCuisine===c?' active':'');
-    btn.textContent = c.toUpperCase();
+    btn.className = 'cuisine-tab' +
+      (activeCuisine===c ? ' active' : '') +
+      (owned === ids.length ? ' complete' : '');
+    btn.innerHTML = `${c.toUpperCase()} <span class="tab-count">${owned}/${ids.length}</span>`;
     btn.onclick = () => { activeCuisine=c; renderTabs(); renderGrid(); };
     row.appendChild(btn);
   });
+}
+
+function setSort(key){
+  if(activeSort === key) return;
+  activeSort = key;
+  document.querySelectorAll('.sort-btn').forEach(b => {
+    b.classList.toggle('active', b.dataset.sort === key);
+  });
+  renderGrid();
+}
+
+function _sortVisible(ids, collection){
+  const copy = ids.slice();
+  if(activeSort === 'newest'){
+    // Unlocked-by-unlock-time desc, then locked at the end (in original order)
+    copy.sort((a, b) => {
+      const ta = collection[a] || 0;
+      const tb = collection[b] || 0;
+      if(ta && tb) return tb - ta;
+      if(ta) return -1;
+      if(tb) return  1;
+      return 0;
+    });
+  } else if(activeSort === 'time'){
+    // Cook time asc; dishes with no recipe fall through last
+    copy.sort((a, b) => {
+      const ca = PK_DISH_RECIPES[a]?.cookTime || 9999;
+      const cb = PK_DISH_RECIPES[b]?.cookTime || 9999;
+      return ca - cb;
+    });
+  }
+  // 'default' = original order (already cuisine-grouped via menu.js)
+  return copy;
 }
 
 function renderGrid(){
   const grid = document.getElementById('dishGrid');
   grid.innerHTML = '';
   const collection = pkGetCollection();
-  const visible = COLLECTION_IDS.filter(id => {
+  let visible = COLLECTION_IDS.filter(id => {
     const d = DISHES_INDEX[id];
     if(!d) return false;
     if(activeCuisine==='ALL') return true;
     return d.cuisine === activeCuisine;
   });
+  visible = _sortVisible(visible, collection);
   if(visible.length === 0){
     grid.innerHTML = '<div class="col-empty-msg" style="grid-column:1/-1;">No dishes in this cuisine yet.</div>';
     return;
   }
+  const now = Date.now();
   visible.forEach(id => {
     const d = DISHES_INDEX[id];
     const unlocked = !!collection[id];
+    const isNew = unlocked && (now - collection[id]) < NEW_WINDOW_MS;
     const card = document.createElement('div');
-    card.className = 'dish-card ' + (unlocked ? 'unlocked' : 'locked');
-    // Recently unlocked (<= 60s) gets a NEW badge
-    if(unlocked && (Date.now() - collection[id]) < 60000){
+    card.className = 'dish-card ' + (unlocked ? 'unlocked' : 'locked') + (isNew ? ' just-unlocked' : '');
+    if(isNew){
       const badge = document.createElement('div');
       badge.className = 'dish-new';
       badge.textContent = 'NEW';
