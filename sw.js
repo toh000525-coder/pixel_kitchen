@@ -1,7 +1,7 @@
 // ═══════════════════════════════════════════
 //  sw.js — Pixel Kitchen  Service Worker
 // ═══════════════════════════════════════════
-const CACHE = 'pk-v56';
+const CACHE = 'pk-v57';
 
 const STATIC = [
   './',
@@ -19,10 +19,12 @@ const STATIC = [
   './shared.js',
   './sprites.js',
   './dishes.js',
+  './shop.js',
   './achievements.js',
   './icon.svg',
   './manifest.json',
   './assets/food-sprites.webp',
+  './assets/avatars-sprites.webp',
   './assets/dishes-sprites.webp',
   'https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap',
 ];
