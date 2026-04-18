@@ -658,7 +658,10 @@ function pkPxEl(emoji, size){
     return `<span class="pk-px-fallback" style="font-size:${Math.round(size*0.82)}px;line-height:${size}px;width:${size}px;height:${size}px;display:inline-block;text-align:center;">${emoji}</span>`;
   }
   const col = idx % 6, row = Math.floor(idx/6);
-  return `<span class="pk-px" style="width:${size}px;height:${size}px;background-size:${6*size}px ${7*size}px;background-position:-${col*size}px -${row*size}px;"></span>`;
+  // Sheet is 6 cols × 8 rows (was 7 before Phase B). The CSS background-size
+  // must match the sheet's actual grid or sprites get stretched/squished and
+  // the wrong cell shows.
+  return `<span class="pk-px" style="width:${size}px;height:${size}px;background-size:${6*size}px ${8*size}px;background-position:-${col*size}px -${row*size}px;"></span>`;
 }
 
 // Initialize grid image loading
