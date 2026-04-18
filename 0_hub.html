@@ -266,6 +266,31 @@ body {
   flex-shrink:0;
 }
 
+/* ── Daily bonus pill ── */
+.daily-pill {
+  display:none; align-items:center; gap:10px;
+  background:linear-gradient(90deg, #3a1a4e, #5c3a78);
+  border:2px solid #ffd97d;
+  padding:8px 14px; margin:4px 0 8px;
+  font-family:'Press Start 2P',monospace;
+  box-shadow:0 0 20px rgba(255,217,125,0.28);
+  animation: dailyPulse 2s ease-in-out infinite;
+  flex-shrink:0; cursor:default;
+}
+.daily-pill.show { display:flex; }
+.daily-pill-icon { font-size:1.3rem; flex-shrink:0; }
+.daily-pill-text {
+  flex:1; color:#ffd97d; font-size:.42rem; letter-spacing:1.5px; line-height:1.6;
+}
+.daily-pill-text b { color:#ff8fb0; }
+.daily-pill-sub {
+  font-size:.32rem; color:#c0a8d4; margin-top:3px; letter-spacing:1px; display:block;
+}
+@keyframes dailyPulse {
+  0%, 100% { box-shadow:0 0 20px rgba(255,217,125,0.28); }
+  50%      { box-shadow:0 0 32px rgba(255,217,125,0.55); }
+}
+
 /* ── GAME GRID (paginated) ── */
 .game-grid-viewport { flex:1; min-height:0; overflow:hidden; position:relative; }
 .game-grid-track {
@@ -683,6 +708,7 @@ body {
       <span class="settings-value" id="settingHapticVal">ON</span>
     </div>
     <div class="rank-divider"></div>
+    <button class="hub-ranks-btn" onclick="resetTutorials()" style="border-color:#60c8f0;color:#60c8f0;">🎓 REPLAY TUTORIALS</button>
     <button class="hub-ranks-btn" onclick="confirmResetData()" style="border-color:#e05050;color:#e05050;">🗑 RESET ALL DATA</button>
     <div class="profile-join">v1.5 · PIXEL KITCHEN</div>
     <button class="hub-ranks-btn" onclick="closeSettingsModal()">✕ CLOSE</button>
@@ -769,6 +795,14 @@ body {
   <!-- RIGHT: GAME SELECT -->
   <div class="hub-right">
     <div class="hub-section-lbl">▶ SELECT A GAME</div>
+
+    <div class="daily-pill" id="dailyPill">
+      <span class="daily-pill-icon">📅</span>
+      <div class="daily-pill-text">
+        TODAY'S BONUS: <b>+25 🪙</b>
+        <span class="daily-pill-sub" id="dailyPillSub">Complete any game to claim</span>
+      </div>
+    </div>
 
     <div class="game-grid-viewport">
       <div class="game-grid-track" id="gameTrack">
@@ -1203,6 +1237,33 @@ function updateHubCoins(){
 }
 updateHubCoins();
 
+// ── Daily bonus banner ──
+// Shows the pill on the hub when the user hasn't triggered today's bonus
+// yet (pkLastBonusDay gets set by pkCheckDailyBonus() on first completion).
+// Streak count is shown when applicable for extra motivation.
+function refreshDailyPill(){
+  const pill = document.getElementById('dailyPill');
+  if(!pill) return;
+  const today = new Date().toISOString().slice(0, 10);
+  const claimed = localStorage.getItem('pkLastBonusDay') === today;
+  if(claimed){
+    pill.classList.remove('show');
+    return;
+  }
+  pill.classList.add('show');
+  const streak = parseInt(localStorage.getItem('pkStreak') || '0') || 0;
+  const sub = document.getElementById('dailyPillSub');
+  if(sub){
+    sub.textContent = streak > 1
+      ? 'Complete any game to extend ' + streak + '-day streak 🔥'
+      : 'Complete any game to claim';
+  }
+}
+refreshDailyPill();
+// Also refresh when user returns from a game (page focus event)
+window.addEventListener('focus', refreshDailyPill);
+window.addEventListener('pageshow', refreshDailyPill);
+
 function toggleMute(){
   const muted = localStorage.getItem('pkMuted') === '1';
   const next = !muted;
@@ -1411,6 +1472,16 @@ function toggleSettingHaptic(){
   if(!cur) try { /* vibrate on turning ON - impossible, it's being turned OFF */ } catch(e){}
   if(cur) try { pkVibrate && pkVibrate('tap'); } catch(e){} // feedback when turning back ON
   _refreshSettingsRows();
+}
+function resetTutorials(){
+  // Clear pkTips_* keys so each game's first-time tip shows again
+  const keys = [];
+  for(let i = 0; i < localStorage.length; i++){
+    const k = localStorage.key(i);
+    if(k && k.startsWith('pkTips_')) keys.push(k);
+  }
+  keys.forEach(k => localStorage.removeItem(k));
+  alert('Tutorials reset!\n\nThe "HOW TO PLAY" popup will show next time you enter each game.');
 }
 function confirmResetData(){
   const ok = confirm('Reset ALL progress?\n\nThis clears coins, collection, achievements, best scores, and streak — cannot be undone.\n\nFirebase leaderboard scores are kept.');
