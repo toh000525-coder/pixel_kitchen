@@ -17,9 +17,13 @@
 .btn-mute { font-size:1.2rem; padding:2px 4px; background:transparent; border:none; cursor:pointer; line-height:1; }
 
 /* ── Page transitions ── */
+/* html fallback bg prevents white flash while body/scripts load. */
+html { background:#0a0a14; }
 @keyframes pkPageIn  { from{opacity:0;transform:translateY(6px)} to{opacity:1;transform:none} }
 @keyframes pkPageOut { to{opacity:0;transform:translateY(-6px)} }
-body { animation: pkPageIn 0.22s ease-out both; }
+/* No `both` fill-mode: body stays opacity:1 until (and after) the animation
+   plays, so a slow sync-script block can't leave the page invisible. */
+body { animation: pkPageIn 0.22s ease-out; }
 
 /* ── Touch optimization ── */
 button { touch-action: manipulation; -webkit-tap-highlight-color: transparent; }
