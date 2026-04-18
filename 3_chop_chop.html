@@ -274,7 +274,10 @@ canvas { display:block; }
         <button class="btn-green" style="flex:1;" onclick="replayGame()">▶ PLAY AGAIN</button>
         <button class="btn-gold"  style="flex:1;" onclick="showLeader()">🏆 LEADERBOARD</button>
       </div>
-      <button class="btn-back" onclick="goTo('0_hub.html?from=game')" style="margin:4px 8px;width:calc(100% - 16px);">◀ HUB</button>
+      <div style="display:flex;gap:6px;width:100%;margin-top:4px;padding:0 8px;">
+        <button class="btn-back" style="flex:1;margin:0;" onclick="pkShareLast()">📤 SHARE</button>
+        <button class="btn-back" style="flex:1;margin:0;" onclick="goTo('0_hub.html?from=game')">◀ HUB</button>
+      </div>
     </div>
   </div>
 
@@ -578,6 +581,12 @@ function endGame(){
   document.getElementById('newBest').textContent=isNew3?'★ NEW BEST!':(prev3>0?'BEST: '+prev3:'');
   pkRecordGame({gameId:3,stars:pct>=0.9?3:pct>=0.65?2:1,hardest:diffKey==='hard'});
   pkStatAdd('pkCoinsEarned',coinsEarned); pkStatMax('pkBestScore_3',score); pkStatMax('pkMaxCombo',bestCombo); pkStatAdd('pkPlayTime_3',Math.max(1,Math.round((Date.now()-window._pkT0)/60000)));
+  window._pkLastResult = {
+    gameName:'CHOP CHOP!', gameEmoji:'🔪', themeColor:'#50c840',
+    score: score, stars: pct>=0.9?3:pct>=0.65?2:1,
+    difficulty: (diffKey||'').toUpperCase(),
+    subtitle: cfg.rounds + ' ROUNDS · BEST COMBO x' + bestCombo,
+  };
   showPane('paneResult');
   animGrade(document.getElementById('resultGrade'));
   animCount(document.getElementById('resultScore'),score,800);

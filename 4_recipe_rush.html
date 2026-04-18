@@ -398,7 +398,10 @@ canvas { display:block; }
         <button class="btn-orange" style="flex:1;" onclick="replayGame()">▶ PLAY AGAIN</button>
         <button class="btn-gold"   style="flex:1;" onclick="showLeader()">🏆 LEADERBOARD</button>
       </div>
-      <button class="btn-back" onclick="goTo('0_hub.html?from=game')" style="margin:4px 8px;width:calc(100% - 16px);">◀ HUB</button>
+      <div style="display:flex;gap:6px;width:100%;margin-top:4px;padding:0 8px;">
+        <button class="btn-back" style="flex:1;margin:0;" onclick="pkShareLast()">📤 SHARE</button>
+        <button class="btn-back" style="flex:1;margin:0;" onclick="goTo('0_hub.html?from=game')">◀ HUB</button>
+      </div>
     </div>
   </div>
 
@@ -794,6 +797,12 @@ function endGame(){
 
   const _p4=gScore/(maxRounds*350); pkRecordGame({gameId:4,stars:_p4>=0.8?3:_p4>=0.55?2:1,hardest:diffKey==='chef'});
   pkStatAdd('pkCoinsEarned',coins); pkStatMax('pkBestScore_4',gScore); pkStatAdd('pkPlayTime_4',Math.max(1,Math.round((Date.now()-window._pkT0)/60000)));
+  window._pkLastResult = {
+    gameName:'RECIPE RUSH', gameEmoji:'📋', themeColor:'#f5a742',
+    score: gScore, stars: _p4>=0.8?3:_p4>=0.55?2:1,
+    difficulty: (diffKey||'').toUpperCase(),
+    subtitle: round + '/' + maxRounds + ' ROUNDS',
+  };
   showPane('paneResult');
   animGrade(document.getElementById('resultGrade'));
   animCount(document.getElementById('resultScore'),gScore,800);

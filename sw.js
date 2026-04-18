@@ -1,7 +1,7 @@
 // ═══════════════════════════════════════════
 //  sw.js — Pixel Kitchen  Service Worker
 // ═══════════════════════════════════════════
-const CACHE = 'pk-v53';
+const CACHE = 'pk-v54';
 
 const STATIC = [
   './',
