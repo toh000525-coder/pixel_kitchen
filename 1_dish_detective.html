@@ -282,19 +282,19 @@ canvas { display:block; image-rendering:pixelated; image-rendering:crisp-edges; 
     <!-- RESULT PANE -->
     <div class="gpane" id="paneResult">
       <div class="result-wrap">
-        <div class="result-icon" id="resIcon">🏆</div>
+        <div class="result-icon" id="resultGrade">🏆</div>
         <div id="resultStars"></div>
-        <div class="result-title" id="resTitle">WELL DONE!</div>
-        <div class="result-score-lbl">FINAL SCORE</div>
-        <div class="result-score" id="resScore">0</div>
-        <div class="result-stats" id="resStats"></div>
+        <div class="result-title" id="resultTitle">WELL DONE!</div>
+        <div class="result-score" id="resultScore">0</div>
+        <div class="result-stats" id="resultSub"></div>
+        <div id="resultCoins" style="font-size:.50rem;color:#f5c842;letter-spacing:2px;min-height:1.2rem;"></div>
         <div id="newBest" style="font-size:.44rem;color:#f5c842;letter-spacing:2px;min-height:1rem;text-align:center;"></div>
         <div id="saveStatus" style="font-size:0.36rem;color:#50c840;min-height:1rem;"></div>
-        <div style="display:flex;gap:6px;width:100%;margin-bottom:4px;">
+        <div style="display:flex;gap:6px;width:100%;margin-top:4px;">
           <button class="btn-play-again" style="flex:1;" onclick="showTitle()">▶ PLAY AGAIN</button>
           <button class="btn-leader" style="flex:1;" onclick="showLeader()">🏆 LEADERBOARD</button>
         </div>
-        <button class="btn-back" style="width:100%;" onclick="goTo('0_hub.html?from=game')">◀ HUB</button>
+        <button class="btn-back" style="width:100%;margin-top:4px;" onclick="goTo('0_hub.html?from=game')">◀ HUB</button>
       </div>
     </div>
 
@@ -1410,10 +1410,10 @@ function endGame(){
   else if(pct>=0.5){icon='🥈';title='PAS MAL!';msg='Not bad! Keep practising! 🍳';}
   else             {icon='🍳';title='KEEP COOKING!';msg='You\'ll do better next time! 💪';}
   // fill result pane (shown after celebration)
-  document.getElementById('resIcon').textContent=icon;
-  document.getElementById('resTitle').textContent=title;
-  document.getElementById('resScore').textContent=0;
-  document.getElementById('resStats').innerHTML=
+  document.getElementById('resultGrade').textContent=icon;
+  document.getElementById('resultTitle').textContent=title;
+  document.getElementById('resultScore').textContent=0;
+  document.getElementById('resultSub').innerHTML=
     `${gCorrect} / 10 dishes correct<br>Best combo: ×${gBestCombo}<br>${gDiff.toUpperCase()} mode`;
   speechText='MERCI!';
   // show celebration overlay first
@@ -1433,8 +1433,8 @@ function showCelebration(icon, title, score, msg){
     const _p1=gCorrect/10; pkRecordGame({gameId:1,stars:_p1>=0.9?3:_p1>=0.7?2:1,hardest:gDiff==='chef'});
     showPane('paneResult');
     spawnSparkles();
-    animGrade(document.getElementById('resIcon'));
-    animCount(document.getElementById('resScore'),gScore,800);
+    animGrade(document.getElementById('resultGrade'));
+    animCount(document.getElementById('resultScore'),gScore,800);
     const _s1=_p1>=0.9?3:_p1>=0.7?2:1;
     const _c1=_s1===3?30:_s1===2?15:5;
     localStorage.setItem('pkCoins',(parseInt(localStorage.getItem('pkCoins')||'0')+_c1));

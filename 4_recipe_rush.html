@@ -386,17 +386,19 @@ canvas { display:block; }
   <!-- RESULT PANE -->
   <div class="gpane" id="paneResult">
     <div class="result-box">
-      <div class="result-title" id="resultTitle">WELL DONE!</div>
       <div style="font-size:2rem;" id="resultGrade"></div>
       <div id="resultStars"></div>
+      <div class="result-title" id="resultTitle">WELL DONE!</div>
       <div class="result-score" id="resultScore">0</div>
       <div class="result-sub" id="resultSub"></div>
       <div id="resultCoins" style="font-size:.50rem;color:#a07010;letter-spacing:2px;min-height:1.2rem;"></div>
       <div id="newBest" style="font-size:.44rem;color:#f5c842;letter-spacing:2px;min-height:1rem;text-align:center;"></div>
       <div class="save-status" id="saveStatus"></div>
-      <button class="btn-orange" onclick="replayGame()">▶ PLAY AGAIN</button>
-      <button class="btn-gold"   onclick="showLeader()">🏆 LEADERBOARD</button>
-      <button class="btn-back"   onclick="goTo('0_hub.html?from=game')" style="margin:4px 8px;width:calc(100% - 16px);">◀ HUB</button>
+      <div style="display:flex;gap:6px;width:100%;margin-top:4px;padding:0 8px;">
+        <button class="btn-orange" style="flex:1;" onclick="replayGame()">▶ PLAY AGAIN</button>
+        <button class="btn-gold"   style="flex:1;" onclick="showLeader()">🏆 LEADERBOARD</button>
+      </div>
+      <button class="btn-back" onclick="goTo('0_hub.html?from=game')" style="margin:4px 8px;width:calc(100% - 16px);">◀ HUB</button>
     </div>
   </div>
 
