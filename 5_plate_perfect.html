@@ -399,7 +399,7 @@ const _pkDebResize = pkOnResize(onResize);
 window.addEventListener('resize',_pkDebResize);
 window.addEventListener('orientationchange',()=>setTimeout(_pkDebResize,100));
 if (window.visualViewport) window.visualViewport.addEventListener('resize',_pkDebResize);
-document.addEventListener('DOMContentLoaded',()=>{ onResize(); refreshCoins(); showPane('paneTitle'); const b=document.getElementById('muteBtn');if(b)b.textContent=muted?'🔇':'🔊'; const _sd=localStorage.getItem('pkDiff_6');if(_sd)document.querySelector(`.d-btn[onclick*="'${_sd}'"]`)?.classList.add('active'); });
+document.addEventListener('DOMContentLoaded',()=>{ onResize(); refreshCoins(); showPane('paneTitle'); const b=document.getElementById('muteBtn');if(b)b.textContent=muted?'🔇':'🔊'; const _sd=localStorage.getItem('pkDiff_5');if(_sd)document.querySelector(`.d-btn[onclick*="'${_sd}'"]`)?.classList.add('active'); });
 document.addEventListener('click',function onFirstClick(){ getAudio(); startBGMusic(); },{once:true});
 document.addEventListener('click',e=>{ if(e.target.closest('button')&&e.target.id!=='muteBtn') sndClick(); });
 
@@ -461,7 +461,7 @@ function showPane(id){
   if(id==='paneTitle')startIdleCanvas(); else stopIdleCanvas();
   if(id==='paneLeader')loadLeader(diffKey||'apprenti');
 }
-function selectDiff(key){if(!localStorage.getItem('pkName')){location.href='0_hub.html';return;}localStorage.setItem('pkDiff_6',key);diffKey=key;cfg=DIFF[key];setTimeout(()=>startGame(),300);}
+function selectDiff(key){if(!localStorage.getItem('pkName')){location.href='0_hub.html';return;}localStorage.setItem('pkDiff_5',key);diffKey=key;cfg=DIFF[key];setTimeout(()=>startGame(),300);}
 
 // ══════ IDLE CANVAS ══════
 function startIdleCanvas(){
@@ -495,7 +495,7 @@ function startGame(){
   if(!cfg)return;
   stopIdleCanvas();
   gScore=0;gDishes=0;gLives=cfg.lives;gTime=cfg.time;
-  pkStatAdd('pkPlays_6'); window._pkT0=Date.now();
+  pkStatAdd('pkPlays_5'); window._pkT0=Date.now();
   dragging=null;effects=[];paused=false;running=true;_lastTimerBeep=-1;
   makeNextDish();
   updateHUD();
@@ -964,15 +964,15 @@ function endGame(){
   document.getElementById('resultSub').textContent=cfg.label+' · '+gDishes+' DISHES';
   document.getElementById('resultScore').textContent=0;
   document.getElementById('resultCoins').textContent='';
-  const bk6='pkBest_6_'+diffKey;
-  const prev6=parseInt(localStorage.getItem(bk6)||'0');
-  const isNew6=gScore>prev6&&gScore>0;
-  if(isNew6) localStorage.setItem(bk6,gScore);
-  document.getElementById('newBest').textContent=isNew6?'★ NEW BEST!':(prev6>0?'BEST: '+prev6:'');
+  const bk5='pkBest_5_'+diffKey;
+  const prev5=parseInt(localStorage.getItem(bk5)||'0');
+  const isNew5=gScore>prev5&&gScore>0;
+  if(isNew5) localStorage.setItem(bk5,gScore);
+  document.getElementById('newBest').textContent=isNew5?'★ NEW BEST!':(prev5>0?'BEST: '+prev5:'');
   document.getElementById('saveStatus').textContent='Saving score...';
-  const _s6=diffKey==='chef'?(gDishes>=6?3:gDishes>=3?2:1):diffKey==='cuisinier'?(gDishes>=7?3:gDishes>=4?2:1):(gDishes>=8?3:gDishes>=4?2:1);
-  pkRecordGame({gameId:6,stars:_s6,hardest:diffKey==='chef'});
-  pkStatAdd('pkCoinsEarned',earned); pkStatMax('pkBestScore_6',gScore); pkStatAdd('pkPlayTime_6',Math.max(1,Math.round((Date.now()-window._pkT0)/60000)));
+  const _s5=diffKey==='chef'?(gDishes>=6?3:gDishes>=3?2:1):diffKey==='cuisinier'?(gDishes>=7?3:gDishes>=4?2:1):(gDishes>=8?3:gDishes>=4?2:1);
+  pkRecordGame({gameId:5,stars:_s5,hardest:diffKey==='chef'});
+  pkStatAdd('pkCoinsEarned',earned); pkStatMax('pkBestScore_5',gScore); pkStatAdd('pkPlayTime_5',Math.max(1,Math.round((Date.now()-window._pkT0)/60000)));
   showPane('paneResult');
   animGrade(document.getElementById('resultGrade'));
   animCount(document.getElementById('resultScore'),gScore,800);
@@ -1025,8 +1025,8 @@ function submitScore(){
     .catch(()=>document.getElementById('saveStatus').textContent='');
 }
 // ── FIRST-TIME TIP ──
-function dismissTip(){ localStorage.setItem('pkTips_6','1'); document.getElementById('tipOverlay').style.display='none'; }
-document.addEventListener('DOMContentLoaded',function(){ if(!localStorage.getItem('pkTips_6')){ document.getElementById('tipOverlay').style.display='flex'; } });
+function dismissTip(){ localStorage.setItem('pkTips_5','1'); document.getElementById('tipOverlay').style.display='none'; }
+document.addEventListener('DOMContentLoaded',function(){ if(!localStorage.getItem('pkTips_5')){ document.getElementById('tipOverlay').style.display='flex'; } });
 </script>
 <div id="tipOverlay" style="display:none;position:fixed;inset:0;z-index:9998;background:rgba(0,0,0,0.82);align-items:center;justify-content:center;">
   <div style="background:#1e0e04;border:4px solid #f5c842;box-shadow:0 0 60px #000;padding:36px 32px;max-width:420px;width:92%;font-family:'Press Start 2P',monospace;text-align:center;">

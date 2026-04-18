@@ -89,8 +89,8 @@ function checkRotate() {
 | `2_pantry_peek.html` | Pantry Peek |
 | `3_chop_chop.html` | Chop Chop |
 | `4_recipe_rush.html` | Recipe Rush |
-| `5_kitchen_chaos.html` | Kitchen Chaos |
-| `6_plate_perfect.html` | Plate Perfect |
+| `5_plate_perfect.html` | Plate Perfect |
+| `6_kitchen_chaos.html` | Kitchen Chaos |
 
 All game pages use GAME_W=936, GAME_H=564 (see "Game page layout" below).
 
