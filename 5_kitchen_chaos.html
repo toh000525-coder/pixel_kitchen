@@ -44,7 +44,7 @@ canvas { display:block; border:3px solid #6878a0; box-shadow:0 0 18px #2a2a4a; }
 
 /* ══ GAME PANEL ══ */
 .game-panel {
-  width:200px; height:480px;
+  width:280px; height:480px;
   background:#1a1a24;
   border:4px solid #6878a0;
   box-shadow:4px 4px 0 #2a2a3a, inset 0 0 0 1px #2e2e44;
@@ -264,7 +264,7 @@ canvas { display:block; border:3px solid #6878a0; box-shadow:0 0 18px #2a2a4a; }
   <div class="game-content">
     <!-- CANVAS -->
     <div class="canvas-wrap">
-      <canvas id="gameCanvas" width="700" height="480"></canvas>
+      <canvas id="gameCanvas" width="620" height="480"></canvas>
     </div>
 
     <!-- PANEL -->
@@ -423,8 +423,8 @@ fbDb = firebase.database(fbApp);
 //  CONSTANTS
 // ══════════════════════════════════════════
 const GAME_W = 936, GAME_H = 564;
-const CW = 700, CH = 480;
-const BELT_Y = 240; // belt center Y
+const CW = 620, CH = 480;
+const BELT_Y = 256; // belt center Y
 
 // Ingredient pool + recipes from shared menu.js
 const GOOD_ITEMS = PK_INGREDIENTS.map(i => ({emoji:i.emoji, name:i.name}));
@@ -658,19 +658,19 @@ function drawIdle() {
   P(0, 215, CW, 80, '#1a1a24');
   P(0, 295, CW, 20, '#1e1e2c');
   P(0, 295, CW, 2, '#3a4060');
-  P(0, 315, CW, CH - 315, '#1a1a26');
+  P(0, 320, CW, CH - 320, '#1a1a26');
   const TS = 28;
-  for (let row = 0; row * TS < CH - 315; row++)
+  for (let row = 0; row * TS < CH - 320; row++)
     for (let col = 0; col * TS < CW; col++)
-      P(col*TS, 315+row*TS, TS, TS, (row+col)%2===0?'#20202e':'#181824');
+      P(col*TS, 320+row*TS, TS, TS, (row+col)%2===0?'#20202e':'#181824');
   ctx.globalAlpha = 0.04;
   for (let y = 0; y < CH; y += 4) P(0, y, CW, 2, '#000000');
   ctx.globalAlpha = 1;
 
   // --- Belt ---
   const bOff = (t * 80) % 40;
-  const by = BELT_Y - 28;
-  const bh = 56;
+  const by = BELT_Y - 36;
+  const bh = 72;
   P(0, by, CW, bh, '#2a2a3a');
   ctx.globalAlpha = 0.25;
   for (let x = -40 + (bOff % 40); x < CW + 40; x += 40) {
@@ -1012,14 +1012,14 @@ function drawKitchenBg() {
   P(0, 295, CW, 2, '#3a4060');
 
   // Floor + checker tiles
-  P(0, 315, CW, CH - 315, '#1a1a26');
+  P(0, 320, CW, CH - 320, '#1a1a26');
   const TS = 28;
-  for (let row = 0; row * TS < CH - 315; row++)
+  for (let row = 0; row * TS < CH - 320; row++)
     for (let col = 0; col * TS < CW; col++)
-      P(col*TS, 315+row*TS, TS, TS, (row+col)%2===0 ? '#20202e' : '#181824');
+      P(col*TS, 320+row*TS, TS, TS, (row+col)%2===0 ? '#20202e' : '#181824');
   ctx.globalAlpha = 0.3;
-  for (let row = 0; row * TS <= CH - 315 + TS; row++) P(0, 315 + row*TS, CW, 1, '#6878a0');
-  for (let col = 0; col * TS <= CW; col++) P(col*TS, 315, 1, CH - 315, '#6878a0');
+  for (let row = 0; row * TS <= CH - 320 + TS; row++) P(0, 320 + row*TS, CW, 1, '#6878a0');
+  for (let col = 0; col * TS <= CW; col++) P(col*TS, 320, 1, CH - 320, '#6878a0');
   ctx.globalAlpha = 1;
 
   // Corner brackets
@@ -1041,8 +1041,8 @@ function drawKitchenBg() {
 
 function drawBelt() {
   const P = (x, y, w, h, c) => { ctx.fillStyle = c; ctx.fillRect(x, y, w, h); };
-  const by = BELT_Y - 28;
-  const bh = 56;
+  const by = BELT_Y - 36;
+  const bh = 72;
 
   // Belt surface + scrolling chevrons
   P(0, by, CW, bh, '#2a2a3a');
@@ -1079,7 +1079,7 @@ function drawItems() {
 function drawOrders() {
   if (!cfg || orders.length === 0) return;
   const P = (x, y, w, h, c) => { ctx.fillStyle = c; ctx.fillRect(x, y, w, h); };
-  const cardH = 170;
+  const cardH = 190;
   const margin = 12;
   const totalGap = (orders.length - 1) * 10;
   const cardW = Math.min(280, (CW - margin*2 - totalGap) / orders.length);
@@ -1115,7 +1115,7 @@ function drawOrders() {
     const ingredients = Object.keys(needMap);
     const cols = Math.min(ingredients.length, 4);
     const slotW = Math.floor((cardW - 12) / cols) - 3;
-    const slotH = 36;
+    const slotH = 42;
 
     ingredients.forEach((emoji, ii) => {
       const col = ii % cols;
