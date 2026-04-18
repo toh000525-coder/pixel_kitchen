@@ -54,18 +54,53 @@ Prefer **modal inside hub** over separate page — no extra navigation, faster,
 consistent with how the collection recipe became a modal.
 
 ### Data schema (shop item)
-Keep generic so future types plug in:
+Keep generic so future types plug in. **Phase 2 art is ready** —
+25 avatars in `assets/avatars-sprites.webp` (800×800, 5×5 grid, 160px cells).
+
+Sprite grid index (row-major):
+```
+ 0 CLASSIC CHEF      5 WOK CHEF        10 BBQ PITMASTER   15 BEAR CHEF      20 DRAGON CHEF
+ 1 APPRENTICE        6 PASTA CHEF      11 HEAD CHEF       16 OWL CHEF       21 PHOENIX CHEF
+ 2 BAKER             7 GRANDMA COOK    12 ROBOT CHEF      17 BOBA TEA MAKER 22 WITCH CHEF
+ 3 SUSHI CHEF        8 PASTRY CHEF     13 WIZARD CHEF     18 PIRATE COOK    23 NEON CHEF
+ 4 PIZZA MAKER       9 FOOD TRUCK COOK 14 GOLDEN CHEF     19 NINJA CHEF     24 VIKING CHEF
+```
+
+Suggested catalog (prices TBD at Phase 1 start):
 ```js
 const PK_SHOP_ITEMS = [
-  { id:'chef_classic', type:'avatar', name:'CLASSIC CHEF',   price:0,   spriteIdx:0, default:true },
-  { id:'chef_female',  type:'avatar', name:'CHEF ANA',       price:0,   spriteIdx:1, default:true },
-  { id:'chef_cat',     type:'avatar', name:'CAT CHEF',       price:50,  spriteIdx:2 },
-  { id:'chef_panda',   type:'avatar', name:'PANDA CHEF',     price:100, spriteIdx:3 },
-  { id:'chef_wizard',  type:'avatar', name:'WIZARD CHEF',    price:150, spriteIdx:4 },
-  { id:'chef_robot',   type:'avatar', name:'ROBOT CHEF',     price:200, spriteIdx:5 },
-  { id:'chef_golden',  type:'avatar', name:'GOLDEN CHEF',    price:500, spriteIdx:6 },
-  // future: { id:'frame_gold', type:'frame', ... }
-  // future: { id:'title_mvp',  type:'title', ... }
+  // Free tier (auto-granted)
+  {id:'classic_chef',   type:'avatar', name:'CLASSIC CHEF',    price:0,   sprite:0,  default:true},
+  {id:'apprentice',     type:'avatar', name:'APPRENTICE',      price:0,   sprite:1,  default:true},
+  // Starter (50-150)
+  {id:'baker',          type:'avatar', name:'BAKER',           price:50,  sprite:2},
+  {id:'sushi_chef',     type:'avatar', name:'SUSHI CHEF',      price:100, sprite:3},
+  {id:'pizza_maker',    type:'avatar', name:'PIZZA MAKER',     price:100, sprite:4},
+  {id:'wok_chef',       type:'avatar', name:'WOK CHEF',        price:150, sprite:5},
+  {id:'pasta_chef',     type:'avatar', name:'PASTA CHEF',      price:150, sprite:6},
+  // Mid (200-350)
+  {id:'grandma_cook',   type:'avatar', name:'GRANDMA COOK',    price:200, sprite:7},
+  {id:'pastry_chef',    type:'avatar', name:'PASTRY CHEF',     price:250, sprite:8},
+  {id:'food_truck',     type:'avatar', name:'FOOD TRUCK COOK', price:200, sprite:9},
+  {id:'bbq_pitmaster',  type:'avatar', name:'BBQ PITMASTER',   price:300, sprite:10},
+  {id:'head_chef',      type:'avatar', name:'HEAD CHEF',       price:350, sprite:11},
+  // Cute/adventure theme
+  {id:'bear_chef',      type:'avatar', name:'BEAR CHEF',       price:250, sprite:15},
+  {id:'owl_chef',       type:'avatar', name:'OWL CHEF',        price:300, sprite:16},
+  {id:'boba_maker',     type:'avatar', name:'BOBA TEA MAKER',  price:200, sprite:17},
+  {id:'pirate_cook',    type:'avatar', name:'PIRATE COOK',     price:350, sprite:18},
+  {id:'ninja_chef',     type:'avatar', name:'NINJA CHEF',      price:400, sprite:19},
+  // Premium (500+)
+  {id:'robot_chef',     type:'avatar', name:'ROBOT CHEF',      price:500, sprite:12},
+  {id:'wizard_chef',    type:'avatar', name:'WIZARD CHEF',     price:600, sprite:13},
+  {id:'neon_chef',      type:'avatar', name:'NEON CHEF',       price:600, sprite:23},
+  {id:'viking_chef',    type:'avatar', name:'VIKING CHEF',     price:500, sprite:24},
+  // Legendary (1000+)
+  {id:'golden_chef',    type:'avatar', name:'GOLDEN CHEF',     price:1000, sprite:14},
+  {id:'dragon_chef',    type:'avatar', name:'DRAGON CHEF',     price:1200, sprite:20},
+  {id:'phoenix_chef',   type:'avatar', name:'PHOENIX CHEF',    price:1500, sprite:21},
+  {id:'witch_chef',     type:'avatar', name:'WITCH CHEF',      price:800, sprite:22},
+  // Future: {id:'frame_gold', type:'frame', ...}
 ];
 ```
 
@@ -137,11 +172,10 @@ This gives eager-load UX without paying for it on hub first-paint.
 4. Avatar slot in profile modal (emoji fallback)
 5. localStorage schema init on first run (default avatars granted)
 
-**Phase 2 — art**
-1. User generates avatars sprite sheet via Gemini (~1376×768, grid layout matching `IMG_4589.png` style, chroma-key `#00FF00` background)
-2. Process with `build_dishes_sprite.py`-style script → `avatars-sprites.webp`
-3. `avatars.js` loader (mirrors `dishes.js`)
-4. Swap emoji placeholders for sprite rendering
+**Phase 2 — art** ✅ DONE
+- 25 chibi chef avatars generated via Gemini (5 strips of 2400×448 each)
+- Processed into `assets/avatars-sprites.webp` — 800×800, 5×5 grid, 160px cells, 200KB
+- Still to do: `avatars.js` loader (mirror `dishes.js`), swap emoji placeholders
 
 **Phase 3 — expansion (future items)**
 1. Add frames / titles / etc as new `type` values in `PK_SHOP_ITEMS`
