@@ -32,9 +32,9 @@ Current repo: **858 KB**. Limits with huge headroom:
 
 **Expected shop footprint at full expansion**: +500 KB to +1 MB. Safe.
 
-**Critical rule**: hub must NOT eagerly load shop sprite sheets.
-Only load when user opens the shop modal (follow `dishes-sprites.webp` lazy
-pattern in `dishes.js`).
+**Critical rule**: hub must NOT eagerly load shop sprite sheets **in the
+critical render path**, but SHOULD prefetch them after hub is painted
+(see "Prefetch strategy" below) so the user doesn't wait when opening shop.
 
 ---
 
@@ -99,6 +99,32 @@ Purchase flow:
 Use the same sprite-sheet pattern as `dishes.js`:
 - Lazy-load `avatars-sprites.webp` only on shop open or profile open
 - Fallback to emoji if sprite not loaded yet
+
+### Prefetch strategy (important for perceived snappiness)
+
+If hub avoids loading shop sprites entirely, the first shop click waits
+~0.5-1s on the fetch. To avoid that:
+
+1. After hub has finished rendering, schedule a background prefetch:
+   ```js
+   // at the end of DOMContentLoaded in 0_hub.html
+   (window.requestIdleCallback || setTimeout)(() => {
+     new Image().src = 'assets/avatars-sprites.webp';
+     // add more sprite sheets as shop expands:
+     // new Image().src = 'assets/frames-sprites.webp';
+   }, 1200);
+   ```
+   `requestIdleCallback` ensures the fetch only happens when the main
+   thread is idle — it never competes with Firebase / font loading for
+   initial paint.
+2. Add all shop assets to `sw.js` STATIC list so the Service Worker
+   caches them on install. Second-visit shop opens become instant.
+3. Result:
+   - **1st-ever visit → 1st shop click**: worst case ~500ms wait if user
+     clicks immediately; usually instant because prefetch finishes first.
+   - **2nd+ visit**: always instant (SW cache).
+
+This gives eager-load UX without paying for it on hub first-paint.
 
 ---
 
