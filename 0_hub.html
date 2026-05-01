@@ -18,6 +18,7 @@
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-database-compat.js"></script>
 <script src="shared.js"></script>
 <script src="achievements.js"></script>
+<script src="quests.js"></script>
 <script src="shop.js"></script>
 <style>
 /* ══════════════════════════════════════════
@@ -144,6 +145,72 @@ body {
 .ach-card-cat { font-size:.22rem; color:#5a4010; letter-spacing:1px; }
 .ach-card.unlocked .ach-card-cat { color:#8a6020; }
 .ach-card-date { font-size:.20rem; color:#7a5820; margin-top:2px; }
+
+/* ── QUESTS MODAL ── */
+#questsModal { display:none; position:fixed; inset:0; z-index:9000; background:rgba(10,6,20,.88); align-items:center; justify-content:center; padding:20px; }
+#questsModal.visible { display:flex; }
+.quests-box { width:100%; max-width:560px; max-height:90vh; background:var(--bg2); border:4px solid var(--border-hi); box-shadow:6px 6px 0 var(--shadow), 0 0 40px rgba(200,126,184,.28); display:flex; flex-direction:column; padding:22px 24px; gap:12px; overflow:hidden; }
+.quests-title { color:var(--gold); font-size:.70rem; letter-spacing:3px; text-align:center; text-shadow:0 0 20px #ffd97d55; }
+.quests-section-lbl { color:var(--pink); font-size:.44rem; letter-spacing:3px; padding:2px 0 4px; }
+.quests-list { display:flex; flex-direction:column; gap:8px; overflow-y:auto; min-height:0; padding-right:4px; }
+.quests-list::-webkit-scrollbar { width:6px; }
+.quests-list::-webkit-scrollbar-thumb { background:var(--border-hi); }
+
+.quest-card {
+  display:flex; align-items:center; gap:12px;
+  background:var(--bg3); border:3px solid var(--border);
+  padding:10px 12px; position:relative;
+  transition:border-color .12s;
+}
+.quest-card.complete { border-color:#50c840; }
+.quest-card.claimed  { opacity:.55; border-color:#3a5a30; }
+.quest-card-icon { font-size:1.4rem; flex-shrink:0; width:32px; text-align:center; }
+.quest-card-body { flex:1; display:flex; flex-direction:column; gap:6px; min-width:0; }
+.quest-card-title { font-size:.42rem; color:var(--gold); letter-spacing:1.5px; line-height:1.5; }
+.quest-card-bar {
+  height:8px; background:var(--bg); border:2px solid var(--border);
+  position:relative; overflow:hidden;
+}
+.quest-card-bar-fill {
+  height:100%; background:linear-gradient(90deg, var(--pink), var(--gold));
+  transition:width .3s ease-out;
+}
+.quest-card-meta {
+  display:flex; justify-content:space-between; align-items:center;
+  font-size:.32rem; color:var(--sub); letter-spacing:1px;
+}
+.quest-card-reward { color:var(--gold); }
+.quest-card-claim {
+  flex-shrink:0; font-family:'Press Start 2P',monospace; font-size:.36rem;
+  background:#0a2010; border:2px solid #50c840; color:#50c840;
+  padding:8px 10px; cursor:pointer; letter-spacing:1px;
+  touch-action:manipulation; -webkit-tap-highlight-color:transparent;
+  transition:all .12s;
+}
+.quest-card-claim:hover { background:#50c840; color:#000; }
+.quest-card-claim:active { transform:scale(.95); }
+.quest-card-claim:disabled { opacity:.3; cursor:default; background:transparent; color:var(--sub); border-color:var(--border); }
+.quest-card-claimed-tag { font-size:.36rem; color:#50c840; letter-spacing:1.5px; flex-shrink:0; }
+
+/* Reset timer */
+.quests-reset { font-size:.30rem; color:var(--sub); letter-spacing:1.5px; text-align:center; padding-top:4px; }
+
+/* Claimable badge on the QUESTS button */
+.hub-ranks-btn { position:relative; }
+.quests-badge {
+  position:absolute; top:-6px; right:-6px;
+  min-width:18px; height:18px; padding:0 5px;
+  background:#ff5577; border:2px solid #110d00;
+  color:#fff; font-size:.36rem; letter-spacing:0;
+  display:flex; align-items:center; justify-content:center;
+  border-radius:9px; box-shadow:0 0 10px rgba(255,85,119,.6);
+  animation:questsBadgePulse 1.3s ease-in-out infinite;
+}
+@keyframes questsBadgePulse {
+  0%,100% { transform:scale(1); box-shadow:0 0 8px rgba(255,85,119,.5); }
+  50%     { transform:scale(1.15); box-shadow:0 0 16px rgba(255,85,119,.85); }
+}
+
 /* ── PROFILE MODAL ── */
 #profileModal { display:none; position:fixed; inset:0; z-index:9000; background:rgba(10,6,20,.88); align-items:center; justify-content:center; }
 #profileModal.visible { display:flex; }
@@ -741,6 +808,24 @@ body {
   </div>
 </div>
 
+<!-- QUESTS MODAL -->
+<div id="questsModal" onclick="if(event.target===this)closeQuestsModal()">
+  <div class="quests-box">
+    <div class="quests-title">📋 QUESTS</div>
+    <div class="rank-divider"></div>
+
+    <div class="quests-section-lbl" id="questsDailyLbl">▶ DAILY</div>
+    <div class="quests-list" id="questsDailyList"></div>
+
+    <div class="quests-section-lbl">▶ WEEKLY</div>
+    <div class="quests-list" id="questsWeeklyList"></div>
+
+    <div class="quests-reset" id="questsResetText"></div>
+    <div class="rank-divider"></div>
+    <button class="hub-ranks-btn" onclick="closeQuestsModal()">✕ CLOSE</button>
+  </div>
+</div>
+
 <!-- SETTINGS MODAL -->
 <div id="settingsModal">
   <div class="profile-box" style="min-width:340px;">
@@ -858,6 +943,7 @@ body {
         <button class="hub-ranks-btn" id="achBtn"        onclick="openAchModal()">🎖️ BADGES</button>
         <button class="hub-ranks-btn" id="collectionBtn" onclick="goTo('collection.html')">📖 COLLECT</button>
       </div>
+      <button class="hub-ranks-btn hub-actions-wide" id="questsBtn" onclick="openQuestsModal()">📋 QUESTS<span class="quests-badge" id="questsBadge" style="display:none;">0</span></button>
       <button class="hub-ranks-btn hub-actions-wide" id="settingsBtn" onclick="openSettingsModal()">⚙️ SETTINGS</button>
     </div>
 
@@ -1508,6 +1594,90 @@ function openAchModal(){
 function closeAchModal(){
   document.getElementById('achModal').classList.remove('visible');
 }
+
+// ══════════════════════════════════════════
+//  QUESTS MODAL
+// ══════════════════════════════════════════
+function _questsRenderCard(quest){
+  const t = _pkQuestTemplate(quest.id);
+  if(!t) return '';
+  const done    = quest.progress >= t.target;
+  const claimed = !!quest.claimed;
+  const cls     = 'quest-card' + (claimed ? ' claimed' : (done ? ' complete' : ''));
+  const pct     = Math.min(100, Math.round(quest.progress / t.target * 100));
+  const right   = claimed
+    ? `<span class="quest-card-claimed-tag">✓ DONE</span>`
+    : `<button class="quest-card-claim" data-qid="${quest.id}" ${done ? '' : 'disabled'}>${done ? 'CLAIM' : 'LOCKED'}</button>`;
+  return `
+    <div class="${cls}">
+      <span class="quest-card-icon">${t.emoji}</span>
+      <div class="quest-card-body">
+        <div class="quest-card-title">${t.title}</div>
+        <div class="quest-card-bar"><div class="quest-card-bar-fill" style="width:${pct}%"></div></div>
+        <div class="quest-card-meta">
+          <span>${quest.progress} / ${t.target}</span>
+          <span class="quest-card-reward">+${t.reward} 🪙</span>
+        </div>
+      </div>
+      ${right}
+    </div>`;
+}
+
+function _questsResetIn(){
+  // Time until next local-midnight (daily) and next Monday 00:00 (weekly)
+  const now = new Date();
+  const tomorrow = new Date(now); tomorrow.setHours(24, 0, 0, 0);
+  const dailyMs = tomorrow - now;
+  const dailyH = Math.floor(dailyMs / 3600000);
+  const dailyM = Math.floor((dailyMs % 3600000) / 60000);
+  return `Daily resets in ${dailyH}h ${dailyM}m`;
+}
+
+function openQuestsModal(){
+  renderQuests();
+  document.getElementById('questsModal').classList.add('visible');
+}
+function closeQuestsModal(){
+  document.getElementById('questsModal').classList.remove('visible');
+  refreshQuestsBadge();
+}
+
+function renderQuests(){
+  const q = pkGetQuests();
+  const dailyList  = document.getElementById('questsDailyList');
+  const weeklyList = document.getElementById('questsWeeklyList');
+  dailyList.innerHTML  = (q.daily||[]).map(_questsRenderCard).join('') || '<div class="rank-loading">No daily quests</div>';
+  weeklyList.innerHTML = q.weekly ? _questsRenderCard(q.weekly) : '<div class="rank-loading">No weekly quest</div>';
+  document.getElementById('questsResetText').textContent = _questsResetIn();
+
+  // Wire claim buttons
+  document.querySelectorAll('.quest-card-claim[data-qid]').forEach(btn => {
+    btn.onclick = () => {
+      const reward = pkClaimQuest(btn.dataset.qid);
+      if(reward > 0){
+        try { pkCoinBurst(reward); } catch(e){}
+        updateHubCoins();
+        renderQuests();
+        refreshQuestsBadge();
+      }
+    };
+  });
+}
+
+function refreshQuestsBadge(){
+  const badge = document.getElementById('questsBadge');
+  if(!badge || typeof pkCountClaimable !== 'function') return;
+  const n = pkCountClaimable();
+  if(n > 0){
+    badge.textContent = n;
+    badge.style.display = '';
+  } else {
+    badge.style.display = 'none';
+  }
+}
+refreshQuestsBadge();
+window.addEventListener('focus', refreshQuestsBadge);
+window.addEventListener('pageshow', refreshQuestsBadge);
 
 // ══════════════════════════════════════════
 //  PROFILE MODAL

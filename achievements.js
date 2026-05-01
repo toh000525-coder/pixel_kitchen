@@ -127,6 +127,11 @@ function pkRecordGame({ gameId, stars, hardest }){
   // master_chef: re-read after all above unlocks
   chk('master_chef',  Object.keys(pkGetUnlocked()).length >= 20);
 
+  // Quest progress — single hook covers all 6 games via pkRecordGame
+  if(typeof pkQuestProgress === 'function'){
+    pkQuestProgress({ gameId, stars, hardest });
+  }
+
   if(newOnes.length) pkShowAchToasts(newOnes);
   return newOnes;
 }
